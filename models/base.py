@@ -1,0 +1,80 @@
+"""Model wrapper interface + registry.
+
+Each roster model gets a wrapper exposing ONE interface so score.py, the
+conversion factory, and the parity suite never special-case models.
+
+Vendored source expectation: clone the official repos into `vendor/`
+(vendor/aasist, vendor/asvspoof2021_baselines, vendor/RawGAT-ST-antispoofing,
+vendor/end-to-end-synthetic-speech-detection, vendor/SSL_Anti-spoofing).
+Wrappers sys.path-inject the vendor dir. Entry points marked TODO-VERIFY were
+written from public repo knowledge and need one check against the real clone.
+"""
+from __future__ import annotations
+import importlib
+import sys
+from dataclasses import dataclass
+from pathlib import Path
+
+VENDOR = Path(__file__).resolve().parent.parent / "vendor"
+
+
+@dataclass
+class ModelSpec:
+    name: str
+    cohort: str            # "cohort19" | "cohort_ssl" (ranking stratum ONLY —
+                           # tau source follows FINE-TUNING data, decision D16)
+    input_samples: int     # fixed input length @16 kHz
+    feature: str           # "raw" | "lfcc"
+    params_approx: str
+    wrapper: str           # module path under models/
+
+
+SPECS = {
+    "aasist":      ModelSpec("aasist", "cohort19", 64600, "raw", "297K", "models.wrap_aasist"),
+    "aasist_l":    ModelSpec("aasist_l", "cohort19", 64600, "raw", "85K", "models.wrap_aasist"),
+    "rawnet2":     ModelSpec("rawnet2", "cohort19", 64600, "raw", "17.6M", "models.wrap_rawnet2"),
+    "rawgat_st":   ModelSpec("rawgat_st", "cohort19", 64600, "raw", "437K", "models.wrap_rawgat"),
+    "lcnn_lfcc":   ModelSpec("lcnn_lfcc", "cohort19", 64600, "lfcc", "~0.4M", "models.wrap_lcnn"),
+    "tssdnet":     ModelSpec("tssdnet", "cohort19", 96000, "raw", "350K", "models.wrap_tssdnet"),  # 6 s: authors eval on 6-s clips; net hardcodes maxpool k=375 (=96000/4^4)
+    "wavlm_trunc": ModelSpec("wavlm_trunc", "cohort_ssl", 64600, "raw", "~47M", "models.wrap_wavlm"),
+    "wavlm_mhfa":  ModelSpec("wavlm_mhfa", "cohort_ssl", 64600, "raw", "~97M", "models.wrap_wavlm"),  # both need HF microsoft/wavlm-base-plus + our head ckpt
+    "xlsr_aasist": ModelSpec("xlsr_aasist", "cohort_ssl", 64600, "raw", "317M", "models.wrap_xlsr"),  # tau: asvspoof19_dev (D16) — ckpt fine-tuned on 19LA; unranked server ref
+    "dummy":       ModelSpec("dummy", "cohort19", 64600, "raw", "0", "models.wrap_dummy"),
+}
+
+
+def load_vendor_module(alias: str, file_path, extra_sys_path=None):
+    """Import a vendored source file under a unique alias.
+
+    NEVER plain-import vendored entry points: several official repos name their
+    module `model`/`models`, which collides with THIS package (repo/models) and
+    with each other. importlib.spec_from_file_location sidesteps sys.modules.
+    extra_sys_path is prepended for the vendored module's own sibling imports.
+    """
+    import importlib.util
+    fp = Path(file_path)
+    if not fp.exists():
+        raise FileNotFoundError(f"vendored file missing: {fp} — clone the "
+                                "official repo (phase_1 step_01).")
+    if extra_sys_path is not None:
+        sp = str(extra_sys_path)
+        if sp not in sys.path:
+            sys.path.insert(0, sp)
+    spec = importlib.util.spec_from_file_location(alias, str(fp))
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules[alias] = mod
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def load_model(name: str, checkpoint: str | None = None, device: str = "cpu"):
+    """Returns object with .score_batch(wave_batch: np.ndarray [B, T]) -> np.ndarray [B]
+    (higher = more bona fide). Wrapper modules define load(spec, checkpoint, device)."""
+    spec = SPECS[name]
+    _no_vendor = ("dummy", "wavlm_trunc", "wavlm_mhfa")   # HF-only, no vendor/
+    if not VENDOR.exists() and name not in _no_vendor:
+        raise FileNotFoundError(
+            f"vendor/ not found at {VENDOR}. Clone the official repos there "
+            "(see phase_1_reproduction/step_01_checkpoints.md).")
+    mod = importlib.import_module(spec.wrapper)
+    return mod.load(spec, checkpoint, device)

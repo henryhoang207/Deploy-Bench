@@ -1,0 +1,11 @@
+# Core (Phase 0-1). Conversion/runtime deps added in Phase 2 with pinned versions
+# verified against current docs at that time (ExecuTorch API moves fast).
+numpy>=1.24,<3
+scipy>=1.10
+pandas>=2.0
+pyyaml>=6.0
+pytest>=7.0
+matplotlib>=3.7
+soundfile>=0.12
+# torch pinned at Phase 1 kickoff alongside checkpoints:
+# torch==2.x.x  torchaudio==2.x.x

@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+data/
+checkpoints/
+results/
+*.onnx
+*.pte
+*.ort
+*.wav
+*.flac
+.DS_Store
+vendor/

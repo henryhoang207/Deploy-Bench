@@ -1,0 +1,10 @@
+# One evaluation cell. run_grid.sh (Phase 3) iterates files like this.
+model: aasist
+checkpoint: "{CKPT_ROOT}/aasist/AASIST.pth"
+precision: fp32          # fp32 | fp16 | int8
+runtime: pytorch         # pytorch | ort | executorch
+dataset: asvspoof19_eval
+condition: clean         # clean | opus6k | amr4.75 | mp3_32 | encodec6k | snr10 | ...
+tau_source: asvspoof19_dev   # cohort-matched dev set for tau calibration
+seed: 0
+out: "results/scores/aasist_fp32_pytorch_19eval_clean_s0.csv"
