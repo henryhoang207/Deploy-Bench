@@ -3,11 +3,36 @@ __pycache__/
 .pytest_cache/
 data/
 checkpoints/
-results/
 *.onnx
+*.onnx.data
 *.pte
 *.ort
 *.wav
 *.flac
 .DS_Store
 vendor/
+device_wavs/
+android/harness/*.jar
+resample_probe/
+# NOTE: a bare "results/" rule was removed here on 2026-07-27 -- the phase_1 and
+# phase_2 result artifacts now live in repo/results/ and ARE version-controlled.
+#
+# "*.onnx.data" added 2026-08-28: *.onnx was already ignored, but the external-data
+# sidecar was not, so `git add -A` would have committed 1.39 MB of fp32 WEIGHTS
+# whose .onnx header is ignored -- half an artifact, useless alone, and contrary to
+# the stated policy that no export is version-controlled (the int8 artifact rebuilds
+# bit-identically from the repo-tracked calibration list).
+
+# --- Android/Gradle build outputs (added with the Gradle project) -------------
+# These churn on every build and would otherwise sync continuously if the tree
+# is opened from OneDrive. The gradle-wrapper.jar is deliberately NOT ignored:
+# it is the only binary the build needs bootstrapped, and omitting it from git
+# would leave a fresh clone unable to run ./gradlew.
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+android/*.iml
+*.apk
+*.aab

@@ -1,0 +1,40 @@
+{
+  "src": "exports\\tssdnet_fp32.onnx",
+  "dst": "exports\\tssdnet_int8.onnx",
+  "calib_method": "percentile",
+  "calib_dir": "C:\\DF_Dataset\\LA\\ASVspoof2019_LA_dev\\flac",
+  "calib_manifest": "configs\\calibration_100_tssdnet.txt",
+  "calib_clips": 100,
+  "excluded_nodes": [
+    "node_Conv_63",
+    "node_Conv_65",
+    "node_Conv_67",
+    "node_Conv_68",
+    "node_Conv_69",
+    "node_Conv_71",
+    "node_Conv_73",
+    "node_Conv_74"
+  ],
+  "keep_io_fp32": true,
+  "graph_input_type": 1,
+  "quantized_op_types": [
+    "Add",
+    "BatchNormalization",
+    "Conv",
+    "Gather",
+    "Gemm",
+    "MaxPool",
+    "Reshape",
+    "Sub"
+  ],
+  "fp32_fallback_op_types": [
+    "Conv",
+    "MaxPool",
+    "Relu",
+    "Unsqueeze"
+  ],
+  "n_quantize_linear": 30,
+  "n_dequantize_linear": 46,
+  "artifact_bytes": 502762,
+  "n_nodes": 119
+}

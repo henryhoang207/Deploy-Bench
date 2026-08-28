@@ -1,0 +1,12 @@
+{
+  "model": "tssdnet",
+  "dev_dataset": "asvspoof19_dev",
+  "n_dev": 24844,
+  "dev_scores_sha256": "b9404618fb57de3109b976224531db7a07a5790d07269a4fc4ab7e963e9a0d6a",
+  "frozen_utc": "2026-07-25T17:01:59Z",
+  "taus": {
+    "eer": -8.24478095297237,
+    "frr1": -7.0546417236328125,
+    "frr5": 0.6546317338943481
+  }
+}

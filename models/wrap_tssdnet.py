@@ -31,8 +31,20 @@ def load(spec, checkpoint, device):
         "vendor_tssdnet_models",
         VENDOR / "end-to-end-synthetic-speech-detection" / "models.py")
     model = mod.SSDNet1D()
-    model.load_state_dict(torch.load(checkpoint, map_location=device)
-                          .get("model_state_dict", torch.load(checkpoint, map_location=device)))
+    # Author checkpoint (train.py @36c9705) is a dict:
+    # {epoch:int, model_state_dict:OrderedDict, optimizer_state_dict,
+    #  scheduler_state_dict, loss:Tensor} — all weights_only-safe types.
+    # torch>=2.6 defaults weights_only=True; fall back for older pickles.
+    try:
+        ck = torch.load(checkpoint, map_location=device, weights_only=True)
+    except Exception:                                          # noqa: BLE001
+        ck = torch.load(checkpoint, map_location=device)
+    sd = ck.get("model_state_dict", ck) if isinstance(ck, dict) else ck
+    if not isinstance(sd, dict) or not sd:
+        raise ValueError(
+            f"{checkpoint}: no usable state dict (expected key "
+            f"'model_state_dict'; got keys {list(ck)[:8] if isinstance(ck, dict) else type(ck)})")
+    model.load_state_dict(sd)
     model.to(device).eval()
     w = _Wrap(model, torch)
 

@@ -46,7 +46,7 @@ def _build(variant, torch, device):
     class MHFA(nn.Module):
         """Multi-Head Factorized Attentive pooling (Peng et al. 2022)."""
 
-        def __init__(self, n_layers=13, hid=768, cmp_dim=128, heads=32,
+        def __init__(self, n_layers=13, hid=768, cmp_dim=128, heads=64,  # D29: Peng headline H=64 (was 32)
                      out_dim=256):
             super().__init__()
             self.w_k = nn.Parameter(torch.zeros(n_layers))

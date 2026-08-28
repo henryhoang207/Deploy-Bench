@@ -32,18 +32,43 @@ def export(model_name: str, precision: str, out_dir: Path, checkpoint=None):
     out = out_dir / f"{model_name}_{precision}.onnx"
     out_dir.mkdir(parents=True, exist_ok=True)
     try:
-        if precision == "fp16":
-            net = net.half()
-            dummy = dummy.half()
+        # NOTE: do NOT net.half() before export — many CPU ops have no Half
+        # kernel and tracing dies ("not implemented for 'Half'"). Export fp32,
+        # then convert the ONNX graph. (fp16 on mobile CPU is often storage-only:
+        # ORT may insert casts and compute in fp32 — record that in the log.)
+        _to_fp16 = (precision == "fp16")
         torch.onnx.export(net, dummy, str(out), opset_version=17,
                           input_names=["waveform"], output_names=["score"],
                           dynamic_axes=None)  # FIXED shape by design (doc 08)
         import onnx
         m = onnx.load(str(out))
+        if _to_fp16:
+            from onnxconverter_common import float16
+            m = float16.convert_float_to_float16(m, keep_io_types=True)
+            onnx.save(m, str(out))
+            # convert_float_to_float16 INLINES every initializer as fp16, so any
+            # external-data sidecar torch.onnx.export wrote for the fp32 pass is
+            # now orphaned — nothing references it, but it sits next to the model
+            # at full fp32 size. Left alone it triples the apparent artifact
+            # (710 KB graph + 1.39 MB dead sidecar) and would put a 3x-wrong
+            # number in the H6 size column. Drop it once we confirm nothing
+            # points at it.
+            ext = [i for i in m.graph.initializer
+                   if i.HasField("data_location") and i.data_location == 1]
+            sidecar = out.with_name(out.name + ".data")
+            if not ext and sidecar.exists():
+                orphan_bytes = sidecar.stat().st_size
+                sidecar.unlink()
+                log["orphan_sidecar_removed_bytes"] = orphan_bytes
         onnx.checker.check_model(m)
         log["converts"] = True
         log["ops"] = sorted({n.op_type for n in m.graph.node})
+        # Every file that must actually ship, not just the .onnx: for fp32 the
+        # weights live in the sidecar and the graph alone is a few KB.
+        shipped = sum(f.stat().st_size for f in out.parent.glob(out.name + "*")
+                      if f.is_file())
         log["size_mb"] = round(out.stat().st_size / 1e6, 2)
+        log["shipped_bytes"] = shipped
     except Exception as e:                                    # noqa: BLE001
         log["converts"] = False
         log["error"] = f"{type(e).__name__}: {e}"             # a RESULT, not a crash

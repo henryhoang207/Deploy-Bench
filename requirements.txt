@@ -9,3 +9,4 @@ matplotlib>=3.7
 soundfile>=0.12
 # torch pinned at Phase 1 kickoff alongside checkpoints:
 # torch==2.x.x  torchaudio==2.x.x
+onnx

@@ -1,0 +1,26 @@
+// Gradle root for the DeployBench Android app.
+//
+// DELIBERATE: only ':app' is included. `android/harness/` holds desktop-JVM
+// verification tools (OrtScorerCheckMain, PreprocParityMain) that are NOT part
+// of the app and must never enter the APK. Leaving them out of settings.gradle
+// makes them inert without moving any files -- see the 2026-07-27 note in
+// progress.md about the cost of path-breaking moves.
+
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = "deploybench"
+include ':app'

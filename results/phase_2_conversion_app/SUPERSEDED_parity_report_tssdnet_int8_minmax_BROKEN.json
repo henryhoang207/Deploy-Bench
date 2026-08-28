@@ -1,0 +1,12 @@
+﻿{
+  "n": 1000,
+  "max_abs_delta": 42.84619331359863,
+  "mean_abs_delta": 20.372674983918667,
+  "pearson_r": 0.7480124774037586,
+  "decision_flips": {
+    "eer": 523,
+    "frr1": 518,
+    "frr5": 492
+  },
+  "pass": false
+}

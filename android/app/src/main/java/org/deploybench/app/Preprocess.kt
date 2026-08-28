@@ -3,10 +3,13 @@ package org.deploybench.app
 /** Preprocessing bit-matched (within 1e-6) to score.py::fix_length + load_wav. */
 object Preprocess {
     fun fixLength(wave: FloatArray, n: Int): FloatArray {
-        if (wave.size >= n) {
-            val s = (wave.size - n) / 2
-            return wave.copyOfRange(s, s + n)
-        }
+        // TRUNCATE FROM THE START, never centre-crop. Authors' eval convention
+        // (aasist data_utils.pad; TSSDNet data prep `x[0:dur*fs]`) -- see
+        // wrapper_audit.md row 4, where centre-cropping is recorded as a
+        // reproduction-breaking bug already fixed once on the Python side.
+        // Must stay bit-identical to score.py::fix_length or Stage P3 parity
+        // fails for a reason that has nothing to do with the device.
+        if (wave.size >= n) return wave.copyOfRange(0, n)
         val out = FloatArray(n)
         var i = 0
         while (i < n) { out[i] = wave[i % wave.size]; i++ }

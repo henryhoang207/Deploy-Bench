@@ -9,7 +9,16 @@ Produces (CSV, one per paper table/figure):
   sensitivity.csv      safe-band width per model x condition
   h1_points.csv        oracle-EER vs TTG point cloud + spearman (exploratory)
   hypothesis_verdicts.md
-Cohort discipline (methodology C1): rankings only within cohort.
+Ranking discipline (methodology C2, D16/D30): the roster is single-cohort as of
+D30, but xlsr_aasist remains an UNRANKED server reference -- exclude it from any
+ordering claim and from "majority of models" counts (see UNRANKED below).
+
+KNOWN GAP (2026-07-29 review, finding B3): this script re-derives tau via
+calibrate_tau() on the dev rows in the database, instead of loading the frozen
+tau_<model>.json that analysis/repro_report.py wrote and guards against drift.
+CLAUDE.md's rule is that tau is frozen once. Until this is switched to reading
+the frozen artifact, a change in the dev rows between freeze and analysis will
+silently shift every threshold in the paper's tables.
 """
 import argparse
 import sys
@@ -21,11 +30,23 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from deploybench import metrics as M
 from deploybench.tau import calibrate_tau
 
+# D30 froze the roster at 5, all Cohort-19, so the two-cohort ranking stratum no
+# longer exists. What survives is the RANKING rule: xlsr_aasist is an unranked
+# server reference (D16) and must not appear in any ordering claim.
 COHORT = {"aasist": "cohort19", "aasist_l": "cohort19", "rawnet2": "cohort19",
-          "rawgat_st": "cohort19", "lcnn_lfcc": "cohort19", "tssdnet": "cohort19",
-          "wavlm_trunc": "cohort_ssl", "wavlm_mhfa": "cohort_ssl",
-          "xlsr_aasist": "cohort_ssl", "dummy": "cohort19"}
-def is_dev(ds):  # tau-source rows
+          "tssdnet": "cohort19", "xlsr_aasist": "cohort19", "dummy": "cohort19"}
+UNRANKED = {"xlsr_aasist"}
+
+
+def is_dev(ds):
+    """tau-source rows.
+
+    NOTE (2026-07-29 review, finding B3): this is `endswith('_dev')`, which under
+    the old two-cohort design could silently pool asvspoof19_dev and asvspoof5_dev
+    for one model. D30 removes that hazard by construction -- there is exactly one
+    dev surface in the study, ASVspoof19 LA dev. If a second dev set is ever
+    reintroduced, this predicate must become cohort-aware again.
+    """
     return ds.str.endswith("_dev")
 
 

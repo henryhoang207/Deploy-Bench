@@ -13,6 +13,11 @@ Conventions (fixed across the entire project — see README):
 from __future__ import annotations
 import numpy as np
 
+# numpy 2.0 renamed `trapz` -> `trapezoid` (`trapz` removed in 2.x, `trapezoid`
+# absent in 1.x). This project runs on both (sandbox 2.x, user's machine 1.26),
+# so bind once here instead of at the call site.
+_trapezoid = getattr(np, "trapezoid", None) or np.trapz
+
 # ----------------------------------------------------------------- basics
 
 def _split(scores, labels):
@@ -141,7 +146,7 @@ def risk_coverage(scores, labels, confidence, tau: float, n_points: int = 51):
     coverages = np.linspace(1.0 / n, 1.0, n_points)
     ks = np.maximum(1, np.ceil(coverages * n).astype(int))
     risks = cum_err[ks - 1] / ks
-    aurc = float(np.trapezoid(risks, coverages))
+    aurc = float(_trapezoid(risks, coverages))
     return {"coverages": coverages, "risks": risks, "aurc": aurc}
 
 

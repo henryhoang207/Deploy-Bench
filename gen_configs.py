@@ -7,17 +7,28 @@ import itertools
 from pathlib import Path
 import yaml
 
-MODELS = ["aasist", "aasist_l", "rawnet2", "rawgat_st", "lcnn_lfcc",
-          "tssdnet", "wavlm_trunc", "wavlm_mhfa", "xlsr_aasist"]
+# ROSTER FROZEN AT 5 (D30, 2026-07-29). RawGAT-ST, LFCC-LCNN and both WavLM
+# variants are OUT of the study; their wrappers are kept for harness generality
+# but must not be added back here without a new decision-log entry.
+MODELS = ["aasist", "aasist_l", "rawnet2", "tssdnet", "xlsr_aasist"]
 PRECISIONS = ["fp32", "fp16", "int8"]
 RUNTIMES = ["ort", "executorch"]
-# dev sets first (tau source), then transfer/stress
-EVAL_DATASETS = ["asvspoof19_eval", "asvspoof5_eval", "itw",
-                 "asvspoof21_df_eval", "mlaad"]
+# dev set first (tau source), then transfer/stress.
+# asvspoof5_eval is DEFERRED (D30 open call) — re-adding it is a logged deviation.
+EVAL_DATASETS = ["asvspoof19_eval", "itw", "asvspoof21_df_eval", "mlaad"]
 
 
 def tau_source(model):
-    return "asvspoof5_dev" if model.startswith(("wavlm", "xlsr")) else "asvspoof19_dev"
+    """Every roster model calibrates on ASVspoof19 LA dev.
+
+    D16 as collapsed by D30: all five are Cohort-19. Note this FIXES a real bug
+    -- the previous form was
+        "asvspoof5_dev" if model.startswith(("wavlm", "xlsr")) else "asvspoof19_dev"
+    which sent xlsr_aasist to AS5 dev, directly contradicting D16. That
+    checkpoint is 19LA-fine-tuned, so 19LA dev is its calibration surface
+    despite it being an SSL architecture (see models/base.py SPECS).
+    """
+    return "asvspoof19_dev"
 CONDITIONS = ["clean", "opus6k", "opus24k", "amr4.75", "mp3_32",
               "encodec6k", "snr20", "snr10", "snr5", "mic_ir"]
 STRESS_DATASETS = {"itw", "asvspoof21_df_eval"}   # stress applies here only

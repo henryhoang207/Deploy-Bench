@@ -20,7 +20,13 @@ class BatchActivity : Activity() {
         val outDir = File(root, "out").apply { mkdirs() }
         val scorer = OrtScorer(  // ExecuTorch runner added in fix-cycle
             File(root, "models/${cfg.getString("model")}_${cfg.getString("precision")}.onnx").path)
-        val inputSamples = cfg.optInt("input_samples", 64600)
+        // NO DEFAULT. 64600 (AASIST) vs 96000 (TSSDNet) silently changes what
+        // audio the model sees, and a fixed-shape graph would still run. A
+        // missing key must fail loudly rather than emit plausible wrong scores.
+        require(cfg.has("input_samples")) {
+            "config.json must set input_samples (TSSDNet 96000, AASIST 64600)"
+        }
+        val inputSamples = cfg.getInt("input_samples")
         val wavs = File(root, "in").listFiles { f -> f.extension == "wav" }?.sorted() ?: listOf()
         val scores = StringBuilder("utt_id,score\n")
         val lat = StringBuilder("utt_id,rep,ms\n")

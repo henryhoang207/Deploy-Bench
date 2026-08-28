@@ -1,0 +1,72 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+android {
+    namespace 'org.deploybench.app'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "org.deploybench.app"   // must match PKG in scripts/run_cell.sh
+        minSdk 24        // low tier is a 2019-21 budget device (Android 9/10)
+        targetSdk 34
+        versionCode 1
+        versionName "0.1-p3"
+
+        // arm64 only. All three roster phones are arm64-v8a; shipping armeabi-v7a
+        // and x86 would triple the ORT native payload for architectures that are
+        // never measured. If a phone turns out to be 32-bit, add its ABI HERE and
+        // record it -- do not silently widen the filter.
+        ndk { abiFilters 'arm64-v8a' }
+    }
+
+    buildTypes {
+        // MEASUREMENT BUILD. Do NOT measure latency on the debug variant:
+        // a debuggable APK runs under different ART settings (JIT/interpreter
+        // behaviour, deopt barriers) and its p50/p90/p95 are not comparable to a
+        // shipped app. Stage P4 numbers must come from this variant.
+        release {
+            debuggable false
+            minifyEnabled false        // keep the graph of what executes obvious
+            shrinkResources false
+            // Signed with the debug key ONLY so `adb install` works without a
+            // keystore. This is a research artifact, never a distributed build.
+            signingConfig signingConfigs.debug
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
+                          'proguard-rules.pro'
+        }
+        debug {
+            // For wiring up / crash triage only. Never for reported numbers.
+            applicationIdSuffix ".dbg"
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
+    packagingOptions {
+        // ORT ships duplicate licence/metadata entries across its AAR
+        resources.excludes += ['META-INF/*.kotlin_module', 'META-INF/LICENSE*']
+    }
+}
+
+dependencies {
+    // VERSION SKEW, RECORDED ON PURPOSE:
+    // The app scorer was certified on 2026-07-27 against the ORT *Java* binding
+    // 1.27.0 on desktop x86 (max|d| 1.15e-05, 0/0/0 flips vs the Python ONNX
+    // scores). Maven Central's newest `onnxruntime-android` is 1.22.0 -- the
+    // Android AAR lags the core release train. So the device runs DIFFERENT
+    // native kernels at a DIFFERENT version from the binding that certified the
+    // scorer, on a different ISA (ARM vs x86).
+    //
+    // This does not invalidate the certification; it is precisely what the
+    // Stage P3 parity gate exists to test. But it must be reported, and the
+    // RESOLVED version must be recorded in the P3 report -- not this literal.
+    implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.22.0'
+}

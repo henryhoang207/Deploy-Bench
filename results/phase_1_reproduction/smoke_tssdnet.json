@@ -1,0 +1,20 @@
+{
+  "provenance": {
+    "upstream": "https://github.com/ghua-ac/end-to-end-synthetic-speech-detection",
+    "device": "cpu",
+    "python": "3.14.3",
+    "vendor_sha": "36c9705a5bdbb68d01fae484f1b758dd673d9f43",
+    "checkpoint": "C:\\Users\\hoanh\\OneDrive\\Ta\u0300i li\u00ea\u0323u\\CS material\\Mobile_Deepfake_Detection_Paper\\repo\\vendor\\end-to-end-synthetic-speech-detection\\pretrained\\Res_TSSDNet_time_frame_61_ASVspoof2019_LA_Loss_0.0017_dEER_0.74%_eEER_1.64%.pth",
+    "checkpoint_bytes": 4251839,
+    "input_samples": 96000,
+    "torch": "2.12.0+cpu",
+    "score_vs_export_max_abs_delta": 0.0,
+    "data_root": "C:\\DF_Dataset",
+    "n_scored": 200,
+    "n_bona": 100,
+    "mean_score_bona": 16.047775268554688,
+    "mean_score_spoof": -22.226757049560547
+  },
+  "failures": [],
+  "warnings": []
+}

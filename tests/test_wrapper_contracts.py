@@ -57,7 +57,30 @@ def test_vendor_check_exempts_hf_models():
         "load_model must not require vendor/ for HF-only wavlm models"
 
 
-def test_train_keeps_backbone_eval():
+def test_train_heads_is_tombstoned():
+    """D30 froze the roster at 5 published-checkpoint models, so nothing trains
+    a head any more. The old assertion here guarded D14's backbone-eval contract;
+    it is replaced rather than deleted so that silently reviving the script
+    without re-reading its docstring fails loudly. That docstring records a real
+    defect (early-stopping on the same dev split D16 used as the tau surface)."""
     s = (M.parent / "train" / "train_heads.py").read_text(encoding="utf-8")
-    assert "net.backbone.eval()" in s, \
-        "frozen backbone must stay in eval() during head training"
+    assert "TOMBSTONE" in s and "raise SystemExit" in s, \
+        "train/train_heads.py must stay tombstoned while D30 stands"
+
+
+def test_roster_is_frozen_at_five():
+    """The frozen roster is a decision (D30), not a convenience list. Anything
+    iterating 'the roster' must read models.base.ROSTER, and the out-of-roster
+    wrappers must stay present-but-flagged rather than deleted."""
+    s = (M / "base.py").read_text(encoding="utf-8")
+    tree = ast.parse(s)
+    roster = next((n for n in ast.walk(tree)
+                   if isinstance(n, ast.Assign)
+                   and any(getattr(t, "id", "") == "ROSTER" for t in n.targets)), None)
+    assert roster is not None, "models/base.py must define ROSTER"
+    names = [e.value for e in roster.value.elts]
+    assert names == ["aasist", "aasist_l", "rawnet2", "tssdnet", "xlsr_aasist"], \
+        f"roster changed without a decision-log entry: {names}"
+    for out in ("rawgat_st", "lcnn_lfcc", "wavlm_trunc", "wavlm_mhfa"):
+        assert f'"{out}"' in s and "in_roster=False" in s, \
+            f"{out} must remain defined but flagged out-of-roster, not deleted"

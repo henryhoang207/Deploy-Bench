@@ -2,8 +2,11 @@
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from deploybench.data import protocol_iter  # noqa: E402
+from deploybench.data import (ASVSPOOF19_PROTOCOL_DIRS, check,  # noqa: E402
+                              protocol_iter)
 
 
 def _mk(tmp_path, rel, text):
@@ -21,6 +24,31 @@ def test_asvspoof19(tmp_path):
     assert rows[0][0] == "LA_D_1047731" and rows[0][2] == 1
     assert rows[1][2] == 0
     assert rows[0][1].name == "LA_D_1047731.flac" and "flac" in str(rows[0][1])
+
+
+@pytest.mark.parametrize("proto_dir", ASVSPOOF19_PROTOCOL_DIRS)
+def test_asvspoof19_every_protocol_dir_candidate_resolves(tmp_path, proto_dir):
+    """PIN of the 19LA layouts the loader currently accepts. `check()` and
+    `_iter_asvspoof19` share ASVSPOOF19_PROTOCOL_DIRS, so this also guarantees
+    they can never disagree. STEP 0.3: once the user's real tree is known,
+    trim/extend the tuple and this test pins the resolved layout."""
+    _mk(tmp_path, f"{proto_dir}/ASVspoof2019.LA.cm.dev.trl.txt",
+        "LA_0069 LA_D_1047731 - - bonafide\n"
+        "LA_0069 LA_D_1105538 - A01 spoof\n")
+    rows = list(protocol_iter("asvspoof19_dev", root=tmp_path))
+    assert [r[0] for r in rows] == ["LA_D_1047731", "LA_D_1105538"]
+    assert [r[2] for r in rows] == [1, 0]
+    assert rows[0][1] == (tmp_path / "LA" / "ASVspoof2019_LA_dev" / "flac"
+                          / "LA_D_1047731.flac")
+
+
+def test_check_reports_instead_of_raising(tmp_path, capsys):
+    """--check runs BEFORE the layout is known good; it must never raise."""
+    assert check(tmp_path, only={"asvspoof19_dev"}) == 1     # audio dir absent
+    out = capsys.readouterr().out
+    assert "MISS" in out and "protocol=MISS" in out
+    for cand in ASVSPOOF19_PROTOCOL_DIRS:                    # tried paths shown
+        assert str(tmp_path / cand.replace("/", "\\")) in out or cand in out
 
 
 def test_asvspoof21_df(tmp_path):

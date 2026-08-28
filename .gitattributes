@@ -1,0 +1,11 @@
+# Line-ending policy. This repo is edited on Windows but its shell scripts run on
+# Linux (sol1) and are piped through adb; a CRLF shebang gives "bad interpreter".
+# core.autocrlf is on for this clone -- without the rule below, run_cell.sh,
+# campaign.sh, soak.sh and pilot_tssdnet.sh would check out with CRLF.
+*.sh text eol=lf
+
+# .ps1 files in this project carry a UTF-8 BOM and are required to stay
+# ASCII-only (2026-07-25: a CP1252-decoded em-dash closed a string early and
+# broke pilot_tssdnet.ps1 under PowerShell 5.1). Exclude them from any
+# normalisation so nothing rewrites them behind our back.
+*.ps1 -text

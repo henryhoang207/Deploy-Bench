@@ -1,5 +1,7 @@
 """Validation of every metric against two-Gaussian analytic ground truth.
 If these pass, the math is right; everything downstream trusts this module."""
+from pathlib import Path
+
 import numpy as np
 import pytest
 from deploybench import metrics as M
@@ -103,6 +105,16 @@ def test_weighted_cost_policies_disagree(gauss):
     screening = M.weighted_cost(tau, scores, labels, p_bona=0.95, c_frr=1, c_far=1)
     forensic = M.weighted_cost(tau, scores, labels, p_bona=0.5, c_frr=1, c_far=10)
     assert screening != forensic                 # cost model matters (methodology C4)
+
+
+def test_no_numpy2_only_symbols():
+    """metrics.py must import and run on numpy 1.26 as well as 2.x. `trapz`
+    was removed in 2.0 and `trapezoid` does not exist in 1.x, so neither name
+    may appear at a bare call site (regression guard, 2026-07-25)."""
+    src = Path(M.__file__).read_text(encoding="utf-8")
+    assert "np.trapezoid(" not in src and "np.trapz(" not in src
+    assert M._trapezoid is not None
+    assert abs(M._trapezoid(np.array([1.0, 1.0]), np.array([0.0, 1.0])) - 1.0) < 1e-12
 
 
 def test_holm_bonferroni():
