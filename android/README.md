@@ -1,34 +1,54 @@
 # DeployBench Android app (Phase 2 step_04)
 
 Gradle project added 2026-08-28. `android/` is a self-contained Gradle root
-inside the repo — open **this directory** in Android Studio, not `repo/`.
+inside the repo — open **this directory** in Android Studio, not the repo root.
 `settings.gradle` includes only `:app`, so `android/harness/` (desktop-JVM
 verification tools) stays out of the build without being moved.
 
-Sources are compile-target minSdk 24 / target 34, arm64-v8a only.
-**Never built or installed yet** — expect fix cycles on the first
-`assembleRelease`.
+**BUILD VERIFIED 2026-08-28.** `assembleRelease` succeeds and produces an
+18.11 MB APK. This is a desktop build result only — the app has never been
+installed or run on a handset.
+
+## Verified toolchain
+
+| Component | Version | Note |
+|---|---|---|
+| Gradle | 8.7 | via the committed wrapper |
+| JDK | Temurin 21.0.12.1 LTS | `C:\tools\jdk21` |
+| AGP | 8.5.2 | declared in root `build.gradle` |
+| Kotlin plugin | 1.9.24 | declared in root `build.gradle` |
+| compileSdk / targetSdk | 34 | `platforms;android-34` |
+| Build-Tools | 34.0.0 | |
+| ORT Android AAR | **1.22.0 (resolved)** | `releaseRuntimeClasspath` confirms |
+
+Android Studio's bundled JBR is **25**, and the machine's system Java is **26**;
+both are newer than Gradle 8.7 accepts. The build uses a separate JDK 21. If you
+build from Studio, set Gradle JDK to 21 or the build will not start.
+
+APK contents, checked with `aapt2 dump badging` and by listing the archive:
+
+```
+package        org.deploybench.app  versionName 0.1-p3
+sdkVersion     24        targetSdkVersion 34
+native-code    arm64-v8a  (only)
+lib/arm64-v8a/libonnxruntime.so         17.37 MB
+lib/arm64-v8a/libonnxruntime4j_jni.so    0.10 MB
+classes.dex                              2.02 MB
+permissions    MANAGE_EXTERNAL_STORAGE
+               READ_EXTERNAL_STORAGE  maxSdkVersion 32
+               WRITE_EXTERNAL_STORAGE maxSdkVersion 29
+```
 
 ## Build
 
 ```
-cd repo/android
+cd android
 ./gradlew assembleRelease
 ```
 
-`gradlew` and `gradle-wrapper.jar` are **not in the repo yet** — only
-`gradle/wrapper/gradle-wrapper.properties` is. Generate them once, either by
-opening `repo/android/` in Android Studio (it offers to create the wrapper on
-first sync) or, if a system Gradle is on PATH:
-
-```
-gradle wrapper --gradle-version 8.7
-```
-
-Then commit `gradlew`, `gradlew.bat` and `gradle/wrapper/gradle-wrapper.jar`
-so a fresh clone can build. `.gitignore` deliberately does not exclude that jar.
-
 APK lands at `app/build/outputs/apk/release/app-release.apk`.
+`local.properties` (holding `sdk.dir`) is gitignored — regenerate it per machine,
+or export `ANDROID_HOME`.
 
 **Build the `release` variant for anything you report.** The `debug` variant is
 for wiring-up and crash triage only: a debuggable APK runs under different ART
@@ -42,15 +62,15 @@ The debug variant carries `applicationIdSuffix ".dbg"`, so it installs as
 impossible to record a measurement against the debuggable build by accident.
 
 ### Windows path warning
-The Android/Gradle toolchain is native code and this project root contains
-`Tài liệu`. The same non-ASCII path already broke the ONNX C++ API once
+The Android/Gradle toolchain is native code and the OneDrive project root
+contains `Tài liệu`. The same non-ASCII path already broke the ONNX C++ API once
 (`infer_shapes_path` silently wrote nothing; `convert/ptq.py` now stages through
-an ASCII temp dir). Build from an ASCII path — clone to e.g. `C:\dev\deploybench`
-— and set `GRADLE_USER_HOME` to an ASCII directory.
+an ASCII temp dir). Build from the ASCII clone at `C:\dev\deploybench`, with
+`GRADLE_USER_HOME=C:\gradle`.
 
 **Worse than it looks:** OneDrive holds *two* directories that both render as
 `Tài liệu` — one NFC-normalised, one NFD. NTFS does not normalise Unicode, so
-they are distinct directories that Explorer cannot tell apart. The live project
+they are distinct directories Explorer cannot tell apart. The live OneDrive copy
 is the **NFD** one; a partial older copy of this project (including a second
 TSSDNet vendor clone with checkpoints) sits under the NFC one at
 `CS material\Mobile_Deepfake_Detection_Paper` — note the missing `Research\`
@@ -79,9 +99,9 @@ WAKE_LOCK and sets no keepScreenOn flag.
 ## `run_cell.sh` must force-stop before starting
 
 `BatchActivity` is `launchMode="singleTask"` and does all its work in
-`onCreate`. `am start` against a still-live instance delivers `onNewIntent`
+`onCreate`. Starting it against a still-live instance delivers `onNewIntent`
 instead, so the cell silently does not run. Worse, `run_cell.sh`'s poll loop has
-no failure path: after 720 × 5 s it falls through, pulls an absent `out/`, and
+no failure path: after 720 x 5 s it falls through, pulls an absent `out/`, and
 prints `cell -> ...` as if it had succeeded. Required:
 
 ```
@@ -95,19 +115,22 @@ and the poll loop needs a non-zero exit when `DONE` never appears.
 
 The scorer was certified on 2026-07-27 against the ORT **Java** binding
 **1.27.0** on desktop x86 (max |d| 1.15e-05, Pearson 1.000000000000, 0/0/0 flips
-vs the Python ONNX scores, all three precisions). Maven Central's newest
-`onnxruntime-android` is **1.22.0** — the Android AAR lags the core release
-train (core is at 1.29.0). So the device runs different native kernels, at a
-different version, on a different ISA from the binding that certified the
-scorer.
+vs the Python ONNX scores, all three precisions). The Android AAR resolves to
+**1.22.0** — Maven Central's newest for `onnxruntime-android`, which lags the
+core release train (core is at 1.29.0). So the device runs different native
+kernels, at a different version, on a different ISA from the binding that
+certified the scorer.
 
 That does not invalidate the certification — it is exactly what the Stage P3
-parity gate tests. But the **resolved** AAR version must be recorded in the P3
-report, read from the build, not copied from this file.
+parity gate tests. But it must be stated in the P3 report.
 
-`minSdk 24` is a guess against the AAR's actual floor; if 1.22.0 requires
-higher, manifest merging fails loudly at build time, which is an acceptable way
-to find out.
+## Editing this manifest
+
+`AndroidManifest.xml` failed its first build with
+`ManifestMerger2$MergeFailureException: Error parsing`. Cause: **XML comments
+cannot contain a double hyphen**, and the comments documented `adb` flags that
+begin with one. Command lines with flags therefore live in this README, not in
+manifest comments. If you add a comment there, check it first.
 
 ## Modes (driven by `/sdcard/deploybench/config.json`)
 - **batch**: score `in/*.wav` -> `out/scores.csv` (+ `latency.csv`), write
@@ -147,8 +170,11 @@ run on the desktop JVM against the exact sources that ship in the APK.
 ## Open before the first device run
 1. `scripts/run_cell.sh` writes no `input_samples` (A2), pushes the `.onnx`
    without its `.onnx.data` sidecar so fp32 lands weightless (A3), is still on
-   200/20 rather than D23's >=1024 reps / >=60 s (C1), does not `force-stop`
-   before `am start`, and reports success when the poll loop times out.
+   200/20 rather than D23's >=1024 reps / >=60 s (C1), does not force-stop
+   before starting the activity, and reports success when the poll loop times
+   out.
 2. The resampler resolution needs a D-number.
 3. `PREREGISTRATION.md` must be committed and tagged `roster-freeze` **before**
    the first device run, or the D30 restatements become deviations.
+4. `exports/` and `device_wavs/` are gitignored and exist only in the OneDrive
+   tree; the device campaign needs them present next to the clone.

@@ -4,20 +4,20 @@
 
     <!-- STORAGE.
          BatchActivity reads /sdcard/deploybench/{config.json,in,models} and
-         writes /sdcard/deploybench/out. Those files are placed by `adb push`,
-         i.e. by the shell user, NOT by this app -- so app-specific storage is
-         not an option without changing the device path in run_cell.sh,
-         soak.sh and BatchActivity.kt together.
+         writes /sdcard/deploybench/out. Those files are placed by adb push,
+         i.e. by the shell user, NOT by this app, so app-specific storage is not
+         an option without changing the device path in run_cell.sh, soak.sh and
+         BatchActivity.kt together.
 
-         On API 30+ that directory is only reachable with All-Files access.
-         The permission is grantable from the host with no on-device tapping:
-             adb shell appops set --uid org.deploybench.app MANAGE_EXTERNAL_STORAGE allow
-         which keeps the campaign scriptable. See android/README.md.
+         On API 30+ that directory is only reachable with All-Files access. The
+         permission is grantable from the host via appops with no on-device
+         tapping, which keeps the campaign scriptable. Exact command is in
+         android/README.md (it carries CLI flags that cannot appear in an XML
+         comment).
 
-         NOTE: android:requestLegacyExternalStorage is deliberately ABSENT. It is
+         android:requestLegacyExternalStorage is deliberately ABSENT: it is
          ignored for apps targeting API 30+, so at targetSdk 34 it would be dead
-         config that reads as if it were doing something. All-Files access is the
-         only mechanism actually in play here. -->
+         config that reads as if it were doing something. -->
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
@@ -26,10 +26,10 @@
         android:maxSdkVersion="29" />
 
     <!-- NO android.permission.WAKE_LOCK: nothing in the app acquires a WakeLock.
-         Screen-on during a cell is enforced from the HOST
-         (`adb shell svc power stayon usb`) -- see android/README.md. An unused
-         permission in an artifact that reviewers may inspect is a claim the code
-         does not back up. -->
+         Screen-on during a cell is enforced from the host with
+         "adb shell svc power stayon usb"; see android/README.md. An unused
+         permission in an artifact reviewers may inspect is a claim the code does
+         not back up. -->
 
     <!-- arm64 CPU inference only: no camera, mic, or network is ever used.
          Declared absent so the measurement surface is auditable from the APK. -->
@@ -44,20 +44,19 @@
         android:largeHeap="true"
         android:theme="@android:style/Theme.NoTitleBar">
 
-        <!-- exported=true is REQUIRED: run_cell.sh starts this from the shell with
-             `am start -n org.deploybench.app/.BatchActivity`, which is blocked for
-             non-exported components on Android 12+.
+        <!-- exported=true is REQUIRED: run_cell.sh starts this from the shell
+             with "am start", which is blocked for non-exported components on
+             Android 12+.
 
              launchMode=singleTask is a DELIBERATE trade with a script-side
-             obligation. It prevents two concurrent batches from ever running in
-             one process, but it also means `am start` against a LIVE instance
-             delivers onNewIntent and does NOT re-enter onCreate -- where all the
-             work is. run_cell.sh MUST therefore
-                 adb shell am force-stop org.deploybench.app
-             immediately before `am start`, or a cell can silently not run.
+             obligation. It prevents two concurrent batches in one process, but
+             it also means starting the activity against a LIVE instance
+             delivers onNewIntent and does NOT re-enter onCreate, where all the
+             work is. run_cell.sh MUST therefore force-stop the package
+             immediately before starting it, or a cell can silently not run.
 
              There is no android:keepScreenOn here: keepScreenOn is a View
-             attribute and is not part of the <activity> manifest schema. -->
+             attribute and is not part of the activity manifest schema. -->
         <activity
             android:name=".BatchActivity"
             android:exported="true"
