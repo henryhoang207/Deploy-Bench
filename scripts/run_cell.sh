@@ -18,6 +18,19 @@ case "$MODEL" in
   *) echo "unknown model '$MODEL': refusing to guess input_samples" >&2; exit 3 ;;
 esac
 
+# --- runtime must be one the APK can actually honour. The app builds an
+# OrtScorer unconditionally and there is no ExecuTorch runner (OD-4), so an
+# 'executorch' cell would run ORT and emit scores LABELLED executorch -- the
+# device-side twin of review defect B2. campaign.sh iterates
+# RUNTIMES=(ort executorch), so this would have fired on half of every phone's
+# cells. Fail here in seconds; the app re-checks as defence in depth, but
+# reaching that path costs the full 60-min poll timeout.
+case "$RUNTIME" in
+  ort) ;;
+  executorch) echo "no ExecuTorch runner exists in the APK (OD-4): refusing to run ORT and label it executorch" >&2; exit 3 ;;
+  *) echo "unknown runtime '$RUNTIME'" >&2; exit 3 ;;
+esac
+
 # --- D23 MLPerf single-stream run rules. Supersedes the retired 200/20 scheme.
 # "warmup" is deliberately absent: D23 records that it is not an MLPerf concept.
 MIN_QUERIES=${MIN_QUERIES:-1024}
@@ -43,7 +56,11 @@ adb -s "$SERIAL" shell rm -rf $DEV/out $DEV/in
 adb -s "$SERIAL" shell mkdir -p $DEV/in $DEV/out $DEV/models
 
 # --- thermal gate (methodology C3/P4): refuse to start above 35 C
-TEMP_START=$(adb -s "$SERIAL" shell dumpsys battery | awk '/temperature/{print $2}')
+# tr -d '\r': adb on Windows returns CRLF, and awk leaves the CR attached to $2.
+# "250\r" then fails the -gt below with "integer expression expected", which
+# under set -e aborts the cell with exit 1 -- NOT the 2 that campaign.sh waits
+# on, so a hot phone would be logged as a hard failure instead of cooling.
+TEMP_START=$(adb -s "$SERIAL" shell dumpsys battery | awk '/temperature/{print $2}' | tr -d '\r')
 if [ "${TEMP_START:-0}" -gt 350 ]; then
   echo "battery ${TEMP_START}dC > 35.0C - cooling gate, aborting"; exit 2
 fi
@@ -81,7 +98,7 @@ if [ "$DONE" -ne 1 ]; then
   exit 4
 fi
 
-TEMP_END=$(adb -s "$SERIAL" shell dumpsys battery | awk '/temperature/{print $2}')
+TEMP_END=$(adb -s "$SERIAL" shell dumpsys battery | awk '/temperature/{print $2}' | tr -d '\r')
 
 OUT=results/device/${SERIAL}_${MODEL}_${RUNTIME}_${PRECISION}
 mkdir -p "$OUT"

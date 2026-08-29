@@ -14,6 +14,14 @@ case "$MODEL" in
   *) echo "unknown model '$MODEL': refusing to guess input_samples" >&2; exit 3 ;;
 esac
 
+# Same reason as run_cell.sh: the APK has only an ORT runner (OD-4), so any
+# other runtime would produce ORT numbers under the wrong label.
+case "$RUNTIME" in
+  ort) ;;
+  executorch) echo "no ExecuTorch runner exists in the APK (OD-4)" >&2; exit 3 ;;
+  *) echo "unknown runtime '$RUNTIME'" >&2; exit 3 ;;
+esac
+
 MODEL_FILE=exports/${MODEL}_${PRECISION}.onnx
 if [ ! -f "$MODEL_FILE" ]; then echo "missing $MODEL_FILE" >&2; exit 3; fi
 
@@ -41,7 +49,9 @@ adb -s "$SERIAL" shell am force-stop $PKG
 adb -s "$SERIAL" shell am start -n $PKG/.BatchActivity --ez soak true > /dev/null
 
 for _ in $(seq 1 180); do   # 30 min, 10 s cadence
-  T=$(adb -s "$SERIAL" shell dumpsys battery | awk '/temperature/{print $2}')
+  # tr -d '\r': adb on Windows returns CRLF and the CR stays attached to $2,
+  # which would embed a stray carriage return in every row of the temp curve.
+  T=$(adb -s "$SERIAL" shell dumpsys battery | awk '/temperature/{print $2}' | tr -d '\r')
   echo "$(date +%s),$T" >> "$OUT/battery_temp.csv"; sleep 10
 done
 
