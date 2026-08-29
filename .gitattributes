@@ -9,3 +9,7 @@
 # broke pilot_tssdnet.ps1 under PowerShell 5.1). Exclude them from any
 # normalisation so nothing rewrites them behind our back.
 *.ps1 -text
+
+# The Gradle wrapper script has no extension, so *.sh does not cover it.
+# It is a POSIX shell script and must stay LF for anyone cloning on Linux/macOS.
+gradlew text eol=lf
