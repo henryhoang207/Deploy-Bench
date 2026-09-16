@@ -46,6 +46,8 @@ class _Wrap:
 
 def load(spec, checkpoint, device):
     import torch
+    if checkpoint:                                  # resolve BEFORE the chdir below
+        checkpoint = os.path.abspath(checkpoint)
     with _chdir(_DIR):                              # xlsr2_300m.pt lives here
         mod = load_vendor_module("vendor_sslaasist_model", _DIR / "model.py",
                                  extra_sys_path=_DIR)
