@@ -12,11 +12,12 @@ from .base import VENDOR, load_vendor_module
 class _Wrap:
     def __init__(self, model, torch):
         self.model, self.torch = model, torch
+        self.device = next(model.parameters()).device  # A1: batch goes where the weights are
 
     def score_batch(self, wave_batch):
         t = self.torch
         with t.no_grad():
-            x = t.tensor(np.asarray(wave_batch, dtype=np.float32)).unsqueeze(1)  # [B,1,T]
+            x = t.tensor(np.asarray(wave_batch, dtype=np.float32), device=self.device).unsqueeze(1)  # [B,1,T]
             out = self.model(x)                          # [B, 2], index 0 = bona fide!
             # Authors score with softmax(out)[:, 0] (genuine prob). The logit
             # difference out[:,0]-out[:,1] = logit of that prob — a strictly

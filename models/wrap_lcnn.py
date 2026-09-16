@@ -18,11 +18,12 @@ _ENTRY = _ROOT / "project" / "baseline_LA" / "model.py"
 class _Wrap:
     def __init__(self, model, torch):
         self.model, self.torch = model, torch
+        self.device = next(model.parameters()).device  # A1: batch goes where the weights are
 
     def score_batch(self, wave_batch):
         t = self.torch
         with t.no_grad():
-            x = t.tensor(np.asarray(wave_batch, dtype=np.float32)).unsqueeze(-1)
+            x = t.tensor(np.asarray(wave_batch, dtype=np.float32), device=self.device).unsqueeze(-1)
             emb = self.model._compute_embedding(x, [x.shape[1]] * x.shape[0])
             return self.model._compute_score(emb, inference=True).cpu().numpy()
 

@@ -46,6 +46,17 @@ def test_score_conventions_documented():
     assert re.search(r"out\[:, 1\] - out\[:, 0\]", _src("wrap_wavlm"))
 
 
+def test_batches_follow_the_weights_device():
+    """A1: a CPU batch against GPU weights is a loud error for six wrappers,
+    but for xlsr the author's extract_feat guard moves the backbone and calls
+    train(), leaving layerdrop live -- silent nondeterministic scores."""
+    for w in WRAPPERS:
+        s = _src(w)
+        assert "self.device = next(model.parameters()).device" in s, w
+        assert "dtype=np.float32), device=self.device)" in s, w
+    assert "m.training for m in self.model.modules()" in _src("wrap_xlsr")
+
+
 def test_fix_length_truncates_from_start():
     s = (M.parent / "score.py").read_text(encoding="utf-8")
     assert "wave[:n]" in s and "// 2" not in s.split("def fix_length")[1].split("def ")[0]

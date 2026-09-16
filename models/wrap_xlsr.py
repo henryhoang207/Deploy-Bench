@@ -27,12 +27,20 @@ def _chdir(path):
 class _Wrap:
     def __init__(self, model, torch):
         self.model, self.torch = model, torch
+        self.device = next(model.parameters()).device  # A1: batch goes where the weights are
 
     def score_batch(self, wave_batch):
         t = self.torch
         with t.no_grad():
-            x = t.tensor(np.asarray(wave_batch, dtype=np.float32))
+            x = t.tensor(np.asarray(wave_batch, dtype=np.float32), device=self.device)
             out = self.model(x)                     # [B, 2]
+            # A1: author SSLModel.extract_feat calls self.model.train() when the
+            # input's device/dtype differs from the backbone's, leaving layerdrop
+            # live. Matching x to the weights avoids that; refuse if it fired anyway.
+            if any(m.training for m in self.model.modules()):
+                raise RuntimeError("xlsr_aasist: submodule in train mode after forward "
+                                   "(author device/dtype guard fired); scores would "
+                                   "be nondeterministic")
             return out[:, 1].cpu().numpy()
 
 

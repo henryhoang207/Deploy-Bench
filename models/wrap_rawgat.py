@@ -13,11 +13,12 @@ _DIR = VENDOR / "RawGAT-ST-antispoofing"
 class _Wrap:
     def __init__(self, model, torch):
         self.model, self.torch = model, torch
+        self.device = next(model.parameters()).device  # A1: batch goes where the weights are
 
     def score_batch(self, wave_batch):
         t = self.torch
         with t.no_grad():
-            x = t.tensor(np.asarray(wave_batch, dtype=np.float32))
+            x = t.tensor(np.asarray(wave_batch, dtype=np.float32), device=self.device)
             out = self.model(x, Freq_aug=False)     # [B, 2]
             return out[:, 1].cpu().numpy()
 
