@@ -57,6 +57,22 @@ def test_batches_follow_the_weights_device():
     assert "m.training for m in self.model.modules()" in _src("wrap_xlsr")
 
 
+def test_cuda_scoring_is_true_fp32():
+    """TF32 is cuDNN's default on Ampere+; an 'fp32' GPU row computed with it
+    is ~1e-3 relative off the CPU score (RawNet2 on sol1, 2026-09-16)."""
+    s = (M / "base.py").read_text(encoding="utf-8").split("def load_model")[1]
+    assert "torch.backends.cudnn.allow_tf32 = False" in s
+    assert "torch.backends.cuda.matmul.allow_tf32 = False" in s
+
+
+def test_xlsr_strips_dataparallel_prefix_only_when_uniform():
+    """Best_LA_model_for_DF.pth keys all start with 'module.'; LA_model.pth
+    keys do not. Partial stripping would hide a genuinely mismatched file."""
+    s = _src("wrap_xlsr")
+    assert 'all(k.startswith("module.") for k in sd)' in s
+    assert "strict=False" not in s
+
+
 def test_fix_length_truncates_from_start():
     s = (M.parent / "score.py").read_text(encoding="utf-8")
     assert "wave[:n]" in s and "// 2" not in s.split("def fix_length")[1].split("def ")[0]

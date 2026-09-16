@@ -51,7 +51,13 @@ def load(spec, checkpoint, device):
                                  extra_sys_path=_DIR)
         model = mod.Model(None, device)
         ckpt = checkpoint or str(_DIR / "Best_LA_model_for_DF.pth")
-        model.load_state_dict(torch.load(ckpt, map_location=device))
+        sd = torch.load(ckpt, map_location=device)
+        # Best_LA_model_for_DF.pth was saved from nn.DataParallel (main_SSL_DF.py),
+        # so every key carries "module."; LA_model.pth (main_SSL_LA.py) does not.
+        # Strip only when ALL keys have it; load stays strict either way.
+        if sd and all(k.startswith("module.") for k in sd):
+            sd = {k[len("module."):]: v for k, v in sd.items()}
+        model.load_state_dict(sd)
     model.to(device).eval()
     w = _Wrap(model, torch)
 

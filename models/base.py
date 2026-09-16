@@ -94,5 +94,12 @@ def load_model(name: str, checkpoint: str | None = None, device: str = "cpu"):
         raise FileNotFoundError(
             f"vendor/ not found at {VENDOR}. Clone the official repos there "
             "(see phase_1_reproduction/step_01_checkpoints.md).")
+    if str(device).startswith("cuda"):
+        # fp32 means fp32: cuDNN defaults to TF32 convolutions on Ampere+ (both
+        # sol1 RTX 4090s), which moved RawNet2 scores ~1.5e-3 relative off the
+        # CPU result (2.4e-6 with TF32 off, 2026-09-16). Process-wide on purpose.
+        import torch
+        torch.backends.cudnn.allow_tf32 = False
+        torch.backends.cuda.matmul.allow_tf32 = False
     mod = importlib.import_module(spec.wrapper)
     return mod.load(spec, checkpoint, device)
