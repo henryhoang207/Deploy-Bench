@@ -52,7 +52,7 @@ def load(spec, checkpoint, device):
         mod = load_vendor_module("vendor_sslaasist_model", _DIR / "model.py",
                                  extra_sys_path=_DIR)
         model = mod.Model(None, device)
-        ckpt = checkpoint or str(_DIR / "Best_LA_model_for_DF.pth")
+        ckpt = checkpoint or str(_DIR / "Best_LA_model_for_DF.pth")  # D31: DF-track release, not LA_model.pth
         sd = torch.load(ckpt, map_location=device)
         # Best_LA_model_for_DF.pth was saved from nn.DataParallel (main_SSL_DF.py),
         # so every key carries "module."; LA_model.pth (main_SSL_LA.py) does not.
