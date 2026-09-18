@@ -42,6 +42,10 @@ is excluded from every "majority of models" count below.
   Tak et al. publish no 19LA-eval number (only 2021 LA 0.82% / DF 2.85%, both with RawBoost),
   so there is no anchor to gate against. Acceptable only because it is unranked; stated in
   the reproduction table rather than silently omitted.
+  **RawNet2 is gated on 2021 DF eval, B04 = 22.38%** (Yamagishi et al. 2021; amendment
+  2026-09-18, D32). The released checkpoint is the 2021 DF-baseline run (19LA train only). The
+  19LA 5.64% (Tak et al. 2021) comes from a different run (train + 90% dev), so it is reported but not gated.
+  Until the DF21 gate runs, RawNet2's status is PENDING and no cross-model claim is final.
 - Exclusion rule: models failing the reproduction gate are reported but excluded
   from cross-model claims.
 - Eval-set versions: frozen at roster freeze. ASVspoof 5 is **deferred** (D30 open call) —
