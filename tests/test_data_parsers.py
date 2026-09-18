@@ -6,7 +6,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from deploybench.data import (ASVSPOOF19_PROTOCOL_DIRS, check,  # noqa: E402
-                              protocol_iter)
+                              native_conditions, protocol_iter)
 
 
 def _mk(tmp_path, rel, text):
@@ -51,13 +51,44 @@ def test_check_reports_instead_of_raising(tmp_path, capsys):
         assert str(tmp_path / cand.replace("/", "\\")) in out or cand in out
 
 
-def test_asvspoof21_df(tmp_path):
-    _mk(tmp_path, "ASVspoof2021_DF_eval/trial_metadata.txt",
-        "LA_0023 DF_E_2000011 nocodec asvspoof A14 spoof notrim eval\n"
-        "LA_0047 DF_E_2000021 low_mp3 vcc2018 - bonafide notrim eval\n")
+# 13-column DF21 keys lines in the official format (eval-package README).
+_DF21 = (
+    "LA_0023 DF_E_2000011 nocodec asvspoof A14 spoof notrim eval traditional_vocoder - - - -\n"
+    "LA_0047 DF_E_2000021 low_mp3 vcc2018 - bonafide notrim eval bonafide - - - -\n"
+    "LA_0023 DF_E_2000031 high_ogg asvspoof A16 spoof notrim progress traditional_vocoder - - - -\n"
+    "LA_0047 DF_E_2000041 mp3m4a asvspoof - bonafide trim hidden bonafide - - - -\n"
+    "LA_0023 DF_E_2000051 oggm4a vcc2020 A19 spoof notrim eval unknown - - - -\n")
+
+
+def test_asvspoof21_df_eval_subset_only(tmp_path):
+    """B4: published DF21 numbers pool the EVAL subset; progress/hidden trials
+    must not leak into the pool. Label comes from the `label` column only."""
+    _mk(tmp_path, "keys/DF/CM/trial_metadata.txt", _DF21)
     rows = list(protocol_iter("asvspoof21_df_eval", root=tmp_path))
-    assert [r[2] for r in rows] == [0, 1]
-    assert rows[1][0] == "DF_E_2000021"
+    assert [r[0] for r in rows] == ["DF_E_2000011", "DF_E_2000021", "DF_E_2000051"]
+    assert [r[2] for r in rows] == [0, 1, 0]
+    assert rows[1][1] == tmp_path / "ASVspoof2021_DF_eval" / "flac" / "DF_E_2000021.flac"
+
+
+def test_asvspoof21_df_native_condition_is_compr(tmp_path):
+    """B4: the codec condition survives into the score file."""
+    _mk(tmp_path, "keys/DF/CM/trial_metadata.txt", _DF21)
+    assert native_conditions("asvspoof21_df_eval", root=tmp_path) == {
+        "DF_E_2000011": "nocodec", "DF_E_2000021": "low_mp3",
+        "DF_E_2000051": "oggm4a"}
+    assert native_conditions("itw", root=tmp_path) is None
+
+
+@pytest.mark.parametrize("bad", [
+    "LA_0023 DF_E_2000011 nocodec asvspoof A14 spoof notrim eval\n",            # 8 cols
+    "LA_0023 DF_E_2000011 nocodec asvspoof A14 fake notrim eval x - - - -\n",   # label
+    "LA_0023 DF_E_2000011 nocodec asvspoof A14 spoof notrim test x - - - -\n",  # subset
+])
+def test_asvspoof21_df_malformed_lines_raise(tmp_path, bad):
+    """A skipped or misparsed trial silently changes a pooled EER -- refuse."""
+    _mk(tmp_path, "keys/DF/CM/trial_metadata.txt", _DF21 + bad)
+    with pytest.raises(ValueError):
+        list(protocol_iter("asvspoof21_df_eval", root=tmp_path))
 
 
 def test_itw(tmp_path):

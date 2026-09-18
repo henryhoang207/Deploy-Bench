@@ -65,6 +65,16 @@ def test_cuda_scoring_is_true_fp32():
     assert "torch.backends.cuda.matmul.allow_tf32 = False" in s
 
 
+def test_scorers_write_native_condition():
+    """B4: both scorers must write DF21's per-trial `compr` into `condition`,
+    and refuse a --condition that would overwrite it."""
+    for f in ("score.py", "score_onnx.py"):
+        s = (M.parent / f).read_text(encoding="utf-8")
+        assert "native_conditions(" in s, f
+        assert "refusing --condition" in s, f
+        assert "native[" in s, f
+
+
 def test_xlsr_strips_dataparallel_prefix_only_when_uniform():
     """Best_LA_model_for_DF.pth keys all start with 'module.'; LA_model.pth
     keys do not. Partial stripping would hide a genuinely mismatched file."""

@@ -109,6 +109,14 @@ def main():
                     help="print a progress line every N utterances (0 = off)")
     args = ap.parse_args()
 
+    from deploybench.data import native_conditions
+    native = native_conditions(args.dataset) if args.dataset else None
+    if native is not None and args.condition != "clean":
+        raise SystemExit(
+            f"{args.dataset} carries a native per-utterance condition that is "
+            f"written to the `condition` column; refusing --condition "
+            f"{args.condition!r} rather than overwrite it")
+
     from models.base import load_model, SPECS
     model = load_model(args.model, args.checkpoint, args.device)
     n = SPECS[args.model].input_samples
@@ -147,8 +155,9 @@ def main():
         w.writerow(["utt_id", "label", "score", "model", "dataset",
                     "precision", "runtime", "condition", "seed"])
         for uid, lab, sc in rows:
+            cond = native[uid] if native is not None else args.condition
             w.writerow([uid, lab, sc, args.model, args.dataset or "adhoc",
-                        args.precision, args.runtime, args.condition, args.seed])
+                        args.precision, args.runtime, cond, args.seed])
     print(f"wrote {len(rows)} scores -> {out}")
 
 

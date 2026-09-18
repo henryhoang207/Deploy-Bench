@@ -45,6 +45,14 @@ def main():
                     help="0 = onnxruntime default")
     a = ap.parse_args()
 
+    from deploybench.data import native_conditions
+    native = native_conditions(a.dataset) if a.dataset else None
+    if native is not None and a.condition != "clean":
+        raise SystemExit(
+            f"{a.dataset} carries a native per-utterance condition that is "
+            f"written to the `condition` column; refusing --condition "
+            f"{a.condition!r} rather than overwrite it")
+
     import onnxruntime as ort
     from models.base import SPECS
     n = SPECS[a.model].input_samples
@@ -123,8 +131,9 @@ def main():
         w.writerow(["utt_id", "label", "score", "model", "dataset",
                     "precision", "runtime", "condition", "seed"])
         for u, l, v in rows:
+            cond = native[u] if native is not None else a.condition
             w.writerow([u, l, v, a.model, a.dataset or "adhoc", a.precision,
-                        a.runtime, a.condition, a.seed])
+                        a.runtime, cond, a.seed])
     print(f"wrote {len(rows)} scores -> {out}")
 
 

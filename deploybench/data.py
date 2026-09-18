@@ -56,6 +56,7 @@ def _proto_candidates(name: str, root: Path):
         c += [base.parent / "ASVspoof2019_LA_cm_protocols" / proto]
     elif name == "asvspoof21_df_eval":
         c += [base / proto, base / "keys" / "DF" / "CM" / proto,
+              root / "keys" / "DF" / "CM" / proto,
               root / "DF-keys-full" / "CM" / proto]
     return c + [base / proto, base.parent / proto]
 
@@ -114,19 +115,60 @@ def _iter_asvspoof19(part: str, root: Path):
         yield utt, part_dir / "flac" / f"{utt}.flac", label
 
 
-def _iter_asvspoof21_df(root: Path):
-    """DF eval keys trial_metadata.txt (keys package): whitespace fields,
-    utt = field 2; label = presence of 'bonafide'. Audio: flac/<utt>.flac."""
+# ASVspoof 2021 DF CM keys (`DF/CM/trial_metadata.txt`): 13 space-separated
+# columns, names verbatim from asvspoof-challenge/2021 @9b33f5ec
+# eval-package/config.py `p_names` + README. `subset` is eval|progress|hidden.
+# Published DF21 numbers (B04 RawNet2 22.38%, Tak et al. 2.85%) pool the EVAL
+# subset only, so that is all this loader yields (B4). `compr` (nocodec,
+# low_mp3, ... = DF-C1..C9) is a property of the data, surfaced through
+# native_conditions() into the score file's `condition` column.
+DF21_COLS = ("speaker", "trial", "compr", "source", "attack", "label", "trim",
+             "subset", "vocoder", "task", "team", "gender-pair", "language")
+DF21_SUBSETS = ("eval", "progress", "hidden")
+DF21_SUBSET = "eval"
+
+
+def _df21_rows(root: Path):
+    """Validated eval-subset rows of the DF21 keys. Malformed lines RAISE:
+    a skipped or misparsed trial would silently change a pooled EER."""
     sub, proto, _ = REGISTRY["asvspoof21_df_eval"]
     base = root / sub
     meta = _find(base / proto, base / "keys" / "DF" / "CM" / proto,
+                 root / "keys" / "DF" / "CM" / proto,
                  root / "DF-keys-full" / "CM" / proto)
-    for line in open(meta):
+    for n, line in enumerate(open(meta), 1):
         f = line.split()
-        if len(f) < 2:
+        if not f:
             continue
-        utt = f[1]
-        yield utt, base / "flac" / f"{utt}.flac", int("bonafide" in f)
+        if len(f) != len(DF21_COLS):
+            raise ValueError(f"{meta}:{n}: expected {len(DF21_COLS)} fields "
+                             f"{DF21_COLS}, got {len(f)}: {line.strip()!r}")
+        r = dict(zip(DF21_COLS, f))
+        if r["label"] not in ("bonafide", "spoof"):
+            raise ValueError(f"{meta}:{n}: label {r['label']!r} is neither "
+                             "'bonafide' nor 'spoof'")
+        if r["subset"] not in DF21_SUBSETS:
+            raise ValueError(f"{meta}:{n}: subset {r['subset']!r} not in "
+                             f"{DF21_SUBSETS}")
+        if r["subset"] == DF21_SUBSET:
+            yield base, r
+
+
+def _iter_asvspoof21_df(root: Path):
+    """EVAL subset only; label from the `label` column. Audio: flac/<trial>.flac."""
+    for base, r in _df21_rows(root):
+        yield (r["trial"], base / "flac" / f"{r['trial']}.flac",
+               int(r["label"] == "bonafide"))
+
+
+def native_conditions(dataset: str, root: Path = None):
+    """{utt_id: condition} for datasets whose condition is a property of the
+    DATA (DF21: `compr`), else None. score.py / score_onnx.py write it into the
+    `condition` column so the per-codec breakdown survives (B4)."""
+    root = Path(root) if root else DATA_ROOT
+    if dataset == "asvspoof21_df_eval":
+        return {r["trial"]: r["compr"] for _, r in _df21_rows(root)}
+    return None
 
 
 def _iter_itw(root: Path):
