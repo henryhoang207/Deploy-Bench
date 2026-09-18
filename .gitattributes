@@ -13,3 +13,8 @@
 # The Gradle wrapper script has no extension, so *.sh does not cover it.
 # It is a POSIX shell script and must stay LF for anyone cloning on Linux/macOS.
 gradlew text eol=lf
+
+# Score CSVs are hashed into tau_*.json and the repro reports. Python's csv module
+# writes CRLF on every OS, so store the bytes exactly as written: with
+# normalisation, a Linux checkout (sol1) hashed differently from the recorded value.
+*.csv -text
