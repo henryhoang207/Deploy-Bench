@@ -12,7 +12,10 @@ REGISTRY = {
     "asvspoof19_train": ("LA/ASVspoof2019_LA_train", "ASVspoof2019.LA.cm.train.trn.txt", 25380),
     "asvspoof19_dev":   ("LA/ASVspoof2019_LA_dev",   "ASVspoof2019.LA.cm.dev.trl.txt",   24844),
     "asvspoof19_eval":  ("LA/ASVspoof2019_LA_eval",  "ASVspoof2019.LA.cm.eval.trl.txt",  71237),
+    # Both DF21 surfaces read the same package; they differ only in which FLAC
+    # integrity classes are excluded (D34, see DF21_SURFACES). Count = flac files.
     "asvspoof21_df_eval": ("ASVspoof2021_DF_eval", "trial_metadata.txt", 611829),
+    "asvspoof21_df_eval_clean": ("ASVspoof2021_DF_eval", "trial_metadata.txt", 611829),
     "asvspoof5_train":  ("ASVspoof5/train", None, None),
     "asvspoof5_dev":    ("ASVspoof5/dev", None, None),
     "asvspoof5_eval":   ("ASVspoof5/eval", None, None),
@@ -54,7 +57,7 @@ def _proto_candidates(name: str, root: Path):
     if name.startswith("asvspoof19_"):
         c += [root / d / proto for d in ASVSPOOF19_PROTOCOL_DIRS]
         c += [base.parent / "ASVspoof2019_LA_cm_protocols" / proto]
-    elif name == "asvspoof21_df_eval":
+    elif name.startswith("asvspoof21_df_eval"):
         c += [base / proto, base / "keys" / "DF" / "CM" / proto,
               root / "keys" / "DF" / "CM" / proto,
               root / "DF-keys-full" / "CM" / proto]
@@ -127,11 +130,41 @@ DF21_COLS = ("speaker", "trial", "compr", "source", "attack", "label", "trim",
 DF21_SUBSETS = ("eval", "progress", "hidden")
 DF21_SUBSET = "eval"
 
+# FLAC integrity classes of the public DF21 eval release (D34; evidence in
+# phase_1_reproduction/df21_flac_integrity.md). 43% of eval trials are rejected
+# by libFLAC >= 1.4. Class A: libFLAC 1.3.4 / ffmpeg decode verifies against the
+# file's STREAMINFO MD5 (true audio). Class B: that decode FAILS the MD5 (audio is
+# not the original), so it is excluded everywhere. Surface -> excluded classes:
+DF21_SURFACES = {"asvspoof21_df_eval": ("B",),            # verified audio, 455,508
+                 "asvspoof21_df_eval_clean": ("A", "B")}  # clean only, 305,525
+DF21_CLASS_DIR = Path(__file__).resolve().parent.parent / "configs"
 
-def _df21_rows(root: Path):
-    """Validated eval-subset rows of the DF21 keys. Malformed lines RAISE:
-    a skipped or misparsed trial would silently change a pooled EER."""
-    sub, proto, _ = REGISTRY["asvspoof21_df_eval"]
+
+def _df21_class_ids(cls: str) -> set:
+    """IDs of one integrity class from configs/df21_class<cls>.txt. The file's
+    recorded sha256 is re-checked: a truncated or edited list would silently
+    change the eval surface."""
+    import hashlib
+    p = DF21_CLASS_DIR / f"df21_class{cls}.txt"
+    if not p.exists():
+        raise FileNotFoundError(f"{p} missing: the DF21 surfaces are undefined "
+                                "without it (D34). Refusing to guess.")
+    lines = open(p, encoding="utf-8").read().splitlines()
+    want = next((l.rsplit(":", 1)[1].strip() for l in lines
+                 if l.startswith("# sha256")), None)
+    ids = sorted(l.strip() for l in lines if l.strip() and not l.startswith("#"))
+    got = hashlib.sha256("\n".join(ids).encode()).hexdigest()
+    if want != got:
+        raise ValueError(f"{p}: recorded sha256 {want} != content {got}")
+    return set(ids)
+
+
+def _df21_rows(root: Path, dataset: str = "asvspoof21_df_eval"):
+    """Validated eval-subset rows of the DF21 keys for one surface (D34).
+    Malformed lines RAISE: a skipped or misparsed trial would silently change
+    a pooled EER."""
+    excluded = set().union(*(_df21_class_ids(c) for c in DF21_SURFACES[dataset]))
+    sub, proto, _ = REGISTRY[dataset]
     base = root / sub
     meta = _find(base / proto, base / "keys" / "DF" / "CM" / proto,
                  root / "keys" / "DF" / "CM" / proto,
@@ -150,13 +183,14 @@ def _df21_rows(root: Path):
         if r["subset"] not in DF21_SUBSETS:
             raise ValueError(f"{meta}:{n}: subset {r['subset']!r} not in "
                              f"{DF21_SUBSETS}")
-        if r["subset"] == DF21_SUBSET:
+        if r["subset"] == DF21_SUBSET and r["trial"] not in excluded:
             yield base, r
 
 
-def _iter_asvspoof21_df(root: Path):
-    """EVAL subset only; label from the `label` column. Audio: flac/<trial>.flac."""
-    for base, r in _df21_rows(root):
+def _iter_asvspoof21_df(root: Path, dataset: str):
+    """EVAL subset of one D34 surface; label from the `label` column.
+    Audio: flac/<trial>.flac."""
+    for base, r in _df21_rows(root, dataset):
         yield (r["trial"], base / "flac" / f"{r['trial']}.flac",
                int(r["label"] == "bonafide"))
 
@@ -166,8 +200,8 @@ def native_conditions(dataset: str, root: Path = None):
     DATA (DF21: `compr`), else None. score.py / score_onnx.py write it into the
     `condition` column so the per-codec breakdown survives (B4)."""
     root = Path(root) if root else DATA_ROOT
-    if dataset == "asvspoof21_df_eval":
-        return {r["trial"]: r["compr"] for _, r in _df21_rows(root)}
+    if dataset in DF21_SURFACES:
+        return {r["trial"]: r["compr"] for _, r in _df21_rows(root, dataset)}
     return None
 
 
@@ -208,8 +242,8 @@ def protocol_iter(dataset: str, root: Path = None):
     root = Path(root) if root else DATA_ROOT
     if dataset.startswith("asvspoof19_"):
         yield from _iter_asvspoof19(dataset.split("_")[1], root)
-    elif dataset == "asvspoof21_df_eval":
-        yield from _iter_asvspoof21_df(root)
+    elif dataset in DF21_SURFACES:
+        yield from _iter_asvspoof21_df(root, dataset)
     elif dataset == "itw":
         yield from _iter_itw(root)
     elif dataset == "mlaad":

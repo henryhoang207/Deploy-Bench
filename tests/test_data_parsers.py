@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from deploybench import data as _D                             # noqa: E402
 from deploybench.data import (ASVSPOOF19_PROTOCOL_DIRS, check,  # noqa: E402
                               native_conditions, protocol_iter)
 
@@ -51,6 +52,24 @@ def test_check_reports_instead_of_raising(tmp_path, capsys):
         assert str(tmp_path / cand.replace("/", "\\")) in out or cand in out
 
 
+def _classes(d, A=(), B=()):
+    """Write synthetic D34 class lists with correct sha256 headers."""
+    import hashlib
+    d.mkdir(parents=True, exist_ok=True)
+    for cls, ids in (("A", A), ("B", B)):
+        ids = sorted(ids)
+        h = hashlib.sha256("\n".join(ids).encode()).hexdigest()
+        (d / f"df21_class{cls}.txt").write_text(
+            f"# synthetic\n# sha256(sorted ids joined by newline): {h}\n"
+            + "".join(i + "\n" for i in ids))
+
+
+@pytest.fixture
+def no_df21_classes(tmp_path, monkeypatch):
+    _classes(tmp_path / "cls")
+    monkeypatch.setattr(_D, "DF21_CLASS_DIR", tmp_path / "cls")
+
+
 # 13-column DF21 keys lines in the official format (eval-package README).
 _DF21 = (
     "LA_0023 DF_E_2000011 nocodec asvspoof A14 spoof notrim eval traditional_vocoder - - - -\n"
@@ -60,7 +79,7 @@ _DF21 = (
     "LA_0023 DF_E_2000051 oggm4a vcc2020 A19 spoof notrim eval unknown - - - -\n")
 
 
-def test_asvspoof21_df_eval_subset_only(tmp_path):
+def test_asvspoof21_df_eval_subset_only(tmp_path, no_df21_classes):
     """B4: published DF21 numbers pool the EVAL subset; progress/hidden trials
     must not leak into the pool. Label comes from the `label` column only."""
     _mk(tmp_path, "keys/DF/CM/trial_metadata.txt", _DF21)
@@ -70,7 +89,7 @@ def test_asvspoof21_df_eval_subset_only(tmp_path):
     assert rows[1][1] == tmp_path / "ASVspoof2021_DF_eval" / "flac" / "DF_E_2000021.flac"
 
 
-def test_asvspoof21_df_native_condition_is_compr(tmp_path):
+def test_asvspoof21_df_native_condition_is_compr(tmp_path, no_df21_classes):
     """B4: the codec condition survives into the score file."""
     _mk(tmp_path, "keys/DF/CM/trial_metadata.txt", _DF21)
     assert native_conditions("asvspoof21_df_eval", root=tmp_path) == {
@@ -84,11 +103,47 @@ def test_asvspoof21_df_native_condition_is_compr(tmp_path):
     "LA_0023 DF_E_2000011 nocodec asvspoof A14 fake notrim eval x - - - -\n",   # label
     "LA_0023 DF_E_2000011 nocodec asvspoof A14 spoof notrim test x - - - -\n",  # subset
 ])
-def test_asvspoof21_df_malformed_lines_raise(tmp_path, bad):
+def test_asvspoof21_df_malformed_lines_raise(tmp_path, no_df21_classes, bad):
     """A skipped or misparsed trial silently changes a pooled EER -- refuse."""
     _mk(tmp_path, "keys/DF/CM/trial_metadata.txt", _DF21 + bad)
     with pytest.raises(ValueError):
         list(protocol_iter("asvspoof21_df_eval", root=tmp_path))
+
+
+def test_df21_surfaces_exclude_integrity_classes(tmp_path, monkeypatch):
+    """D34: the verified surface drops class B only; the clean surface drops
+    A and B. Conditions follow the same surface."""
+    _mk(tmp_path, "keys/DF/CM/trial_metadata.txt", _DF21)
+    _classes(tmp_path / "cls", A=["DF_E_2000021"], B=["DF_E_2000051"])
+    monkeypatch.setattr(_D, "DF21_CLASS_DIR", tmp_path / "cls")
+    ver = [r[0] for r in protocol_iter("asvspoof21_df_eval", root=tmp_path)]
+    cln = [r[0] for r in protocol_iter("asvspoof21_df_eval_clean", root=tmp_path)]
+    assert ver == ["DF_E_2000011", "DF_E_2000021"]
+    assert cln == ["DF_E_2000011"]
+    assert native_conditions("asvspoof21_df_eval_clean", root=tmp_path) == {
+        "DF_E_2000011": "nocodec"}
+
+
+def test_df21_class_list_integrity_is_enforced(tmp_path, monkeypatch):
+    """An edited or missing class list silently changes the eval surface."""
+    _mk(tmp_path, "keys/DF/CM/trial_metadata.txt", _DF21)
+    d = tmp_path / "cls"
+    _classes(d, A=["DF_E_2000021"], B=["DF_E_2000051"])
+    monkeypatch.setattr(_D, "DF21_CLASS_DIR", d)
+    (d / "df21_classB.txt").write_text((d / "df21_classB.txt").read_text() + "DF_E_2000011\n")
+    with pytest.raises(ValueError):
+        list(protocol_iter("asvspoof21_df_eval", root=tmp_path))
+    (d / "df21_classB.txt").unlink()
+    with pytest.raises(FileNotFoundError):
+        list(protocol_iter("asvspoof21_df_eval", root=tmp_path))
+
+
+def test_committed_df21_class_lists():
+    """The committed lists are the D34 definition: sizes, disjointness, and
+    the recorded sha256 (checked inside _df21_class_ids)."""
+    a, b = _D._df21_class_ids("A"), _D._df21_class_ids("B")
+    assert (len(a), len(b)) == (149983, 78420)
+    assert not a & b
 
 
 def test_itw(tmp_path):

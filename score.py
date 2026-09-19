@@ -23,6 +23,45 @@ def fix_length(wave: np.ndarray, n: int) -> np.ndarray:
     return np.tile(wave, reps)[:n]
 
 
+#: files decoded through _flac_md5_verified in this process (reported by callers)
+FLAC_FALLBACKS = 0
+
+
+def _flac_md5_verified(path: Path):
+    """Decode a FLAC that libsndfile rejects and accept the samples ONLY if they
+    match the file's STREAMINFO MD5, i.e. are provably the encoder's input.
+    DF21 class A (D34): libFLAC >= 1.4 rejects these files; libFLAC 1.3.4 and
+    ffmpeg decode them bit-identically and the MD5 verifies. Class B fails the
+    MD5 and raises here. int16 / 32768 equals soundfile's float32 bit-exactly
+    (verified on 200 DF21 files). Returns (float32 wave, sample rate)."""
+    import hashlib
+    import subprocess
+    import imageio_ffmpeg
+    head = open(path, "rb").read(42)
+    if head[:4] != b"fLaC" or (head[4] & 0x7F) != 0:
+        raise ValueError(f"{path}: first metadata block is not STREAMINFO; "
+                         "cannot verify a fallback decode")
+    si = head[8:42]
+    x = int.from_bytes(si[10:18], "big")
+    sr, ch, bps = x >> 44, ((x >> 41) & 7) + 1, ((x >> 36) & 31) + 1
+    md5 = si[18:34]
+    if (ch, bps) != (1, 16):
+        raise ValueError(f"{path}: fallback handles mono 16-bit FLAC only "
+                         f"(got {ch} ch, {bps} bit)")
+    if md5 == bytes(16):
+        raise ValueError(f"{path}: STREAMINFO MD5 is unset; cannot verify")
+    raw = subprocess.run([imageio_ffmpeg.get_ffmpeg_exe(), "-v", "error", "-i",
+                          str(path), "-f", "s16le", "-acodec", "pcm_s16le", "-"],
+                         capture_output=True, check=True).stdout
+    if hashlib.md5(raw).digest() != md5:
+        raise ValueError(f"{path}: fallback decode does not match the STREAMINFO "
+                         "MD5 (DF21 class B, D34): the decodable audio is not "
+                         "the original. Refusing.")
+    global FLAC_FALLBACKS
+    FLAC_FALLBACKS += 1
+    return np.frombuffer(raw, "<i2").astype("float32") / 32768.0, sr
+
+
 def load_wav(path: Path, target_sr: int = 16000, _retries: int = 4) -> np.ndarray:
     import soundfile as sf
     # Bounded retry on TRANSIENT open failures only. libsndfile raises a bare
@@ -32,11 +71,20 @@ def load_wav(path: Path, target_sr: int = 16000, _retries: int = 4) -> np.ndarra
     # semantics: on success the bytes, dtype and resampling path are identical,
     # so score.py and score_onnx.py still share one preprocessing definition.
     # A genuinely unreadable file still raises, just after the last attempt.
+    # A FLAC *decode* error (anything but SF_ERR_SYSTEM = 2) is deterministic,
+    # not transient: go straight to the MD5-verified decoder instead of retrying.
     import time
     for attempt in range(_retries + 1):
         try:
             wave, sr = sf.read(str(path), dtype="float32", always_2d=False)
             break
+        except sf.LibsndfileError as e:
+            if str(path).lower().endswith(".flac") and getattr(e, "code", 2) != 2:
+                wave, sr = _flac_md5_verified(Path(path))
+                break
+            if attempt == _retries:
+                raise
+            time.sleep(0.25 * (attempt + 1))
         except Exception:                                          # noqa: BLE001
             if attempt == _retries:
                 raise
@@ -159,6 +207,7 @@ def main():
             w.writerow([uid, lab, sc, args.model, args.dataset or "adhoc",
                         args.precision, args.runtime, cond, args.seed])
     print(f"wrote {len(rows)} scores -> {out}")
+    print(f"FLAC files decoded via the MD5-verified fallback (D34): {FLAC_FALLBACKS}")
 
 
 if __name__ == "__main__":

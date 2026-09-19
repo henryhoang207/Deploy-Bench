@@ -135,6 +135,8 @@ def main():
             w.writerow([u, l, v, a.model, a.dataset or "adhoc", a.precision,
                         a.runtime, cond, a.seed])
     print(f"wrote {len(rows)} scores -> {out}")
+    import score as _score
+    print(f"FLAC files decoded via the MD5-verified fallback (D34): {_score.FLAC_FALLBACKS}")
 
 
 if __name__ == "__main__":
