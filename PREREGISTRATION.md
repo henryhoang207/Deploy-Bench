@@ -42,14 +42,23 @@ is excluded from every "majority of models" count below.
   Tak et al. publish no 19LA-eval number (only 2021 LA 0.82% / DF 2.85%, both with RawBoost),
   so there is no anchor to gate against. Acceptable only because it is unranked; stated in
   the reproduction table rather than silently omitted.
-  **RawNet2 is gated on 2021 DF eval, B04 = 22.38%** (Yamagishi et al. 2021; amendment
-  2026-09-18, D32). The released checkpoint is the 2021 DF-baseline run (19LA train only). The
-  19LA 5.64% (Tak et al. 2021) comes from a different run (train + 90% dev), so it is reported but not gated.
-  Until the DF21 gate runs, RawNet2's status is PENDING and no cross-model claim is final.
+  **RawNet2 is gated on the 2021 DF eval CLEAN surface: the official B04 scores give 15.064% EER
+  there** (amendments 2026-09-18 D32 and 2026-09-19 D33). The released checkpoint is the 2021
+  DF-baseline run (19LA train only). The 19LA 5.64% (Tak et al. 2021) comes from a different run
+  (train + 90% dev), so it is reported but not gated. The pooled B04 22.38% cannot be gated: for
+  43% of trials the organisers scored audio that the public files no longer decode to (D34).
+  **Gate result 2026-09-19: PASS**, 15.0636% vs 15.064%, with per-trial agreement to max 3.7e-5
+  over 305,525 trials.
 - Exclusion rule: models failing the reproduction gate are reported but excluded
   from cross-model claims.
 - Eval-set versions: frozen at roster freeze. ASVspoof 5 is **deferred** (D30 open call) —
   if it is later added, that is a logged deviation.
+- **ASVspoof 2021 DF surface (D34, amendment 2026-09-19):** the eval subset minus FLAC
+  integrity class B, which leaves **455,508 trials**. Class B is the 78,420 trials whose only
+  available decode fails the file's STREAMINFO MD5, listed in `configs/df21_classB.txt`.
+  Class A (149,983 trials that libFLAC >= 1.4 rejects) is decoded by libFLAC-1.3-equivalent
+  ffmpeg and accepted only if the decode matches the stored MD5. The clean-only surface
+  (305,525 trials) is reported as a sensitivity analysis.
 - Deviations from this document are logged in DEVIATIONS.md with rationale.
 
 ## Declared limitations of the frozen roster (write into the paper, do not discover later)
