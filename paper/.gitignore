@@ -1,0 +1,10 @@
+# LaTeX build output (compile with MiKTeX + ieeetran; see progress.md)
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.pdf
+*.synctex.gz
+*.fdb_latexmk
+*.fls

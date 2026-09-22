@@ -1,0 +1,502 @@
+%==============================================================================
+%  IEEE TRANSACTIONS ON INFORMATION FORENSICS AND SECURITY (TIFS)
+%  Manuscript skeleton -- DeployBench: on-device benchmark of speech CMs
+%
+%  Structure follows 00_planning/paper_outline.md (v2). Section-level guidance
+%  is left in % comments; each cites the governing decision (Dxx) or doc.
+%  Metric defs encode the Tier-1 reconciliation (TTG ref term = min-HTER, D19
+%  candidate; QTS per experiment_protocol.md sec.3.5).
+%
+%  Compile: pdflatex -> bibtex -> pdflatex x2   (needs refs.bib alongside)
+%  Template: standard IEEEtran journal class (TIFS is NOT compsoc).
+%==============================================================================
+\documentclass[journal]{IEEEtran}
+
+% ---- packages -------------------------------------------------------------
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{siunitx}          % latency/energy units
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\usepackage{url}
+\usepackage[capitalize,noabbrev]{cleveref}
+
+% ---- draft helpers (delete before submission) -----------------------------
+\newcommand{\todo}[1]{\textcolor{red}{[\textbf{TODO:} #1]}}
+\newcommand{\placeholder}[1]{\textcolor{gray}{\emph{#1}}}
+
+% ---- project macros -------------------------------------------------------
+\newcommand{\bench}{\textsc{DeployBench}}
+\newcommand{\ttg}{\mathrm{TTG}}
+\newcommand{\qts}{\mathrm{QTS}}
+\newcommand{\hter}{\mathrm{HTER}}
+\newcommand{\frr}{\mathrm{FRR}}
+\newcommand{\far}{\mathrm{FAR}}
+\newcommand{\eer}{\mathrm{EER}}
+\newcommand{\taustar}{\tau^{\star}}
+
+\begin{document}
+
+% ============================ TITLE ========================================
+% Working title (paper_outline.md). Shorten for the running head.
+% RETITLE BEFORE SUBMISSION (D30). With the roster frozen at five, "Benchmark"
+% in the title invites the breadth objection at first glance -- lm-Meter,
+% WhisperKit and MLPerf all cover far more systems. The paper is a PROTOCOL
+% paper with a demonstration audit; lead with the protocol and the two metrics.
+\title{Can Deepfake Voice Detectors Run on Your Phone?\\
+An End-to-End On-Device Benchmark of Speech\\ Anti-Spoofing Countermeasures}
+
+\author{
+  Hoan~Hoang,~\IEEEmembership{}
+  and~\todo{co-authors, advisor}
+  \thanks{Manuscript submitted \todo{Jan 2027}. \todo{funding/affiliations.}}
+  \thanks{Code and harness: \url{https://github.com/\todo{repo}}.}
+}
+
+% Running heads
+\markboth{IEEE Transactions on Information Forensics and Security,~Vol.~XX, No.~X, \todo{Month Year}}%
+{Hoang \MakeLowercase{\textit{et al.}}: On-Device Benchmark of Speech Anti-Spoofing Countermeasures}
+
+\maketitle
+
+% ============================ ABSTRACT =====================================
+\begin{abstract}
+% Write LAST. Compress to: (1) the regime gap -- CMs are scored at oracle
+% thresholds, fp32, on server GPUs; deployment is fixed tau, quantized, phone
+% CPU, lossy channels. (2) What we do -- convert N published CMs through
+% reproduce->convert->quantize->deploy, measure on 3 phones under fixed-tau.
+% (3) Two coined metrics (TTG, QTS). (4) The two headline findings, with
+% numbers, once known. (5) The released harness + deployability guidance.
+% Do NOT claim "nobody runs detection on phones" (D2) -- claim no OPEN,
+% reproducible, systematic on-device evaluation exists.
+\placeholder{One-paragraph abstract, \(\sim\)200 words. Fill after Results freeze.}
+\end{abstract}
+
+\begin{IEEEkeywords}
+Audio deepfake detection, speech anti-spoofing, countermeasures, on-device
+inference, quantization, threshold calibration, half-total error rate,
+benchmarking, mobile.
+\end{IEEEkeywords}
+
+% ============================ 1. INTRODUCTION ==============================
+\section{Introduction}
+\label{sec:intro}
+\IEEEPARstart{S}{peech} deepfake countermeasures\todo{open the regime gap}.
+% ~1.5 pp. Argument spine (paper_outline sec.1):
+%  - Published CMs are evaluated at an ORACLE threshold on the labeled test set,
+%    in fp32, on server GPUs. Deployment shares none of it: tau fixed in advance,
+%    weights quantized, phone CPU, lossy channels. Cite zhou26 for the
+%    operating-point blowup (0.21% EER -> 39.5% HTER, 78.7% bona fide rejected).
+%  - The generalization gap is documented (muller22, berisha25); the DEPLOYMENT
+%    gap end-to-end is not measured anywhere.
+%  - Lead with the two headline findings once known (candidates: H1
+%    anti-correlation / H3 QTS / worst conversion casualty).
+
+\subsection*{Contributions}
+% paper_outline sec.1. Keep the non-goals explicit (D1: no new model).
+\begin{itemize}
+  \item \textbf{\bench{}}: a reproducible protocol and released harness for
+        fixed-threshold, on-device evaluation of speech CMs --- threshold
+        transfer, \(\frr/\far\) decomposition, sensitivity curves, a channel
+        stress suite, and mobile latency/energy/thermal methodology.
+  \item \textbf{An audit} of \todo{N} countermeasures across
+        \(\{\text{fp32},\text{fp16},\text{int8}\}\) precisions, two runtimes,
+        \todo{K} evaluation sets, and 3 physical phones, with pre-registered
+        hypotheses and bootstrap confidence intervals.
+  \item \textbf{Two metrics}: the \emph{threshold transfer gap} (\ttg{}) and the
+        \emph{quantization-induced threshold shift} (\qts{}), the latter not
+        previously reported.
+  \item \textbf{Deployability guidance}: a per-device-tier decision table and a
+        released Android application.
+\end{itemize}
+\noindent\emph{Non-goals.} We propose no new detector (D1) and do not study
+open-world generalization beyond the transfer targets used here.
+
+% ============================ 2. RELATED WORK ==============================
+\section{Related Work}
+\label{sec:related}
+% ~1.5 pp, 6 paragraphs, each a DIFFERENT differentiator (D7). Positioning
+% table after para 3. Cites keyed to refs.bib. Corrections from the Tier-1/2
+% reconciliation are baked in -- do not "restore" the removed claims.
+
+\subsection{Detection SOTA and its evaluation regime}
+Progress in speech anti-spoofing has been organized largely by the ASVspoof
+challenge series \cite{yamagishi21_asvspoof2021,wang24_asvspoof5}, and the
+current state of the art is a family of self-supervised (SSL) front-ends ---
+wav2vec\,2.0, XLS-R, and WavLM \cite{babu22_xlsr,chen22_wavlm} --- coupled to
+graph-attention or attentive-pooling back-ends
+\cite{jung22_aasist,tak22_xlsr_aasist}. Such systems report equal-error rates
+(EER) below \SI{0.3}{\percent} on the ASVspoof\,2019 LA benchmark and dominate
+recent leaderboards \cite{li25_survey}. Two properties matter here. First, the
+headline systems are large: the SSL back-bones alone span roughly 90 to 300
+million parameters, placing their memory and compute well outside a phone's
+per-inference budget. Second, they are compared almost exclusively by EER and
+detection-cost functions evaluated at an \emph{oracle} operating point chosen on
+the labeled test set. We therefore treat these models not as baselines to beat
+but as a regime to characterize: we retain one representative SSL system
+(XLS-R\,+\,AASIST) as an unranked server-side reference and ask what becomes of
+the rest once they are quantized and fixed to a single threshold. Our
+contribution here is one of \emph{regime}, not accuracy.
+
+\subsection{Generalization failure}
+Cross-corpus fragility has been documented for a decade. M\"{u}ller et
+al.\ \cite{muller22_in_the_wild} introduced the In-the-Wild corpus and showed
+that a roster of twelve \emph{pre-SSL} architectures loses one to three orders
+of magnitude of accuracy on it; SSL front-ends have since narrowed, though not
+closed, this gap. Berisha et al.\ \cite{berisha25_coverage_debt} frame the
+residual failure structurally: the space of deployment conditions grows
+multiplicatively while data grows additively, so a non-zero error floor is
+unavoidable and detectors are best used as auxiliary signals rather than sole
+gates. The community's response has been overwhelmingly \emph{training-side} ---
+new augmentation schemes, re-synthesized hard negatives, and larger multilingual
+corpora \cite{mlaad24}.% \todo{method-wave cluster: 2501.14240 / 2509.00186 / 2606.30791}
+These interventions change what a model learns but continue to report a single
+oracle EER; ours is orthogonal and lies entirely on the evaluation side, where
+the threshold is fixed before the target is seen.
+
+\subsection{Thresholds and calibration: the key precedent}
+A deployed detector enjoys no oracle: its threshold must be fixed in advance and
+applied to unlabeled traffic. Biometric authentication long distinguished
+a-priori from a-posteriori thresholds and reported the half-total error rate
+(HTER) at a fixed operating point \cite{bengio04_hter}; the tandem detection cost
+function \cite{kinnunen18_tdcf} and its ASVspoof\,5 successors refined
+cost-sensitive scoring, yet EER remains the de facto headline. The precedent
+closest to ours is Zhou and Wang \cite{zhou26_eer_hides}, who freeze a
+state-of-the-art CM and transfer its source threshold: a \SI{0.21}{\percent}-EER
+detector rejects \SI{78.7}{\percent} of genuine In-the-Wild speech, and the
+standard unlabeled corrections either provably cannot alter the ranking or fail
+with opposite sign on two targets that differ only in class prior. ASVspoof\,5
+independently surfaced calibration as a deployment concern --- its strongest open
+submission attains near-oracle minDCF yet a degenerate actDCF
+\cite{wang24_asvspoof5}. Benchmark tooling such as AUDDT \cite{auddt25}
+aggregates detectors but remains desktop-bound and oracle-metric. Where this line
+\emph{diagnoses} that post-hoc score repair is limited, we take the diagnosis as
+a design constraint: we revive fixed-threshold HTER for countermeasures,
+mandate its \(\frr/\far\) decomposition, and carry it onto physical devices.
+
+% >>> positioning matrix here (related_work_matrix.md) <<<
+\begin{table}[!t]
+\caption{Positioning against prior work. \todo{port related\_work\_matrix.md}}
+\label{tab:positioning}
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lccccc}
+\toprule
+Work & Fixed-$\tau$ & On-device & Quant. & Channel & Harness \\
+\midrule
+\todo{rows} & & & & & \\
+\textbf{This work} & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\subsection{Efficient and edge detection}
+A smaller body of work optimizes countermeasures for size and speed. Pascu et
+al.\ \cite{pascu25_edge_plugin} truncate a 300M-parameter SSL model to its lower
+layers (\(\sim\)\num{101}M) and run it inside a browser via ONNX Runtime;
+layer-wise analyses \cite{elkheir25_layerwise} show that the earliest SSL layers
+carry most of the spoofing-discriminative signal, motivating exactly such
+truncation, and pruning has been applied to the same back-bones
+\cite{pruning_ssl}. These systems shrink the model yet still evaluate it at an
+oracle EER on a workstation --- and, in the deployed browser plugin, emit a hard
+bona-fide/spoof verdict at a threshold that is never stated or measured. Their
+axis is orthogonal to ours and the two compose: they hold the operating point
+fixed and shrink the model, whereas we hold the model fixed and move the
+operating point onto physical hardware. Compression that preserves oracle EER
+tells us nothing about whether the threshold shipped with it still separates the
+classes --- which is precisely the quantity we define and measure.
+% REWRITTEN 2026-07-29 (D30). The previous version claimed "our audit *includes*
+% a truncated SSL model rather than treating this work as external". That
+% depended on roster slot #7, dropped at the roster freeze, so the claim is now
+% false. This is the paper's weakest differentiation and reading_tiers.md flags
+% pascu25 as "differentiation must survive review" -- do NOT restore the
+% inclusion claim, and do not let this paragraph get thinner than it is.
+
+\subsection{Robustness under channel degradation}
+A parallel literature stresses the input signal. Recent challenges and studies
+inject codec, VoIP, and real-world corruption to probe detector robustness
+\cite{radar26,realworld_comms24}, and ASVspoof\,2021's deepfake track built
+media-storage codec and compression variability directly into its evaluation set
+\cite{yamagishi21_asvspoof2021}. This work and ours are complementary along a
+clean axis: they perturb the \emph{input} while scoring at an oracle threshold,
+whereas we hold the input fixed and perturb the \emph{operating point}. The two
+are composable, and we adopt their corruption families inside our stress suite
+while additionally freezing the threshold, so that a codec's effect surfaces as a
+shift in deployed \(\frr/\far\) rather than as a change in oracle EER.
+
+\subsection{On-device benchmarking and speech-model quantization}
+Rigorous on-device measurement methodology exists, but for neighboring tasks.
+MLPerf Mobile and Tiny \cite{reddi22_mlperf_mobile,mlperf_tiny} codify warmup,
+repetition, and reporting discipline for latency and energy, and recent systems
+port this to on-device speech recognition and language models
+\cite{whisperkit25}. Separately, compression of speech SSL models has been
+studied for recognition: 8-bit quantization of wav2vec\,2.0 costs about
+\SI{0.1}{\percent} WER \cite{pimentel23_ssl_compression}, with similar findings
+for Whisper and mixed-precision speech foundation models
+\cite{quantwhisper25,mixedprec25}. Two gaps remain. No open, reproducible
+on-device benchmark exists for anti-spoofing, in contrast to the ASR and LM
+tooling above. And every speech-compression study measures a threshold-free
+quantity --- word error rate --- so the effect of quantization on a decision
+\emph{threshold} has never been reported; because recognition has no threshold to
+move, this absence is categorical rather than a matter of coverage. We port the
+measurement discipline of the former and open the metric gap of the latter
+with \qts{}.
+
+% ============================ 3. PROTOCOL ==================================
+\section{The \bench{} Protocol}
+\label{sec:protocol}
+% ~2 pp. Defend each choice in ONE sentence. Source: experiment_protocol.md.
+
+\subsection{Score contract and threshold transfer}
+% Label 1 = bona fide, score higher = bona fide, decision SPOOF if s<tau.
+% tau calibrated on cohort-matched SOURCE DEV only, then frozen (D16, tau.py).
+Each CM emits a scalar score \(s(x)\in\mathbb{R}\), higher meaning more
+bona-fide-like; the decision is bona fide iff \(s(x)\ge\tau\). We fix
+\(\taustar\) on the development split matching each model's fine-tuning data at
+three operating points and transfer it unchanged to every target, precision,
+and stress condition:
+\begin{itemize}
+  \item \(\taustar_{\eer}\): the equal-error crossing on dev (interpolated);
+  \item \(\taustar_{\frr1},\ \taustar_{\frr5}\): the strictest threshold whose
+        dev bona-fide rejection is \(\le 1\%\) resp.\ \(\le 5\%\).
+\end{itemize}
+% NOTE the protocol's "FPR-x%" == this project's FRR (bona fide flagged spoof).
+
+\subsection{Reported quantities}
+For a transferred threshold \(\taustar\) on a target set we report
+\(\hter(\taustar)=\tfrac12[\frr(\taustar)+\far(\taustar)]\) with the
+\(\frr/\far\) decomposition mandatory, alongside the oracle \(\eer\) as
+reference.
+
+\subsection{Threshold transfer gap (\ttg{})}
+% D19 candidate: reference term = min-HTER, NOT EER, so TTG is well-defined at
+% all three operating points and is not a renaming of an EER-point identity.
+\begin{equation}
+\ttg(\taustar) \;=\; \hter(\taustar) \;-\; \min_{\tau}\hter(\tau),
+\label{eq:ttg}
+\end{equation}
+the excess deployment error from transferring \(\taustar\) rather than an
+oracle-optimal threshold on the target.% At the EER point the reference reduces
+% to EER; we use min-HTER so TTG is defined at frr1/frr5 too. (see D19)
+
+\subsection{Quantization-induced threshold shift (\qts{})}
+% experiment_protocol.md sec.3.5. Needs BOTH the fp32 tau and the
+% precision-matched tau -> recalibrate tau per precision on dev.
+\begin{equation}
+\qts \;=\; \hter\!\left(s_{q},\,\taustar_{\text{fp32}}\right)
+        \;-\; \hter\!\left(s_{q},\,\taustar_{q}\right),
+\label{eq:qts}
+\end{equation}
+for quantized scores \(s_q\), measured in-domain and on transfer targets, per
+precision \(q\in\{\text{fp16},\text{int8}\}\).
+
+\subsection{Sensitivity, stress suite, and device methodology}
+% One para each: threshold-sensitivity curve + safe-band width; codec/noise/IR
+% stress (applied to bona fide AND spoof); device protocol (thermal gate,
+% warmup, repetitions -- reconcile against MLPerf single-stream run rules:
+% >=1024 samples / >=60 s / p90; see reddi22 note + decision.md open item 5).
+\placeholder{sensitivity / stress / device methodology}
+
+% ============================ 4. PIPELINE & ROSTER ========================
+\section{End-to-End Pipeline and Model Roster}
+\label{sec:pipeline}
+% ~2 pp. Roster table + selection rationale; conversion pipeline (runtimes,
+% precisions); preprocessing-parity methodology; Android app (one figure).
+
+\begin{table*}[!t]
+\caption{Model roster (frozen, D30) and selection rationale. One representative
+per int8 failure \emph{mechanism} rather than per architecture family. Params,
+input, frontend, and predicted int8 outcome per
+\texttt{reference\_architectures.md}.}
+\label{tab:roster}
+\centering
+\begin{tabular}{llrllll}
+\toprule
+\# & Model & Params & Input & Frontend & Mechanism under test & Score conv.\ (author repo) \\
+\midrule
+1 & AASIST            & 297K  & raw       & SincConv & graph attention & \verb|out[:,1]| \\
+2 & AASIST-L          & 85K   & raw       & SincConv & \emph{within-class control} & \verb|out[:,1]| \\
+3 & RawNet2           & 17.6M & raw       & SincConv & recurrence (GRU) & \verb|out[:,1]| \\
+4 & Res-TSSDNet       & 350K  & raw (6\,s)& conv     & plain convolution & \verb|out[:,0]-out[:,1]| \\
+5 & XLSR+AASIST\,\textsuperscript{ref} & 315M & raw & SSL CNN & transformer & \verb|out[:,1]| \\
+\bottomrule
+\end{tabular}
+\end{table*}
+% NOTE per-repo score conventions differ (D9); Res-TSSDNet has bonafide=index 0.
+% XLSR+AASIST is the UNRANKED server reference (D16), is in a different score
+% space from zhou26, and enters reproduction UNGATED -- Tak et al. publish no
+% 19LA-eval anchor. RawNet2's GRU is 16.1M of 17.6M params (92%), which is why
+% an int8 row that falls back on it saves almost nothing -- state that in 6.1.
+% AASIST/AASIST-L is the study's ONLY within-class replication; H6 is therefore
+% stated at op level and declared hypothesis-generating, not predictive (D30).
+% Excluded at freeze: RawGAT-ST, LFCC-LCNN, WavLM-trunc, WavLM+MHFA, pruned SSL.
+% The three declared roster limitations (no handcrafted-feature model; one GAT
+% lineage; ranked roster is pre-SSL-era) belong in Sec.~\ref{sec:discussion}.
+
+\subsection{Conversion and quantization}
+% PTQ config as methodology, not defaults (D17): S8S8, per-channel weights, QDQ,
+% 500-clip calibration. Every int8 row ships its fp32-fallback op list (=H6).
+% fp16 via graph conversion, not net.half() (D18). Preview conversion failures.
+\placeholder{conversion pipeline; PTQ config; fp16 policy}
+
+\subsection{Preprocessing-parity methodology}
+% P3 PRIMARY GATE: zero decision flips at all three operating points between
+% on-device feature extraction and the Python reference. Feature drift (1e-3)
+% is diagnostic, not a gate.
+\placeholder{parity methodology + Android app figure}
+
+% ============================ 5. EXPERIMENTAL SETUP =======================
+\section{Experimental Setup}
+\label{sec:setup}
+% ~1 p. Datasets/splits; phones table; seeds where retrained; CIs;
+% pre-registration statement + repo link.
+
+\subsection{Datasets}
+% ASVspoof19 LA (source), 21 DF, ASVspoof5, In-the-Wild, MLAAD. Record ITW
+% caveat: audio is 8-bit/16kHz, social-media provenance (tandem compression).
+% AS5 dev is clean/no-codec but eval has 11 codec conditions -> dev-frozen tau
+% is biased on eval (D24 candidate). DF21 loader must filter subset==eval.
+\placeholder{datasets + splits table}
+
+\begin{table}[!t]
+\caption{Devices. \todo{fill from phones.md}}
+\label{tab:phones}
+\centering
+\begin{tabular}{llll}
+\toprule
+Tier & Phone & SoC / RAM & OS build \\
+\midrule
+Flagship & \todo{} & \todo{} & \todo{} \\
+Mid      & \todo{} & \todo{} & \todo{} \\
+Low      & \todo{} & \todo{} & \todo{} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Hypotheses and statistical protocol}
+% research_methodology.md Part C is BINDING. Exploratory vs confirmatory split;
+% Holm-Bonferroni on confirmatory families; two cost models; 3-session device
+% measures; decision-flip parity gate.
+\begin{table}[!t]
+\caption{Pre-registered hypotheses (audit\_plan.md). E = exploratory (effect
+size + CI only); C = confirmatory (Holm--Bonferroni family).}
+\label{tab:hypotheses}
+\centering
+\begin{tabular}{clc}
+\toprule
+H & Statement & Type \\
+\midrule
+H1 & Oracle EER anti-correlates with \ttg{} (target fixed) & E \\
+H2 & \(\frr/\far\) asymmetry under transfer & C \\
+H3 & \qts{}: quantization moves the operating point & C \\
+H4 & \ttg{} vs parameter count (85\,K--315\,M) & E \\
+H5 & Neural-codec (EnCodec) corrupts bona fide & C \\
+H6 & int8 coverage is non-uniform across op classes & C \\
+\bottomrule
+\end{tabular}
+\end{table}
+% H1 CAUTION: test with the TARGET HELD FIXED -- zhou26's two points (LA->ITW
+% TTG 28.3 vs LA->DF21 TTG 9.1, same model) show target prior dominates.
+% H4 RESTATED by D30: "SSL scale buys separability, not calibration" needed
+% multiple SSL points; the frozen roster has one and it is unranked. Consequence
+% to own in Sec.~\ref{sec:discussion}: this study can no longer refute "just use
+% a bigger model" with data -- answer it by argument and citation instead.
+% H6 RESTATED at op level by D30. Declare the inferential limit in the text:
+% with one model per op class this is hypothesis-generating, not a predictive
+% rule; AASIST/AASIST-L is the only within-class replication we have.
+% "Majority of models" in H2/H3/H5 = majority of the FOUR RANKED models;
+% XLSR+AASIST is excluded from those counts (D16).
+We pre-register H1--H6 \todo{repo commit hash} before any Stage-P5 run.
+
+% ============================ 6. RESULTS ==================================
+\section{Results}
+\label{sec:results}
+% ~4.5 pp. Subsections map to RQ1-3 + stress + synthesis (paper_outline sec.6).
+
+\subsection{Deployability (RQ1)}
+\label{sec:res-deploy}
+% Conversion/parity matrix; op-level failure analysis (H6). "N/A -- does not
+% fit" rows for the 317M SSL reference. This is where the H6 op inventory from
+% the Tier-2 notes lands (ScatterND/topk in AASIST; GRU in RawNet2; pos-bias
+% gather in WavLM; SincConv constant-folds; TSSDNet clean control).
+\placeholder{conversion/parity matrix + op-level failure analysis}
+
+\subsection{Operating behavior (RQ2)}
+\label{sec:res-opbehav}
+% TTG headline figure; FRR/FAR heatmap (H2); sensitivity curves; H1 scatter
+% (oracle EER vs TTG); post-hoc calibration failure rows.
+% INTEGRITY GATE (D20): any monotone transform (temperature scaling, z-norm)
+% row reporting non-zero delta-EER is a bug/leak, not a finding (zhou26 Prop 1).
+\placeholder{TTG figure, FRR/FAR heatmap, sensitivity, H1 scatter}
+
+\subsection{Quantization (H3)}
+\label{sec:res-quant}
+% QTS table; decision flips; per-architecture sensitivity (SincConv vs conv vs
+% attention). Watch int8 score-tie collapse coarsening the dev grid.
+\placeholder{QTS table + decision flips}
+
+\subsection{Cost (RQ3)}
+\label{sec:res-cost}
+% Pareto bubbles (HTER@tau* vs latency vs energy, size=params) per device tier;
+% thermal throttling curves; scale-vs-calibration bars (H4).
+\placeholder{Pareto bubbles, thermal curves}
+
+\subsection{Channel stress}
+\label{sec:res-stress}
+% Codec curves incl. EnCodec bona-fide corruption (H5); noise/IR; MLAAD
+% multilingual slice. Report WORST-CASE over conditions, not just means (D21).
+\placeholder{codec/noise/IR curves}
+
+\subsection{Synthesis: the deployability decision table}
+\label{sec:res-synth}
+% The practitioner artifact: which model to ship per device tier and use case,
+% and what breaks.
+\placeholder{deployability decision table}
+
+% ============================ 7. DISCUSSION ===============================
+\section{Discussion and Limitations}
+\label{sec:discussion}
+% ~1 p. PTQ-only (no QAT, out of scope); 3 phones (named case studies, not tier
+% estimates; harness released); checkpoints as-is (removes retraining confound,
+% inherits authors' training choices); recalibration guidance; ethics --
+% fixed-threshold FRR failures disproportionately reject real speakers.
+% Also concede: bona-fide-domain coverage is thin (mostly read speech +1
+% conversational target); ITW confounds (parody spoofs, 8-bit provenance).
+%
+% ROSTER LIMITATIONS -- MANDATORY, from D30. Do not soften these:
+%  (a) No handcrafted-feature model (LFCC-LCNN excluded), so on-device feature
+%      parity is demonstrated only for raw-waveform preprocessing.
+%  (b) One GAT lineage, so family-level generalization about graph-attention
+%      models is not supported by this study's own data. AASIST/AASIST-L is the
+%      only within-class replication.
+%  (c) The ranked roster is pre-SSL-era (2021-22); the single SSL model is
+%      unranked and expected to yield no device rows. NOTE this is structurally
+%      the same criticism our own reading pass levelled at muller22, whose 12
+%      architectures contained zero SSL models -- say so before a reviewer does.
+%  (d) ASVspoof 5 deferred out of scope; the three shift axes (ITW corpus,
+%      MLAAD language, 21DF+stress channel) are what carry the shift claims.
+%  Defence, stated plainly: the contribution is the REGIME and the PROTOCOL,
+%  which are roster-independent, plus a released harness that makes adding a
+%  model cheap. Breadth is explicitly not the claim.
+\placeholder{discussion + limitations}
+
+% ============================ 8. CONCLUSION ===============================
+\section{Conclusion}
+\label{sec:conclusion}
+% ~0.5 p. Restate the two findings; the harness as the durable contribution;
+% the recommendation (report HTER at a transferred threshold alongside EER).
+\placeholder{conclusion}
+
+% ============================ ACK / BIB ===================================
+\section*{Acknowledgment}
+\placeholder{acknowledgments}
+
+\bibliographystyle{IEEEtran}
+\bibliography{refs}
+
+% \begin{IEEEbiography}{...}\end{IEEEbiography}  % optional author bios
+
+\end{document}

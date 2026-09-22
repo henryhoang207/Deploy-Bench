@@ -1,0 +1,276 @@
+%==============================================================================
+% Starter .bib for the TIFS manuscript. Keys match 01_references/notes/.
+% VERIFY every arXiv ID / venue against the PDF before the .bib freeze
+% (decision.md flags 2025-26 IDs AND several pre-2025 attributions as wrong).
+% Placeholders marked TODO. Not exhaustive -- add wave 2/3 cites as read.
+%==============================================================================
+
+% ---- Tier 1: threshold / calibration / generalization ---------------------
+@article{zhou26_eer_hides,
+  author  = {Zhou, Jingwen and Wang, Mingzhe},
+  title   = {When {EER} Hides Deployment Failure: Auditing Threshold Transfer
+             and Unlabeled Score Calibration for Speech Deepfake Detectors},
+  journal = {arXiv preprint arXiv:2606.21584},
+  year    = {2026}
+}
+
+@inproceedings{muller22_in_the_wild,
+  author    = {M\"{u}ller, Nicolas M. and Czempin, Pavel and Dieckmann, Franziska
+               and Froghyar, Adam and B\"{o}ttinger, Konstantin},
+  title     = {Does Audio Deepfake Detection Generalize?},
+  booktitle = {Proc. Interspeech},
+  pages     = {2783--2787},
+  year      = {2022},
+  doi       = {10.21437/Interspeech.2022-108}
+}
+
+@article{berisha25_coverage_debt,
+  author  = {Berisha, Visar and Kadambi, Prad and Lenz, Isabella},
+  title   = {Why Speech Deepfake Detectors Won't Generalize:
+             The Limits of Detection in an Open World},
+  journal = {arXiv preprint arXiv:2509.20405},
+  year    = {2025}
+}
+
+@inproceedings{bengio04_hter,
+  author    = {Bengio, Samy and Mari\'{e}thoz, Johnny},
+  title     = {A Statistical Significance Test for Person Authentication},
+  booktitle = {Proc. Odyssey: The Speaker and Language Recognition Workshop},
+  year      = {2004}
+}
+
+@inproceedings{geifman17_selective,
+  author    = {Geifman, Yonatan and El-Yaniv, Ran},
+  title     = {Selective Classification for Deep Neural Networks},
+  booktitle = {Proc. NeurIPS},
+  year      = {2017}
+}
+
+% ---- Tier 1: measurement / quantization discipline ------------------------
+@inproceedings{reddi22_mlperf_mobile,
+  author    = {Reddi, Vijay Janapa and Kanter, David and Mattson, Peter and others},
+  title     = {{MLPerf} Mobile Inference Benchmark},
+  booktitle = {Proc. MLSys},
+  year      = {2022}
+}
+
+@article{nagel21_quant_whitepaper,
+  author  = {Nagel, Markus and Fournarakis, Marios and Amjad, Rana Ali and
+             Bondarenko, Yelysei and van Baalen, Mart and Blankevoort, Tijmen},
+  title   = {A White Paper on Neural Network Quantization},
+  journal = {arXiv preprint arXiv:2106.08295},
+  year    = {2021}
+}
+
+@article{pimentel23_ssl_compression,
+  author  = {Pimentel, Arthur and Guimar\~{a}es, Heitor and Avila, Anderson R.
+             and Rezagholizadeh, Mehdi and Falk, Tiago H.},
+  title   = {On the Impact of Quantization and Pruning of Self-Supervised Speech
+             Models for Downstream Speech Recognition Tasks ``In-the-Wild''},
+  journal = {arXiv preprint arXiv:2309.14462},
+  year    = {2023}
+}
+
+% ---- Tier 1: datasets / challenges ---------------------------------------
+@inproceedings{wang24_asvspoof5,
+  author    = {Wang, Xin and Delgado, H\'{e}ctor and Tak, Hemlata and others},
+  title     = {{ASVspoof} 5: Crowdsourced Speech Data, Deepfakes, and
+               Adversarial Attacks at Scale},
+  booktitle = {Proc. ASVspoof Workshop},
+  year      = {2024},
+  note      = {arXiv:2408.08739}
+}
+
+@inproceedings{yamagishi21_asvspoof2021,
+  author    = {Yamagishi, Junichi and Wang, Xin and Todisco, Massimiliano and others},
+  title     = {{ASVspoof} 2021: Accelerating Progress in Spoofed and Deepfake
+               Speech Detection},
+  booktitle = {Proc. ASVspoof 2021 Workshop},
+  year      = {2021}
+}
+% NOTE: for DF trial counts cite the TASLP 2023 journal version (arXiv:2210.02437),
+% not this overview -- the overview publishes no counts.
+
+% ---- Tier 2: roster architectures ----------------------------------------
+@inproceedings{jung22_aasist,
+  author    = {Jung, Jee-weon and Heo, Hee-Soo and Tak, Hemlata and others},
+  title     = {{AASIST}: Audio Anti-Spoofing Using Integrated Spectro-Temporal
+               Graph Attention Networks},
+  booktitle = {Proc. IEEE ICASSP},
+  year      = {2022}
+}
+
+@inproceedings{tak21_rawnet2,
+  author    = {Tak, Hemlata and Patino, Jose and Todisco, Massimiliano and
+               Nautsch, Andreas and Evans, Nicholas and Larcher, Anthony},
+  title     = {End-to-End Anti-Spoofing with {RawNet2}},
+  booktitle = {Proc. IEEE ICASSP},
+  year      = {2021}
+}
+
+@inproceedings{tak21_rawgat_st,
+  author    = {Tak, Hemlata and Jung, Jee-weon and Patino, Jose and Kamble, Madhu
+               and Todisco, Massimiliano and Evans, Nicholas},
+  title     = {End-to-End Spectro-Temporal Graph Attention Networks for Speaker
+               Verification Anti-Spoofing and Speech Deepfake Detection},
+  booktitle = {Proc. ASVspoof 2021 Workshop},
+  year      = {2021}
+}
+
+@inproceedings{wang21_lfcc_comparative,
+  author    = {Wang, Xin and Yamagishi, Junichi},
+  title     = {A Comparative Study on Recent Neural Spoofing Countermeasures for
+               Synthetic Speech Detection},
+  booktitle = {Proc. Interspeech},
+  year      = {2021}
+}
+% CORRECTED: 2103.11326 is Wang & Yamagishi, NOT Lavrentyeva et al. (D-candidate).
+
+@article{hua21_res_tssdnet,
+  author  = {Hua, Guang and Teoh, Andrew Beng Jin and Zhang, Haijian},
+  title   = {Towards End-to-End Synthetic Speech Detection},
+  journal = {IEEE Signal Processing Letters},
+  volume  = {28},
+  year    = {2021}
+}
+
+@article{chen22_wavlm,
+  author  = {Chen, Sanyuan and Wang, Chengyi and Chen, Zhengyang and others},
+  title   = {{WavLM}: Large-Scale Self-Supervised Pre-Training for Full Stack
+             Speech Processing},
+  journal = {IEEE Journal of Selected Topics in Signal Processing},
+  year    = {2022}
+}
+
+@article{peng22_mhfa,
+  author  = {Peng, Junyi and Plchot, Old\v{r}ich and Stafylakis, Themos and
+             Mo\v{s}ner, Ladislav and Burget, Luk\'{a}\v{s} and \v{C}ernock\'{y}, Jan},
+  title   = {An Attention-Based Backend Allowing Efficient Fine-Tuning of
+             Transformer Models for Speaker Verification},
+  journal = {arXiv preprint arXiv:2210.01273},
+  year    = {2022}
+}
+
+@inproceedings{tak22_xlsr_aasist,
+  author    = {Tak, Hemlata and Todisco, Massimiliano and Wang, Xin and
+               Jung, Jee-weon and Yamagishi, Junichi and Evans, Nicholas},
+  title     = {Automatic Speaker Verification Spoofing and Deepfake Detection
+               Using {wav2vec} 2.0 and Data Augmentation},
+  booktitle = {Proc. Odyssey: The Speaker and Language Recognition Workshop},
+  year      = {2022}
+}
+
+@inproceedings{babu22_xlsr,
+  author    = {Babu, Arun and Wang, Changhan and Tjandra, Andros and others},
+  title     = {{XLS-R}: Self-Supervised Cross-Lingual Speech Representation
+               Learning at Scale},
+  booktitle = {Proc. Interspeech},
+  year      = {2022}
+}
+
+@inproceedings{elkheir25_layerwise,
+  author    = {El Kheir, \todo{first names} and others},
+  title     = {\todo{exact title} (Layer-wise Analysis of Self-Supervised Models
+               for Audio Deepfake Detection)},
+  booktitle = {Findings of NAACL},
+  year      = {2025}
+}
+
+% ---- pascu25 (closest competitor) -----------------------------------------
+@inproceedings{pascu25_edge_plugin,
+  author    = {Pascu, Octavian and Oneata, Dan and Cucu, Horia and M\"{u}ller, Nicolas M.},
+  title     = {Detecting Audio Deepfakes on the Edge: Lightweight {SSL}-Based
+               Detection in a Browser Plugin},
+  booktitle = {Proc. Int. Conf. on Speech Technology and Human-Computer Dialogue (SpeD)},
+  year      = {2025},
+  doi       = {10.1109/SpeD67700.2025.11252312}
+}
+
+% ---- TODO (wave 2/3, not yet noted): t-DCF, Guo temp-scaling, Hendrycks
+%      max-softmax, Liu energy-OOD, Jacob int8, MLPerf Tiny, TinyML pitfalls,
+%      Edge energy, WhisperKit, Quantizing Whisper, MLAAD, RADAR, EnCodec,
+%      RawBoost, real-world comms, Koehn paired bootstrap, Kwok et al. 2025.
+
+% ---- ADDED for Related Work (sec.2). Verify all before .bib freeze. --------
+@article{li25_survey,
+  author  = {Li, Menglu and Ahmadiadli, Yasaman and Zhang, Xiao-Ping},
+  title   = {A Survey on Speech Deepfake Detection},
+  journal = {ACM Computing Surveys},
+  volume  = {57}, number = {7}, year = {2025}
+}
+
+@inproceedings{mlaad24,
+  author    = {M\"{u}ller, Nicolas M. and Kawa, Piotr and Choong, Wei Herng and others},
+  title     = {{MLAAD}: The Multi-Language Audio Anti-Spoofing Dataset},
+  booktitle = {Proc. IJCNN},
+  year      = {2024},
+  note      = {arXiv:2401.09512}
+}
+
+@inproceedings{kinnunen18_tdcf,
+  author    = {Kinnunen, Tomi and Lee, Kong Aik and Delgado, H\'{e}ctor and
+               Evans, Nicholas and Todisco, Massimiliano and Sahidullah, Md and
+               Yamagishi, Junichi and Reynolds, Douglas A.},
+  title     = {{t-DCF}: A Detection Cost Function for the Tandem Assessment of
+               Spoofing Countermeasures and Automatic Speaker Verification},
+  booktitle = {Proc. Odyssey: The Speaker and Language Recognition Workshop},
+  year      = {2018},
+  note      = {arXiv:1804.09618}
+}
+
+@misc{auddt25,
+  title        = {{AUDDT}: Audio Unified Deepfake Detection Benchmark Toolkit},
+  howpublished = {arXiv:2509.21597},
+  year         = {2025},
+  note         = {TODO verify authors/title before .bib freeze}
+}
+
+@misc{pruning_ssl,
+  title        = {Hybrid Pruning of Self-Supervised Speech Models},
+  howpublished = {arXiv:2508.16232},
+  year         = {2025},
+  note         = {TODO verify authors/title before .bib freeze}
+}
+
+@misc{radar26,
+  title        = {{RADAR} Challenge: Robust Audio Deepfake Detection under Media Transformations},
+  howpublished = {arXiv:2605.09568},
+  year         = {2026},
+  note         = {TODO verify authors/exact title before .bib freeze}
+}
+
+@misc{realworld_comms24,
+  title        = {Benchmarking Robustness of Audio Deepfake Detection in Real-World Communication},
+  howpublished = {arXiv:2504.12423},
+  year         = {2025},
+  note         = {TODO verify authors/exact title before .bib freeze}
+}
+
+@inproceedings{mlperf_tiny,
+  author    = {Banbury, Colby and Reddi, Vijay Janapa and Torelli, Peter and others},
+  title     = {{MLPerf} Tiny Benchmark},
+  booktitle = {Proc. NeurIPS Datasets and Benchmarks Track},
+  year      = {2021},
+  note      = {arXiv:2106.07597}
+}
+
+@misc{whisperkit25,
+  title        = {{WhisperKit}: On-Device Real-Time {ASR} with Billion-Scale Transformers},
+  howpublished = {arXiv:2507.10860},
+  year         = {2025},
+  note         = {TODO verify authors/exact title before .bib freeze}
+}
+
+@misc{quantwhisper25,
+  title        = {Quantizing {Whisper}},
+  howpublished = {arXiv:2511.08093},
+  year         = {2025},
+  note         = {TODO verify authors/exact title before .bib freeze}
+}
+
+@misc{mixedprec25,
+  title        = {Mixed-Precision Quantization of Speech Foundation Models},
+  howpublished = {arXiv:2501.03643},
+  year         = {2025},
+  note         = {TODO verify authors/exact title before .bib freeze}
+}
