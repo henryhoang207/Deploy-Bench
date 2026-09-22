@@ -67,11 +67,12 @@ def test_cuda_scoring_is_true_fp32():
 
 def test_scorers_write_native_condition():
     """B4: both scorers must write DF21's per-trial `compr` into `condition`,
-    and refuse a --condition that would overwrite it."""
+    and refuse a --condition the audio does not carry (shared check)."""
+    assert "refusing --condition" in (M.parent / "score.py").read_text(encoding="utf-8")
     for f in ("score.py", "score_onnx.py"):
         s = (M.parent / f).read_text(encoding="utf-8")
         assert "native_conditions(" in s, f
-        assert "refusing --condition" in s, f
+        assert "check_condition(" in s, f
         assert "native[" in s, f
 
 

@@ -13,12 +13,13 @@ Ranking discipline (methodology C2, D16/D30): the roster is single-cohort as of
 D30, but xlsr_aasist remains an UNRANKED server reference -- exclude it from any
 ordering claim and from "majority of models" counts (see UNRANKED below).
 
-KNOWN GAP (2026-07-29 review, finding B3): this script re-derives tau via
-calibrate_tau() on the dev rows in the database, instead of loading the frozen
-tau_<model>.json that analysis/repro_report.py wrote and guards against drift.
-CLAUDE.md's rule is that tau is frozen once. Until this is switched to reading
-the frozen artifact, a change in the dev rows between freeze and analysis will
-silently shift every threshold in the paper's tables.
+Thresholds (review finding B3, fixed 2026-09-22): every tau comes from the
+frozen tau_<model>.json that analysis/repro_report.py wrote, never from
+re-calibration here. The database's fp32/pytorch ASVspoof19 LA dev rows must
+reproduce the frozen values exactly (drift guard), and ASVspoof19 LA dev is the
+only dev set accepted (D30). The one re-calibration left is the QTS
+counterfactual: tau re-derived on a QUANTIZED model's own dev scores, compared
+with the frozen fp32 tau. It is never used as a deployed threshold.
 """
 import argparse
 import sys
@@ -38,27 +39,59 @@ COHORT = {"aasist": "cohort19", "aasist_l": "cohort19", "rawnet2": "cohort19",
 UNRANKED = {"xlsr_aasist"}
 
 
+DEV_SET = "asvspoof19_dev"         # the ONLY tau surface (D16 as collapsed by D30)
+TAU_DIR = Path(__file__).resolve().parent.parent / "results" / "phase_1_reproduction"
+
+
 def is_dev(ds):
-    """tau-source rows.
-
-    NOTE (2026-07-29 review, finding B3): this is `endswith('_dev')`, which under
-    the old two-cohort design could silently pool asvspoof19_dev and asvspoof5_dev
-    for one model. D30 removes that hazard by construction -- there is exactly one
-    dev surface in the study, ASVspoof19 LA dev. If a second dev set is ever
-    reintroduced, this predicate must become cohort-aware again.
-    """
-    return ds.str.endswith("_dev")
+    """tau-source rows: exactly ASVspoof19 LA dev. Any other *_dev set is
+    refused in load_frozen_taus, so two dev surfaces can never be pooled."""
+    return ds == DEV_SET
 
 
-def analyze(db: pd.DataFrame, outdir: Path):
+def load_frozen_taus(db: pd.DataFrame, tau_dir: Path) -> dict:
+    """{model: {eer, frr1, frr5}} from tau_<model>.json (B3). Drift guard: the
+    database's fp32/pytorch dev rows must reproduce the frozen taus exactly,
+    so dev rows that changed after the freeze are refused, not absorbed."""
+    import json
+    other = sorted(set(db.dataset[db.dataset.str.endswith("_dev")]) - {DEV_SET})
+    if other:
+        raise SystemExit(f"dev sets other than {DEV_SET} in the database: {other}. "
+                         "D30 allows one tau surface; refusing to pool.")
+    taus = {}
+    for model in sorted(db.model.unique()):
+        p = Path(tau_dir) / f"tau_{model}.json"
+        if not p.exists():
+            raise SystemExit(f"{p} missing: no frozen tau for {model}. Freeze it "
+                             "with analysis/repro_report.py first.")
+        frozen = json.loads(p.read_text(encoding="utf-8-sig"))
+        ref = db[(db.model == model) & is_dev(db.dataset)
+                 & (db.precision == "fp32") & (db.runtime == "pytorch")]
+        if ref.empty or ref.seed.nunique() != 1 or ref.utt_id.duplicated().any():
+            raise SystemExit(f"{model}: need exactly one set of fp32/pytorch "
+                             f"{DEV_SET} rows to check the frozen tau for drift; "
+                             f"found {len(ref)} rows over seeds "
+                             f"{sorted(ref.seed.unique())}. Refusing.")
+        if len(ref) != frozen["n_dev"]:
+            raise SystemExit(f"{model}: {len(ref)} dev rows in the database, "
+                             f"{frozen['n_dev']} at freeze time. Refusing.")
+        again = calibrate_tau(ref.score.values, ref.label.values)
+        drift = {k: (v, again.get(k)) for k, v in frozen["taus"].items()
+                 if again.get(k) is None or abs(v - again[k]) > 1e-12}
+        if drift:
+            raise SystemExit(f"{model}: frozen tau drifts from the database's dev "
+                             f"rows {drift}. Investigate; never re-freeze silently.")
+        taus[model] = frozen["taus"]
+    return taus
+
+
+def analyze(db: pd.DataFrame, outdir: Path, tau_dir: Path = TAU_DIR):
     outdir.mkdir(parents=True, exist_ok=True)
+    frozen = load_frozen_taus(db, tau_dir)
     ttg_rows, qts_rows, sens_rows = [], [], []
     for (model, precision, runtime, seed), g in db.groupby(
             ["model", "precision", "runtime", "seed"]):
-        dev = g[is_dev(g.dataset)]
-        if dev.empty:
-            continue
-        taus = calibrate_tau(dev.score.values, dev.label.values)
+        taus = frozen[model]              # the deployed thresholds, every cell
         ev = g[~is_dev(g.dataset)].copy()
         ev["cell"] = ev.dataset + ":" + ev.condition
         for cond, gc in ev.groupby("cell"):
@@ -80,22 +113,22 @@ def analyze(db: pd.DataFrame, outdir: Path):
     ttg.to_csv(outdir / "ttg_table.csv", index=False)
     pd.DataFrame(sens_rows).to_csv(outdir / "sensitivity.csv", index=False)
 
-    # ---- QTS (H3): fp32 tau vs same-cell quantized tau, on quantized scores
-    for (model, runtime, seed), g in db.groupby(["model", "runtime", "seed"]):
-        devs = {p: d for p, d in g[is_dev(g.dataset)].groupby("precision")}
-        if "fp32" not in devs:
+    # ---- QTS (H3): frozen fp32 tau vs the COUNTERFACTUAL tau re-derived on the
+    # quantized model's own dev scores (what re-calibrating would have given).
+    # tau32 is the deployed threshold; tauq is never deployed.
+    for (model, runtime, seed, prec), g in db.groupby(
+            ["model", "runtime", "seed", "precision"]):
+        dev = g[is_dev(g.dataset)]
+        if prec == "fp32" or dev.empty:
             continue
-        tau32 = calibrate_tau(devs["fp32"].score.values,
-                              devs["fp32"].label.values)["eer"]
-        for prec in [p for p in devs if p != "fp32"]:
-            tauq = calibrate_tau(devs[prec].score.values,
-                                 devs[prec].label.values)["eer"]
-            gq = g[(g.precision == prec) & (~is_dev(g.dataset))].copy()
-            gq["cell"] = gq.dataset + ":" + gq.condition
-            for cond, gc in gq.groupby("cell"):
-                r = M.qts(gc.score.values, gc.label.values, tau32, tauq)
-                qts_rows.append(dict(model=model, runtime=runtime, seed=seed,
-                                     precision=prec, condition=cond, **r))
+        tau32 = frozen[model]["eer"]
+        tauq = calibrate_tau(dev.score.values, dev.label.values)["eer"]
+        gq = g[~is_dev(g.dataset)].copy()
+        gq["cell"] = gq.dataset + ":" + gq.condition
+        for cond, gc in gq.groupby("cell"):
+            r = M.qts(gc.score.values, gc.label.values, tau32, tauq)
+            qts_rows.append(dict(model=model, runtime=runtime, seed=seed,
+                                 precision=prec, condition=cond, **r))
     qts = pd.DataFrame(qts_rows)
     qts.to_csv(outdir / "qts_table.csv", index=False)
 
@@ -131,29 +164,50 @@ def selftest_db() -> pd.DataFrame:
     """Simulated database with planted effects: shift on 'itw' (TTG>0),
     score rescale under int8 (QTS>0)."""
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    import zlib
     from deploybench.simulate import gaussian_scores
     rows = []
     for model, sep in [("goodmodel", 2.4), ("weakmodel", 1.2)]:
-        for prec, (a, b) in [("fp32", (1, 0)), ("int8", (0.6, -0.4))]:
+        # fp32 is the PyTorch reference (the rows a tau freeze uses); int8 is ORT
+        for prec, runtime, (a, b) in [("fp32", "pytorch", (1, 0)),
+                                      ("int8", "ort", (0.6, -0.4))]:
             for ds, cond, shift in [("asvspoof19_dev", "clean", 0),
                                      ("asvspoof19_eval", "clean", 0),
                                      ("itw", "clean", -1.2)]:
+                # crc32, not hash(): str hashing is salted per process
                 s, l = gaussian_scores(1500, 1500, mu_b=sep / 2 + shift,
                                        mu_s=-sep / 2 + shift,
-                                       seed=hash((model, prec, ds)) % 2**31)
+                                       seed=zlib.crc32(f"{model}|{prec}|{ds}".encode()))
                 s = a * s + b
                 for si, (sc, la) in enumerate(zip(s, l)):
                     rows.append(dict(utt_id=f"u{si}", label=int(la), score=float(sc),
                                      model=model, dataset=ds, precision=prec,
-                                     runtime="ort", condition=cond, seed=0))
+                                     runtime=runtime, condition=cond, seed=0))
     return pd.DataFrame(rows)
+
+
+def selftest_freeze(db: pd.DataFrame, tau_dir: Path) -> Path:
+    """Write tau_<model>.json for a simulated db exactly as a freeze would."""
+    import json
+    tau_dir.mkdir(parents=True, exist_ok=True)
+    for model, g in db.groupby("model"):
+        ref = g[is_dev(g.dataset) & (g.precision == "fp32") & (g.runtime == "pytorch")]
+        (tau_dir / f"tau_{model}.json").write_text(json.dumps(
+            {"model": model, "n_dev": len(ref),
+             "taus": calibrate_tau(ref.score.values, ref.label.values)}))
+    return tau_dir
 
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--db")
     ap.add_argument("--out", required=True)
+    ap.add_argument("--tau-dir", default=str(TAU_DIR),
+                    help="directory holding the frozen tau_<model>.json files")
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args()
-    df = selftest_db() if a.selftest else pd.read_parquet(a.db)
-    analyze(df, Path(a.out))
+    if a.selftest:
+        df = selftest_db()
+        analyze(df, Path(a.out), selftest_freeze(df, Path(a.out) / "taus"))
+    else:
+        analyze(pd.read_parquet(a.db), Path(a.out), Path(a.tau_dir))

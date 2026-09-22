@@ -23,7 +23,25 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from score import fix_length, load_wav, read_manifest      # noqa: E402
+from score import check_condition, fix_length, load_wav, read_manifest  # noqa: E402
+
+RUNTIMES = ("onnx", "ort")    # both mean ONNX Runtime on the CPU EP; see progress.md
+_INT8_OPS = {"QuantizeLinear", "DequantizeLinear", "DynamicQuantizeLinear",
+             "QLinearConv", "QLinearMatMul", "QLinearAdd", "QLinearMul",
+             "ConvInteger", "MatMulInteger"}
+
+
+def graph_precision(path) -> str:
+    """What the graph actually is: int8 if it has quantization ops, fp16 if any
+    initializer is float16, else fp32. --precision is checked against this so a
+    label can never disagree with the artifact (B2's twin)."""
+    import onnx
+    m = onnx.load(str(path), load_external_data=False)
+    if {n.op_type for n in m.graph.node} & _INT8_OPS:
+        return "int8"
+    if any(t.data_type == onnx.TensorProto.FLOAT16 for t in m.graph.initializer):
+        return "fp16"
+    return "fp32"
 
 
 def main():
@@ -45,13 +63,16 @@ def main():
                     help="0 = onnxruntime default")
     a = ap.parse_args()
 
+    if a.runtime not in RUNTIMES:
+        raise SystemExit(f"score_onnx.py runs ONNX Runtime; refusing to label its "
+                         f"scores runtime={a.runtime!r} (allowed: {RUNTIMES})")
+    got = graph_precision(a.onnx)
+    if got != a.precision:
+        raise SystemExit(f"{a.onnx} is an {got} graph; refusing to label its "
+                         f"scores precision={a.precision!r}")
     from deploybench.data import native_conditions
     native = native_conditions(a.dataset) if a.dataset else None
-    if native is not None and a.condition != "clean":
-        raise SystemExit(
-            f"{a.dataset} carries a native per-utterance condition that is "
-            f"written to the `condition` column; refusing --condition "
-            f"{a.condition!r} rather than overwrite it")
+    check_condition(a.dataset, a.condition, native)
 
     import onnxruntime as ort
     from models.base import SPECS

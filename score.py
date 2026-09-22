@@ -101,6 +101,21 @@ def load_wav(path: Path, target_sr: int = 16000, _retries: int = 4) -> np.ndarra
     return wave
 
 
+def check_condition(dataset, condition, native):
+    """`condition` is a LABEL: nothing in the scorers transforms audio. Dataset
+    mode reads the clean protocol audio (DF21 writes its native per-row codec),
+    so any other label would describe audio that was never scored. Stressed
+    audio (deploybench/stress.py) is not wired into the scorers yet."""
+    if dataset and condition != "clean":
+        raise SystemExit(
+            f"refusing --condition {condition!r}: --dataset {dataset} reads the "
+            "clean protocol audio"
+            + (" and writes its native per-utterance condition"
+               if native is not None else "")
+            + ". Stressed audio is not wired into the scorers, so this label "
+            "would describe audio that was never scored.")
+
+
 def read_manifest(path):
     """One utt_id per line, '#' comments ignored. Order is the manifest's, so
     the parity reference and the parity test score the SAME clips in the SAME
@@ -157,13 +172,16 @@ def main():
                     help="print a progress line every N utterances (0 = off)")
     args = ap.parse_args()
 
+    # B2: precision/runtime used to be recorded as labels while this script
+    # always scored the PyTorch fp32 model. Refuse anything it cannot honour.
+    if args.precision != "fp32" or args.runtime != "pytorch":
+        raise SystemExit(
+            f"score.py scores the PyTorch fp32 model only; refusing to label its "
+            f"scores precision={args.precision!r} runtime={args.runtime!r}. "
+            "Converted models are scored by score_onnx.py.")
     from deploybench.data import native_conditions
     native = native_conditions(args.dataset) if args.dataset else None
-    if native is not None and args.condition != "clean":
-        raise SystemExit(
-            f"{args.dataset} carries a native per-utterance condition that is "
-            f"written to the `condition` column; refusing --condition "
-            f"{args.condition!r} rather than overwrite it")
+    check_condition(args.dataset, args.condition, native)
 
     from models.base import load_model, SPECS
     model = load_model(args.model, args.checkpoint, args.device)
