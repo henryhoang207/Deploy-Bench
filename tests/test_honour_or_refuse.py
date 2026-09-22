@@ -101,12 +101,37 @@ def test_analysis_uses_frozen_taus(tmp_path):
     assert not qts.empty
 
 
-def test_analysis_refuses_drifted_dev_rows(tmp_path):
+def test_analysis_refuses_edited_dev_file(tmp_path):
+    """The dev file the freeze used must still hash to the recorded sha256."""
     RA, db, taus = _db_and_taus(tmp_path)
-    m = (db.model == "goodmodel") & (db.dataset == "asvspoof19_dev") & (db.precision == "fp32")
-    db.loc[db[m].index[:50], "score"] += 0.5
+    f = taus / "scores_dev_goodmodel.csv"
+    f.write_bytes(f.read_bytes().replace(b"u1,", b"u1x,", 1))
     with pytest.raises(SystemExit):
         RA.analyze(db, tmp_path / "out", taus)
+
+
+def test_analysis_refuses_recalibration_drift(tmp_path):
+    """Hash re-recorded but scores changed: the recomputed taus drift."""
+    import hashlib
+    RA, db, taus = _db_and_taus(tmp_path)
+    f, j = taus / "scores_dev_goodmodel.csv", taus / "tau_goodmodel.json"
+    import pandas as pd
+    d = pd.read_csv(f)
+    d.loc[:50, "score"] += 0.5
+    d.to_csv(f, index=False)
+    meta = json.loads(j.read_text())
+    meta["dev_scores_sha256"] = hashlib.sha256(f.read_bytes()).hexdigest()
+    j.write_text(json.dumps(meta))
+    with pytest.raises(SystemExit):
+        RA.analyze(db, tmp_path / "out", taus)
+
+
+def test_analysis_runs_on_a_grid_db_without_pytorch_rows(tmp_path):
+    """Regression (self-review 2026-09-22): the grid emits ort/executorch cells
+    only, so the drift guard must not need fp32/pytorch rows in the database."""
+    RA, db, taus = _db_and_taus(tmp_path)
+    ttg, _ = RA.analyze(db[db.runtime != "pytorch"], tmp_path / "out", taus)
+    assert not ttg.empty
 
 
 def test_analysis_refuses_second_dev_set(tmp_path):

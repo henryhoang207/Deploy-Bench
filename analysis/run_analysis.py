@@ -15,9 +15,9 @@ ordering claim and from "majority of models" counts (see UNRANKED below).
 
 Thresholds (review finding B3, fixed 2026-09-22): every tau comes from the
 frozen tau_<model>.json that analysis/repro_report.py wrote, never from
-re-calibration here. The database's fp32/pytorch ASVspoof19 LA dev rows must
-reproduce the frozen values exactly (drift guard), and ASVspoof19 LA dev is the
-only dev set accepted (D30). The one re-calibration left is the QTS
+re-calibration here. Drift guard: the dev score file the freeze used must still
+hash to the recorded sha256 and reproduce the frozen values exactly. ASVspoof19
+LA dev is the only dev set accepted (D30). The one re-calibration left is the QTS
 counterfactual: tau re-derived on a QUANTIZED model's own dev scores, compared
 with the frozen fp32 tau. It is never used as a deployed threshold.
 """
@@ -51,8 +51,11 @@ def is_dev(ds):
 
 def load_frozen_taus(db: pd.DataFrame, tau_dir: Path) -> dict:
     """{model: {eer, frr1, frr5}} from tau_<model>.json (B3). Drift guard: the
-    database's fp32/pytorch dev rows must reproduce the frozen taus exactly,
-    so dev rows that changed after the freeze are refused, not absorbed."""
+    dev score file the freeze was calibrated on (scores_dev_<model>.csv beside
+    the tau file, stored byte-exact in git) must still hash to the recorded
+    dev_scores_sha256 AND reproduce the frozen taus exactly. The guard needs
+    nothing from the database, whose grid cells are ort/executorch only."""
+    import hashlib
     import json
     other = sorted(set(db.dataset[db.dataset.str.endswith("_dev")]) - {DEV_SET})
     if other:
@@ -61,20 +64,20 @@ def load_frozen_taus(db: pd.DataFrame, tau_dir: Path) -> dict:
     taus = {}
     for model in sorted(db.model.unique()):
         p = Path(tau_dir) / f"tau_{model}.json"
-        if not p.exists():
-            raise SystemExit(f"{p} missing: no frozen tau for {model}. Freeze it "
-                             "with analysis/repro_report.py first.")
+        src = Path(tau_dir) / f"scores_dev_{model}.csv"
+        if not p.exists() or not src.exists():
+            raise SystemExit(f"{p} or {src} missing: no verifiable frozen tau for "
+                             f"{model}. Freeze it with analysis/repro_report.py first.")
         frozen = json.loads(p.read_text(encoding="utf-8-sig"))
-        ref = db[(db.model == model) & is_dev(db.dataset)
-                 & (db.precision == "fp32") & (db.runtime == "pytorch")]
-        if ref.empty or ref.seed.nunique() != 1 or ref.utt_id.duplicated().any():
-            raise SystemExit(f"{model}: need exactly one set of fp32/pytorch "
-                             f"{DEV_SET} rows to check the frozen tau for drift; "
-                             f"found {len(ref)} rows over seeds "
-                             f"{sorted(ref.seed.unique())}. Refusing.")
-        if len(ref) != frozen["n_dev"]:
-            raise SystemExit(f"{model}: {len(ref)} dev rows in the database, "
-                             f"{frozen['n_dev']} at freeze time. Refusing.")
+        raw = src.read_bytes()
+        if hashlib.sha256(raw).hexdigest() != frozen["dev_scores_sha256"]:
+            raise SystemExit(f"{src} no longer hashes to the dev_scores_sha256 "
+                             f"recorded at freeze time in {p}. Refusing.")
+        import io
+        ref = pd.read_csv(io.BytesIO(raw))
+        if len(ref) != frozen["n_dev"] or set(ref.dataset) != {DEV_SET}:
+            raise SystemExit(f"{src}: {len(ref)} rows on {sorted(set(ref.dataset))}, "
+                             f"freeze says {frozen['n_dev']} on {DEV_SET}. Refusing.")
         again = calibrate_tau(ref.score.values, ref.label.values)
         drift = {k: (v, again.get(k)) for k, v in frozen["taus"].items()
                  if again.get(k) is None or abs(v - again[k]) > 1e-12}
@@ -187,14 +190,21 @@ def selftest_db() -> pd.DataFrame:
 
 
 def selftest_freeze(db: pd.DataFrame, tau_dir: Path) -> Path:
-    """Write tau_<model>.json for a simulated db exactly as a freeze would."""
+    """Write scores_dev_<model>.csv + tau_<model>.json for a simulated db the
+    way repro_report.py freezes them (tau from the file, file hash recorded)."""
+    import hashlib
+    import io
     import json
     tau_dir.mkdir(parents=True, exist_ok=True)
     for model, g in db.groupby("model"):
         ref = g[is_dev(g.dataset) & (g.precision == "fp32") & (g.runtime == "pytorch")]
+        src = tau_dir / f"scores_dev_{model}.csv"
+        ref.to_csv(src, index=False)
+        back = pd.read_csv(io.BytesIO(src.read_bytes()))
         (tau_dir / f"tau_{model}.json").write_text(json.dumps(
-            {"model": model, "n_dev": len(ref),
-             "taus": calibrate_tau(ref.score.values, ref.label.values)}))
+            {"model": model, "n_dev": len(back),
+             "dev_scores_sha256": hashlib.sha256(src.read_bytes()).hexdigest(),
+             "taus": calibrate_tau(back.score.values, back.label.values)}))
     return tau_dir
 
 
