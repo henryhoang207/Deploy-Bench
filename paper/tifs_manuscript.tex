@@ -102,9 +102,11 @@ benchmarking, mobile.
         fixed-threshold, on-device evaluation of speech CMs --- threshold
         transfer, \(\frr/\far\) decomposition, sensitivity curves, a channel
         stress suite, and mobile latency/energy/thermal methodology.
-  \item \textbf{An audit} of \todo{N} countermeasures across
+  % OPEN [U] (OD-4): the device grid is ORT-only until OD-4 is decided (decision.md
+  % 2026-08-28); "two runtimes" stands only if an ExecuTorch leg lands.
+  \item \textbf{An audit} of five countermeasures across
         \(\{\text{fp32},\text{fp16},\text{int8}\}\) precisions, two runtimes,
-        \todo{K} evaluation sets, and 3 physical phones, with pre-registered
+        four evaluation sets, and 3 physical phones, with pre-registered
         hypotheses and bootstrap confidence intervals.
   \item \textbf{Two metrics}: the \emph{threshold transfer gap} (\ttg{}) and the
         \emph{quantization-induced threshold shift} (\qts{}), the latter not
@@ -229,8 +231,9 @@ shift in deployed \(\frr/\far\) rather than as a change in oracle EER.
 
 \subsection{On-device benchmarking and speech-model quantization}
 Rigorous on-device measurement methodology exists, but for neighboring tasks.
-MLPerf Mobile and Tiny \cite{reddi22_mlperf_mobile,mlperf_tiny} codify warmup,
-repetition, and reporting discipline for latency and energy, and recent systems
+MLPerf Mobile and Tiny \cite{reddi22_mlperf_mobile,mlperf_tiny} codify minimum
+query counts, minimum run durations, tail-latency percentiles, and reporting
+discipline for latency and energy, and recent systems
 port this to on-device speech recognition and language models
 \cite{whisperkit25}. Separately, compression of speech SSL models has been
 studied for recognition: 8-bit quantization of wav2vec\,2.0 costs about
@@ -252,10 +255,12 @@ with \qts{}.
 
 \subsection{Score contract and threshold transfer}
 % Label 1 = bona fide, score higher = bona fide, decision SPOOF if s<tau.
-% tau calibrated on cohort-matched SOURCE DEV only, then frozen (D16, tau.py).
+% tau calibrated on ASVspoof19 LA dev for EVERY model (D16 as collapsed by D30),
+% then frozen (tau.py); analysis reads the frozen files, never re-derives (B3).
 Each CM emits a scalar score \(s(x)\in\mathbb{R}\), higher meaning more
 bona-fide-like; the decision is bona fide iff \(s(x)\ge\tau\). We fix
-\(\taustar\) on the development split matching each model's fine-tuning data at
+\(\taustar\) on the ASVspoof\,2019 LA development split --- the fine-tuning
+source of every model in the roster --- at
 three operating points and transfer it unchanged to every target, precision,
 and stress condition:
 \begin{itemize}
@@ -295,9 +300,9 @@ precision \(q\in\{\text{fp16},\text{int8}\}\).
 
 \subsection{Sensitivity, stress suite, and device methodology}
 % One para each: threshold-sensitivity curve + safe-band width; codec/noise/IR
-% stress (applied to bona fide AND spoof); device protocol (thermal gate,
-% warmup, repetitions -- reconcile against MLPerf single-stream run rules:
-% >=1024 samples / >=60 s / p90; see reddi22 note + decision.md open item 5).
+% stress (applied to bona fide AND spoof); device protocol (thermal gate; MLPerf
+% single-stream run rules adopted in D23: >=1,024 queries and >=60 s per cell,
+% p50/p90/p95 reported; "warmup" is not an MLPerf concept, so do not claim it).
 \placeholder{sensitivity / stress / device methodology}
 
 % ============================ 4. PIPELINE & ROSTER ========================
@@ -317,11 +322,11 @@ input, frontend, and predicted int8 outcome per
 \toprule
 \# & Model & Params & Input & Frontend & Mechanism under test & Score conv.\ (author repo) \\
 \midrule
-1 & AASIST            & 297K  & raw       & SincConv & graph attention & \verb|out[:,1]| \\
-2 & AASIST-L          & 85K   & raw       & SincConv & \emph{within-class control} & \verb|out[:,1]| \\
-3 & RawNet2           & 17.6M & raw       & SincConv & recurrence (GRU) & \verb|out[:,1]| \\
-4 & Res-TSSDNet       & 350K  & raw (6\,s)& conv     & plain convolution & \verb|out[:,0]-out[:,1]| \\
-5 & XLSR+AASIST\,\textsuperscript{ref} & 315M & raw & SSL CNN & transformer & \verb|out[:,1]| \\
+1 & AASIST~\cite{jung22_aasist}           & 297K  & raw       & SincConv & graph attention & \verb|out[:,1]| \\
+2 & AASIST-L~\cite{jung22_aasist}         & 85K   & raw       & SincConv & \emph{within-class control} & \verb|out[:,1]| \\
+3 & RawNet2~\cite{tak21_rawnet2}          & 17.6M & raw       & SincConv & recurrence (GRU) & \verb|out[:,1]| \\
+4 & Res-TSSDNet~\cite{hua21_res_tssdnet}  & 350K  & raw (6\,s)& conv     & plain convolution & \verb|out[:,0]-out[:,1]| \\
+5 & XLSR+AASIST~\cite{tak22_xlsr_aasist}\,\textsuperscript{ref} & 315M & raw & SSL CNN & transformer & \verb|out[:,1]| \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -355,10 +360,15 @@ input, frontend, and predicted int8 outcome per
 % pre-registration statement + repo link.
 
 \subsection{Datasets}
-% ASVspoof19 LA (source), 21 DF, ASVspoof5, In-the-Wild, MLAAD. Record ITW
-% caveat: audio is 8-bit/16kHz, social-media provenance (tandem compression).
-% AS5 dev is clean/no-codec but eval has 11 codec conditions -> dev-frozen tau
-% is biased on eval (D24 candidate). DF21 loader must filter subset==eval.
+% Four sets: ASVspoof19 LA (source; tau on dev), 21 DF, In-the-Wild, MLAAD.
+% ASVspoof 5 is deferred (D30); D24 is dormant. Record ITW caveat: social-media
+% provenance (tandem compression).
+% 21 DF = eval subset on the D34 VERIFIED-AUDIO surface: 455,508 of 533,928
+% trials. 78,420 are excluded because their only decode fails the file's own
+% STREAMINFO MD5; the clean-only surface (305,525) is the sensitivity analysis.
+% Published DF21 numbers (B04 22.38%, Tak et al. 2.85%) are NOT comparable: the
+% organisers scored different audio for 43% of trials (df21_flac_integrity.md).
+% OPEN [U]: make this a named data note?
 \placeholder{datasets + splits table}
 
 \begin{table}[!t]
@@ -419,9 +429,12 @@ We pre-register H1--H6 \todo{repo commit hash} before any Stage-P5 run.
 \subsection{Deployability (RQ1)}
 \label{sec:res-deploy}
 % Conversion/parity matrix; op-level failure analysis (H6). "N/A -- does not
-% fit" rows for the 317M SSL reference. This is where the H6 op inventory from
-% the Tier-2 notes lands (ScatterND/topk in AASIST; GRU in RawNet2; pos-bias
-% gather in WavLM; SincConv constant-folds; TSSDNet clean control).
+% fit" rows for the 315M SSL reference (inference graph 315.4M). This is where
+% the H6 op inventory from the Tier-2 notes lands (ScatterND/topk in AASIST; GRU
+% in RawNet2; SincConv constant-folds; TSSDNet clean control; XLS-R = transformer
+% + grouped weight-normed Conv1d positional embedding + the AASIST back-end. It
+% has NO relative-position-bias gather: that was WavLM's, and WavLM left the
+% roster at D30. Verified in fairseq wav2vec2.py @a5402130, 2026-09-22).
 \placeholder{conversion/parity matrix + op-level failure analysis}
 
 \subsection{Operating behavior (RQ2)}
