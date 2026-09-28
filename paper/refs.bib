@@ -169,11 +169,13 @@
 }
 
 @inproceedings{elkheir25_layerwise,
-  author    = {El Kheir, \todo{first names} and others},
-  title     = {\todo{exact title} (Layer-wise Analysis of Self-Supervised Models
-               for Audio Deepfake Detection)},
-  booktitle = {Findings of NAACL},
-  year      = {2025}
+  author    = {El Kheir, Yassine and Samih, Youness and Maharjan, Suraj and
+               Polzehl, Tim and M\"{o}ller, Sebastian},
+  title     = {Comprehensive Layer-wise Analysis of {SSL} Models for Audio
+               Deepfake Detection},
+  booktitle = {Findings of the Association for Computational Linguistics: NAACL},
+  year      = {2025},
+  note      = {arXiv:2502.03559}
 }
 
 % ---- pascu25 (closest competitor) -----------------------------------------
@@ -196,7 +198,8 @@
   author  = {Li, Menglu and Ahmadiadli, Yasaman and Zhang, Xiao-Ping},
   title   = {A Survey on Speech Deepfake Detection},
   journal = {ACM Computing Surveys},
-  volume  = {57}, number = {7}, year = {2025}
+  volume  = {57}, number = {7}, year = {2025},
+  note    = {arXiv:2404.13914 (ID verified 2026-09-28; volume/number not yet checked)}
 }
 
 @inproceedings{mlaad24,
@@ -218,32 +221,45 @@
   note      = {arXiv:1804.09618}
 }
 
+% ---- Entries below: authors/titles/venues verified against the arXiv API
+%      (export.arxiv.org) on 2026-09-28. Venue = what the arXiv record states;
+%      re-check for camera-ready proceedings before the .bib freeze.
 @misc{auddt25,
-  title        = {{AUDDT}: Audio Unified Deepfake Detection Benchmark Toolkit},
+  author       = {Zhu, Yi and Guimar\~{a}es, Heitor R. and Pimentel, Arthur and Falk, Tiago},
+  title        = {{AUDDT}: A Unified Benchmark Toolkit for Audio and Speech
+                  Deepfake Detectors},
   howpublished = {arXiv:2509.21597},
-  year         = {2025},
-  note         = {TODO verify authors/title before .bib freeze}
+  year         = {2025}
 }
 
 @misc{pruning_ssl,
-  title        = {Hybrid Pruning of Self-Supervised Speech Models},
+  author       = {Peng, Junyi and Zhang, Lin and Han, Jiangyu and Plchot, Old\v{r}ich and
+                  Rohdin, Johan and Stafylakis, Themos and Wang, Shuai and
+                  \v{C}ernock\'{y}, Jan},
+  title        = {Hybrid Pruning: In-Situ Compression of Self-Supervised Speech
+                  Models for Speaker Verification and Anti-Spoofing},
   howpublished = {arXiv:2508.16232},
-  year         = {2025},
-  note         = {TODO verify authors/title before .bib freeze}
+  year         = {2025}
 }
 
 @misc{radar26,
-  title        = {{RADAR} Challenge: Robust Audio Deepfake Detection under Media Transformations},
+  author       = {Luong, Hieu-Thi and Liu, Xuechen and Kukanov, Ivan and
+                  Chai, Zheng Xin and Lee, Kong Aik},
+  title        = {{RADAR} Challenge 2026: Robust Audio Deepfake Recognition under
+                  Media Transformations},
   howpublished = {arXiv:2605.09568},
   year         = {2026},
-  note         = {TODO verify authors/exact title before .bib freeze}
+  note         = {Submitted to APSIPA 2026}
 }
 
-@misc{realworld_comms24,
-  title        = {Benchmarking Robustness of Audio Deepfake Detection in Real-World Communication},
-  howpublished = {arXiv:2504.12423},
-  year         = {2025},
-  note         = {TODO verify authors/exact title before .bib freeze}
+@inproceedings{realworld_comms24,
+  author    = {Shi, Haohan and Shi, Xiyu and Dogan, Safak and Alzubi, Saif and
+               Huang, Tianjin and Zhang, Yunxiao},
+  title     = {Benchmarking Audio Deepfake Detection Robustness in Real-world
+               Communication Scenarios},
+  booktitle = {Proc. European Signal Processing Conf. (EUSIPCO)},
+  year      = {2025},
+  note      = {arXiv:2504.12423}
 }
 
 @inproceedings{mlperf_tiny,
@@ -254,23 +270,30 @@
   note      = {arXiv:2106.07597}
 }
 
-@misc{whisperkit25,
-  title        = {{WhisperKit}: On-Device Real-Time {ASR} with Billion-Scale Transformers},
-  howpublished = {arXiv:2507.10860},
-  year         = {2025},
-  note         = {TODO verify authors/exact title before .bib freeze}
+@inproceedings{whisperkit25,
+  author    = {Orhon, Atila and Okan, Arda and Durmus, Berkin and
+               Nagengast, Zach and Pacheco, Eduardo},
+  title     = {{WhisperKit}: On-device Real-time {ASR} with Billion-Scale Transformers},
+  booktitle = {ICML Workshop on On-Device Learning for Foundational Models},
+  year      = {2025},
+  note      = {arXiv:2507.10860}
 }
 
-@misc{quantwhisper25,
-  title        = {Quantizing {Whisper}},
-  howpublished = {arXiv:2511.08093},
-  year         = {2025},
-  note         = {TODO verify authors/exact title before .bib freeze}
+@inproceedings{quantwhisper25,
+  author    = {S\"{o}hler, Arthur and Irigoyen, Julian and Kirkedal, Andreas S{\o}eborg},
+  title     = {Quantizing {Whisper}-small: How Design Choices Affect {ASR} Performance},
+  booktitle = {Proc. SPEAKABLE Workshop at LREC},
+  year      = {2026},
+  note      = {arXiv:2511.08093}
 }
 
-@misc{mixedprec25,
-  title        = {Mixed-Precision Quantization of Speech Foundation Models},
-  howpublished = {arXiv:2501.03643},
-  year         = {2025},
-  note         = {TODO verify authors/exact title before .bib freeze}
+@inproceedings{mixedprec25,
+  author    = {Xu, Haoning and Li, Zhaoqing and Jin, Zengrui and Wang, Huimeng and
+               Chen, Youjun and Li, Guinan and Geng, Mengzhe and Hu, Shujie and
+               Deng, Jiajun and Liu, Xunying},
+  title     = {Effective and Efficient Mixed Precision Quantization of Speech
+               Foundation Models},
+  booktitle = {Proc. IEEE ICASSP},
+  year      = {2025},
+  note      = {arXiv:2501.03643}
 }

@@ -179,9 +179,19 @@ aggregates detectors but remains desktop-bound and oracle-metric. Where this lin
 a design constraint: we revive fixed-threshold HTER for countermeasures,
 mandate its \(\frr/\far\) decomposition, and carry it onto physical devices.
 
-% >>> positioning matrix here (related_work_matrix.md) <<<
+% Ported 2026-09-28 from 01_references/related_work_matrix.md (post-reconciliation
+% cells; see notes/tier1/_RECONCILIATION_tier1.md). Rows trimmed to works cited
+% in this section. One deliberate change from the matrix: the SSL row's channel
+% cell is "--", not "partial", because training-time augmentation (RawBoost) is
+% not a channel-stress evaluation -- the same rule the Pascu note applies to
+% pascu25. Berisha (recommendation only, every cell absent) and AUDDT (channel
+% coverage unverified) are cited in text but have no row.
 \begin{table}[!t]
-\caption{Positioning against prior work. \todo{port related\_work\_matrix.md}}
+\caption{Positioning against prior work. \checkmark: addressed;
+$\circ$: partial; --: absent; n/a: not applicable to the task.
+\emph{Channel} means evaluation under controlled codec or transmission
+degradation, not training-time augmentation. \emph{Harness} means a released,
+end-to-end evaluation pipeline; releasing code or data alone is partial.}
 \label{tab:positioning}
 \centering
 \resizebox{\columnwidth}{!}{%
@@ -189,10 +199,36 @@ mandate its \(\frr/\far\) decomposition, and carry it onto physical devices.
 \toprule
 Work & Fixed-$\tau$ & On-device & Quant. & Channel & Harness \\
 \midrule
-\todo{rows} & & & & & \\
+AASIST, XLS-R\,+\,AASIST \cite{jung22_aasist,tak22_xlsr_aasist}
+  & -- & -- & -- & -- & $\circ$ \\
+ASVspoof\,2021 DF \cite{yamagishi21_asvspoof2021}
+  & -- & -- & -- & \checkmark & $\circ$ \\
+ASVspoof\,5 \cite{wang24_asvspoof5}
+  & $\circ$\textsuperscript{a} & -- & -- & $\circ$ & $\circ$ \\
+In-the-Wild \cite{muller22_in_the_wild}
+  & -- & -- & -- & -- & $\circ$ \\
+Zhou and Wang \cite{zhou26_eer_hides}
+  & \checkmark & -- & -- & $\circ$\textsuperscript{b} & $\circ$ \\
+Pascu et al.\ \cite{pascu25_edge_plugin}
+  & -- & $\circ$\textsuperscript{c} & -- & -- & $\circ$ \\
+Hybrid pruning \cite{pruning_ssl}
+  & -- & -- & $\circ$\textsuperscript{d} & -- & $\circ$ \\
+Layer-wise SSL \cite{elkheir25_layerwise}
+  & -- & -- & -- & -- & \checkmark \\
+RADAR, comms.\ \cite{radar26,realworld_comms24}
+  & -- & -- & -- & \checkmark & $\circ$ \\
+WhisperKit (ASR) \cite{whisperkit25}
+  & n/a & \checkmark & \checkmark & n/a & \checkmark \\
+\midrule
 \textbf{This work} & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark \\
 \bottomrule
 \end{tabular}}
+\\[2pt]
+\parbox{\columnwidth}{\footnotesize
+\textsuperscript{a}\,minDCF is primary; actDCF and $C_{\mathrm{llr}}$ are
+reported. \textsuperscript{b}\,Codec variability is absorbed into domain shift,
+not controlled. \textsuperscript{c}\,Browser on a desktop x86 CPU, not mobile
+hardware. \textsuperscript{d}\,Compression by pruning, not quantization.}
 \end{table}
 
 \subsection{Efficient and edge detection}
