@@ -404,3 +404,14 @@ def test_driver_stops_if_ptq_leaves_no_ledger_entry(tmp_path, monkeypatch):
     monkeypatch.setattr(rsd, "py", lambda *a: 2)
     with pytest.raises(SystemExit, match="no ledger entry"):
         m.convert("r04", 100, tmp_path / "m.txt", "r04")
+
+
+def test_driver_refuses_quantization_without_a_passing_parity_report(tmp_path):
+    import run_sensitivity as rsd
+    m = rsd.Model("tssdnet")
+    m.parity = tmp_path / "parity.json"
+    with pytest.raises(SystemExit, match="parity"):
+        rsd.step_r01(m)
+    m.parity.write_text(json.dumps({"pass": False}))
+    with pytest.raises(SystemExit, match="parity"):
+        rsd.step_r01(m)
