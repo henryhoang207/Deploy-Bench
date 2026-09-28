@@ -91,7 +91,43 @@ is excluded from every "majority of models" count below.
   Class A (149,983 trials that libFLAC >= 1.4 rejects) is decoded by libFLAC-1.3-equivalent
   ffmpeg and accepted only if the decode matches the stored MD5. The clean-only surface
   (305,525 trials) is reported as a sensitivity analysis.
+- **Mixed-precision labelling (D38, OD-6, amendment 2026-09-28):** an int8 artifact that keeps
+  K > 0 layers in fp32 is reported as **"int8-mixed (K=k)"** in every table, figure and sentence.
+  Plain "int8" means K = 0. The score schema's `precision` value stays `int8`, because
+  `score_onnx.py` checks it against the graph's QDQ ops. K and the exclusion list travel in the
+  artifact's conversion sidecar and must be joined into every reported row. A row whose K is
+  unknown is refused, not printed as "int8".
 - Deviations from this document are logged in DEVIATIONS.md with rationale.
+
+## Conversion sensitivity and repair effort (D35 design, frozen by D39, amendment 2026-09-28)
+**Exploratory.** It supports H6 with effect sizes and spread and uses no confirm/refute
+language. It adds no independent models. Scope: ORT static-int8 PTQ for the four ranked
+models. XLS-R is outside this budget.
+- **Diagnostic subset:** 2,000 ASVspoof19 LA dev clips (1,000 bona fide + 1,000 spoof),
+  drawn uniformly within class with seed 0. Its IDs are frozen in a committed manifest
+  (with sha256) before any search. It is used for recipe selection and for H6's D36 budget,
+  never for tau (tau stays frozen on the full dev set).
+- **Calibration pool:** the remaining 22,844 dev clips (1,548 bona fide). **Calibration size (OD-5)
+  = 500 clips per subset (250 + 250) for every model.** A memory failure is a logged deviation,
+  never a silent reduction. The 100-clip Res-TSSDNet pilot artifact is kept and disclosed.
+- **Default recipe (search step 1):** `convert/ptq.py` defaults: QDQ, per-channel weights,
+  S8S8, minmax calibration, `quant_pre_process` on, no exclusions.
+- **Recipe search:** at most **12 attempts per model**, including the default and any failure,
+  within the existing two-week-per-model timebox. Candidate fp32 exclusions are ranked by the
+  fp32-vs-int8 intermediate-activation difference on the diagnostic subset. That ordered
+  sequence, and any calibration-method change, is frozen before step 2. Every attempt is logged.
+  The locked recipe is the first configuration, in frozen order, with the smallest K that
+  meets the D36 budget. Ties go to the earlier attempt.
+- **Calibration repeats:** N = **5 per model, seeds 1-5**, under the locked recipe, each
+  drawn without replacement within the subset from the calibration pool. Subsets may overlap
+  across seeds; the overlap is recorded and each manifest is reused across models. That is 20
+  planned attempts. Failed seeds are reported, never replaced, and N is never increased. One
+  identical-manifest rebuild per locked recipe is the repeatability control.
+- **Canonical device artifact:** the **lowest-numbered seed** whose artifact meets the D36
+  budget on the diagnostic subset. If none does, the model has no qualifying int8 artifact.
+  That is reported, and no other seed is substituted.
+- **Res-TSSDNet** goes through the same procedure at 500 clips. Its arm stays non-blind (D36).
+- **OPEN:** which evaluation surface(s) every seed is scored on.
 
 ## Declared limitations of the frozen roster (write into the paper, do not discover later)
 - No handcrafted-feature model (LFCC-LCNN excluded), so on-device feature-extraction parity

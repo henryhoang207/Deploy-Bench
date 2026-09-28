@@ -456,7 +456,17 @@ H6 & int8 coverage is non-uniform across op classes & C \\
 % rule; AASIST/AASIST-L is the only within-class replication we have.
 % "Majority of models" in H2/H3/H5 = majority of the FOUR RANKED models;
 % XLSR+AASIST is excluded from those counts (D16).
-We pre-register H1--H6 \todo{repo commit hash} before any Stage-P5 run.
+% S3 (D40): the old sentence "We pre-register H1--H6 before any Stage-P5 run"
+% was false -- TSSDNet's full precision grid ran on 07-27, before the 08-28
+% amendment. Keep this wording honest; do not restore the old claim.
+H1--H6 were registered at commit \texttt{f3401f8} (19~July~2026) and amended
+before the \texttt{roster-freeze} tag \todo{tag commit hash}: at
+\texttt{f30f699} (28~August), after the Res-TSSDNet pilot slice, and in
+September~2026, after the fp32 reproduction runs. The registration file lists
+every amendment. No amendment followed a quantized, on-device or In-the-Wild
+result for the other ranked models. RawNet2's fp32 ASVspoof\,2021 DF scores were
+computed before the tag for its reproduction gate. The Res-TSSDNet H3 and H6
+cells are therefore not blind.
 
 % ============================ 6. RESULTS ==================================
 \section{Results}
