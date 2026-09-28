@@ -23,6 +23,19 @@ RAW-AUDIO CAVEAT: quantizing the input tensor = ~256 levels of waveform (worse
 than 8-bit PCM) into SincConv. --keep-io-fp32 is the usual mitigation; whichever
 you choose, record it — it is a reportable methodological decision, not a default.
 
+RUN MODE (D39 conversion sensitivity): --run-dir DIR writes the artifact and its
+sidecar into a NEW directory and appends one line per attempt, success or failure,
+to --ledger. It refuses a directory that already has files in it, so no attempt
+can overwrite another. --recipe-id, --calib-seed, --calib-manifest and --ledger
+are then required.
+
+    python convert/ptq.py --onnx exports/aasist_fp32.onnx --calib-dir <dev flac>         --calib-manifest configs/conversion_sensitivity/calib_seed1.txt         --run-dir runs/aasist/r03_seed1 --recipe-id r03 --calib-seed 1         --ledger results/phase_2_conversion_app/conversion_sensitivity/ledger_aasist.jsonl
+
+LABEL (D38): the sidecar's "precision_label" is "int8" only when no node is
+excluded; otherwise "int8-mixed (K=k)", k = number of excluded nodes
+(deploybench/artifacts.py). Report that label, never plain "int8", for a mixed
+artifact. Unknown --exclude-nodes names are refused, not silently ignored.
+
 ARM vs x86: S8S8 (below) is the ARM-recommended config. The SAME artifact scored
 on x86 desktop for the P5 grid can differ on non-VNNI AVX2 machines (saturation).
 If int8 desktop-vs-device parity drifts, suspect this first.
@@ -56,7 +69,9 @@ class WavCalibrationReader:
                 raise SystemExit(f"{len(missing)} calibration ids absent from "
                                  f"{wav_dir} (first: {missing[:3]})")
             allf = [by_stem[u] for u in want]
-        self.files = allf[:limit]
+        # A manifest is used whole. Truncating it to `limit` would silently
+        # calibrate on fewer clips than the manifest (and the sidecar) say.
+        self.files = allf if manifest else allf[:limit]
         self.i = 0
         self.n = input_samples
         self.name = input_name
@@ -100,16 +115,143 @@ def main():
     ap.add_argument("--keep-io-fp32", action="store_true",
                     help="do not quantize graph input/output tensors — avoids "
                          "8-bit-audio input degradation on raw-waveform models")
+    ap.add_argument("--run-dir", default=None,
+                    help="D39 run mode: write the artifact + sidecar into this NEW "
+                         "directory instead of next to --onnx")
+    ap.add_argument("--recipe-id", default=None,
+                    help="run mode: the frozen search-plan attempt id (e.g. r03)")
+    ap.add_argument("--calib-seed", type=int, default=None,
+                    help="run mode: the seed of --calib-manifest (0/100/1-5 in D39)")
+    ap.add_argument("--ledger", default=None,
+                    help="run mode: JSONL file; one line per attempt, failures included")
     a = ap.parse_args()
     import json
+    import time
+
+    src = Path(a.onnx)
+    exclude = [n for n in a.exclude_nodes.split(",") if n]
+    if a.run_dir:
+        need = {"--recipe-id": a.recipe_id, "--calib-seed": a.calib_seed,
+                "--calib-manifest": a.calib_manifest, "--ledger": a.ledger}
+        missing = [k for k, v in need.items() if v is None]
+        if missing:
+            raise SystemExit(f"--run-dir requires {', '.join(missing)}: an attempt "
+                             "that cannot be traced to its recipe and calibration "
+                             "set is not a result")
+        run_dir = Path(a.run_dir)
+        if run_dir.exists() and any(run_dir.iterdir()):
+            raise SystemExit(f"{run_dir} already has files; every attempt gets a new "
+                             "directory, so nothing can overwrite a logged attempt")
+        run_dir.mkdir(parents=True, exist_ok=True)
+        dst = run_dir / (src.stem.replace("_fp32", "") + "_int8.onnx")
+    else:
+        dst = src.with_name(src.stem.replace("_fp32", "") + "_int8.onnx")
+
+    meta = run_metadata(a, src, exclude)
+    t0 = time.time()
+    try:
+        log = quantize_and_account(a, src, dst, exclude)
+    except BaseException as e:                                # noqa: BLE001
+        # A failed attempt is a RESULT (D35: every attempt is logged, failures
+        # included). Record it, then fail loudly as before.
+        if a.ledger:
+            append_ledger(a.ledger, dict(meta, outcome="failed",
+                                         error=f"{type(e).__name__}: {e}",
+                                         elapsed_s=round(time.time() - t0, 1),
+                                         finished=utc_now()))
+        raise
+    log.update(meta)
+    log.update(outcome="ok", elapsed_s=round(time.time() - t0, 1),
+               finished=utc_now(), dst_sha256=artifact_hashes(dst))
+    sidecar = Path(str(dst).replace(".onnx", "_ptq_log.json"))
+    sidecar.write_text(json.dumps(log, indent=2))
+    if a.ledger:
+        append_ledger(a.ledger, {k: log[k] for k in (
+            list(meta) + ["outcome", "elapsed_s", "finished", "dst", "dst_sha256",
+                          "artifact_bytes", "calib_clips", "precision_label"])})
+    print(f"int8 -> {dst}   [{log['precision_label']}]")
+    print("fp32 fallback ops:", ", ".join(log["fp32_fallback_op_types"]) or "(none)")
+
+
+def utc_now() -> str:
+    from datetime import datetime, timezone
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def artifact_hashes(onnx_path: Path) -> dict:
+    """sha256 of the .onnx and of any external-data sidecar ('<name>.onnx.data').
+    torch.onnx.export can put every weight in the sidecar, so hashing the .onnx
+    alone would call two different models identical."""
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from deploybench.manifests import file_sha256
+    p = Path(onnx_path)
+    return {f.name: file_sha256(f) for f in sorted(p.parent.glob(p.name + "*"))
+            if f.is_file() and f.name in (p.name, p.name + ".data")}
+
+
+def run_metadata(a, src: Path, exclude) -> dict:
+    """Everything needed to trace an attempt, known BEFORE it runs, so a failed
+    attempt carries it too."""
+    import platform
+    import socket
+    import sys
+    import numpy
+    import onnx
+    import onnxruntime
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from deploybench.artifacts import precision_label
+    from deploybench.manifests import file_sha256, ids_digest, read_ids
+    man = Path(a.calib_manifest) if a.calib_manifest else None
+    return {
+        "recipe_id": a.recipe_id, "calib_seed": a.calib_seed,
+        "run_dir": a.run_dir, "src": str(src),
+        "src_sha256": artifact_hashes(src),
+        "calib_manifest": str(man) if man else None,
+        "calib_manifest_file_sha256": file_sha256(man) if man else None,
+        "calib_ids_sha256": ids_digest(read_ids(man)) if man else None,
+        "calib_method": a.calib_method, "excluded_nodes": exclude,
+        "n_fp32_excluded": len(exclude),
+        "precision_label": precision_label(len(exclude)),
+        "activation_type": a.activation_type,
+        "symmetric_activations": a.symmetric_activations,
+        "per_channel": not a.no_per_channel, "pre_process": not a.no_pre_process,
+        "keep_io_fp32": a.keep_io_fp32,
+        "versions": {"onnxruntime": onnxruntime.__version__,
+                     "onnx": onnx.__version__, "numpy": numpy.__version__,
+                     "python": platform.python_version()},
+        "host": socket.gethostname(), "platform": platform.platform(),
+        "started": utc_now(),
+    }
+
+
+def append_ledger(path, entry: dict):
+    import json
+    p = Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    with open(p, "a", encoding="utf-8") as f:
+        f.write(json.dumps(entry, sort_keys=True) + "\n")
+
+
+def check_exclusions(model_path: str, exclude) -> None:
+    """ORT's nodes_to_exclude silently ignores names that are not in the graph.
+    A typo would then produce a fully quantized artifact labelled
+    "int8-mixed (K=k)": a plausible wrong row. Refuse instead."""
+    import onnx
+    names = {n.name for n in onnx.load(model_path, load_external_data=False).graph.node}
+    unknown = [n for n in exclude if n not in names]
+    if unknown:
+        raise SystemExit(f"--exclude-nodes names not in the graph being quantized "
+                         f"({Path(model_path).name}): {unknown}")
+
+
+def quantize_and_account(a, src: Path, dst: Path, exclude) -> dict:
+    import json  # noqa: F401  (kept local like the rest of this module)
     from onnxruntime.quantization import (quantize_static, QuantType,
                                           QuantFormat, CalibrationMethod)
     _CAL = {"minmax": CalibrationMethod.MinMax,
             "percentile": CalibrationMethod.Percentile,
             "entropy": CalibrationMethod.Entropy}
-    src = Path(a.onnx)
-    dst = src.with_name(src.stem.replace("_fp32", "") + "_int8.onnx")
-    exclude = [n for n in a.exclude_nodes.split(",") if n]
     # STALE-ARTIFACT GUARD. If quantisation dies partway (ORT can OOM building
     # histograms for percentile/entropy), a previous _int8.onnx left on disk is
     # perfectly loadable, and the next scoring step will happily measure THAT —
@@ -142,6 +284,10 @@ def main():
         xopt["ActivationSymmetric"] = True
         xopt["CalibTensorRangeSymmetric"] = True
 
+    reader = WavCalibrationReader(Path(a.calib_dir), a.input_samples, "waveform",
+                                  manifest=a.calib_manifest)
+    calib_clips = len(reader.files)
+
     def _quantize(model_in: str, model_out: str):
         # ORT's quant_pre_process runs symbolic shape inference and, critically,
         # FOLDS BatchNormalization into the preceding Conv. Without it BN survives
@@ -156,10 +302,10 @@ def main():
             pre = str(Path(model_in).with_name(Path(model_in).stem + "_pre.onnx"))
             quant_pre_process(model_in, pre, skip_symbolic_shape=False)
             model_in = pre
+        # Names are checked on the graph actually quantized (after BN folding).
+        check_exclusions(model_in, exclude)
         quantize_static(
-            model_in, model_out,
-            WavCalibrationReader(Path(a.calib_dir), a.input_samples, "waveform",
-                                 manifest=a.calib_manifest),
+            model_in, model_out, reader,
             quant_format=QuantFormat.QDQ,
             per_channel=not a.no_per_channel,      # per-channel weights
             weight_type=QuantType.QInt8,
@@ -177,7 +323,8 @@ def main():
     # and the next onnx.load() dies with FileNotFoundError. This project lives
     # under "...\Tai lieu\...", so that is the default case here, for every model.
     # Stage through an ASCII-only temp dir; the emitted graph is identical, only
-    # the working path differs.
+    # the working path differs. Staging also keeps quant_pre_process's '_pre.onnx'
+    # out of a D39 run directory.
     def _is_ascii(p) -> bool:
         try:
             str(p).encode("ascii")
@@ -185,7 +332,7 @@ def main():
         except UnicodeEncodeError:
             return False
 
-    if _is_ascii(src) and _is_ascii(dst):
+    if _is_ascii(src) and _is_ascii(dst) and not a.run_dir:
         _quantize(str(src), str(dst))
     else:
         import shutil
@@ -203,7 +350,7 @@ def main():
                 if f.is_file():
                     shutil.copyfile(f, Path(td) / f.name)
                     staged.append(f.name)
-            print(f"non-ASCII path detected; quantizing via {td}  "
+            print(f"quantizing via staging dir {td}  "
                   f"(staged: {', '.join(staged)})")
             _quantize(str(t_src), str(t_dst))
             dst.parent.mkdir(parents=True, exist_ok=True)
@@ -236,25 +383,19 @@ def main():
                         if any(i in dq_out for i in n.input)})
     fp32_left = sorted({n.op_type for n in real_ops
                         if not any(i in dq_out for i in n.input)})
-    log = {"src": str(src), "dst": str(dst), "calib_method": a.calib_method,
-           "calib_dir": str(a.calib_dir),
-           "calib_manifest": a.calib_manifest,
-           "calib_clips": len(WavCalibrationReader(
-               Path(a.calib_dir), a.input_samples, "waveform",
-               manifest=a.calib_manifest).files),
-           "excluded_nodes": exclude, "keep_io_fp32": a.keep_io_fp32,
-           # elem_type 1 = FLOAT, 2 = UINT8, 3 = INT8 — this is the ground
-           # truth for whether the waveform input really stayed fp32.
-           "graph_input_type": g.input[0].type.tensor_type.elem_type,
-           "quantized_op_types": quantized,
-           "fp32_fallback_op_types": fp32_left,
-           "n_quantize_linear": n_q, "n_dequantize_linear": n_dq,
-           "artifact_bytes": dst.stat().st_size,
-           "n_nodes": len(ops)}
-    Path(str(dst).replace(".onnx", "_ptq_log.json")).write_text(
-        json.dumps(log, indent=2))
-    print(f"int8 -> {dst}")
-    print("fp32 fallback ops:", ", ".join(fp32_left) or "(none)")
+    return {"src": str(src), "dst": str(dst), "calib_method": a.calib_method,
+            "calib_dir": str(a.calib_dir),
+            "calib_manifest": a.calib_manifest,
+            "calib_clips": calib_clips,
+            "excluded_nodes": exclude, "keep_io_fp32": a.keep_io_fp32,
+            # elem_type 1 = FLOAT, 2 = UINT8, 3 = INT8 — this is the ground
+            # truth for whether the waveform input really stayed fp32.
+            "graph_input_type": g.input[0].type.tensor_type.elem_type,
+            "quantized_op_types": quantized,
+            "fp32_fallback_op_types": fp32_left,
+            "n_quantize_linear": n_q, "n_dequantize_linear": n_dq,
+            "artifact_bytes": dst.stat().st_size,
+            "n_nodes": len(ops)}
 
 
 if __name__ == "__main__":

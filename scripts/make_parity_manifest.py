@@ -18,12 +18,9 @@ never from eval.
 from __future__ import annotations
 
 import argparse
-import hashlib
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-
-import numpy as np
 
 REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO))
@@ -38,22 +35,16 @@ def main():
     a = ap.parse_args()
 
     from deploybench.data import protocol_iter, DATA_ROOT
+    from deploybench.manifests import draw_balanced, write_manifest
 
     bona, spoof = [], []
     for uid, _path, lab in protocol_iter(a.dataset):
         (bona if lab == 1 else spoof).append(uid)
-    if len(bona) < a.n_per_class or len(spoof) < a.n_per_class:
-        raise SystemExit(
-            f"{a.dataset} has {len(bona)} bona fide / {len(spoof)} spoof — "
-            f"cannot draw {a.n_per_class} of each")
+    try:
+        ids = draw_balanced(bona, spoof, a.n_per_class, a.seed)
+    except ValueError as e:
+        raise SystemExit(f"{a.dataset}: {e}")
 
-    rng = np.random.default_rng(a.seed)
-    # sort first so the draw does not depend on protocol-file line order
-    pick_b = rng.choice(sorted(bona), a.n_per_class, replace=False)
-    pick_s = rng.choice(sorted(spoof), a.n_per_class, replace=False)
-    ids = sorted(pick_b.tolist()) + sorted(pick_s.tolist())
-
-    digest = hashlib.sha256("\n".join(ids).encode()).hexdigest()
     header = [
         "# FIXED parity/calibration manifest — do not regenerate once used.",
         f"# generated : {datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')}",
@@ -63,11 +54,9 @@ def main():
         f"# n_bona    : {a.n_per_class}   (the first {a.n_per_class} ids)",
         f"# n_spoof   : {a.n_per_class}",
         f"# pool      : {len(bona)} bona fide / {len(spoof)} spoof",
-        f"# sha256    : {digest}",
     ]
     out = Path(a.out)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text("\n".join(header + ids) + "\n", encoding="utf-8")
+    digest = write_manifest(out, ids, header)
     print(f"wrote {len(ids)} utt_ids -> {out}")
     print(f"sha256(ids) = {digest}")
 

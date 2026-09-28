@@ -1,0 +1,114 @@
+{
+  "design": "PREREGISTRATION.md, conversion sensitivity (D35/D39)",
+  "generated": "2026-09-28T10:04:48Z",
+  "source": "csv:results/phase_1_reproduction/scores_dev_aasist.csv",
+  "dataset": "asvspoof19_dev",
+  "pool": {
+    "dev_bona": 2548,
+    "dev_spoof": 22296,
+    "pool_bona": 1548,
+    "pool_spoof": 21296,
+    "dev_rows_sha256": "a164bffb2456697fe7752ba70ef415eb12a601a558ff61a28a22b4414de7db7d"
+  },
+  "manifests": {
+    "diag_seed0.txt": {
+      "role": "diagnostic",
+      "seed": 0,
+      "n_bona": 1000,
+      "n_spoof": 1000,
+      "ids_sha256": "85b585d63830cf011446112071519d77a600a1df2602bb62e4521ca9a4e297ad"
+    },
+    "calib_search_seed100.txt": {
+      "role": "search calibration",
+      "seed": 100,
+      "n_bona": 250,
+      "n_spoof": 250,
+      "ids_sha256": "9f70ec14afe8adcb9c1bc0d884a1d00c2b3e48a334a9ca686f020d2d9731f760"
+    },
+    "calib_seed1.txt": {
+      "role": "calibration repeat",
+      "seed": 1,
+      "n_bona": 250,
+      "n_spoof": 250,
+      "ids_sha256": "24fe5d51b3ce9e5d82b6c7530932c5c1a49ede1bea460d9d3b62c5343b6ee7e4"
+    },
+    "calib_seed2.txt": {
+      "role": "calibration repeat",
+      "seed": 2,
+      "n_bona": 250,
+      "n_spoof": 250,
+      "ids_sha256": "069dc87b012e70adf8aed3719e01c4fb8eb28bcfd59ad566290fa7c4c2ca08e5"
+    },
+    "calib_seed3.txt": {
+      "role": "calibration repeat",
+      "seed": 3,
+      "n_bona": 250,
+      "n_spoof": 250,
+      "ids_sha256": "a36bb8955b4178fbb81dae37a47b8dd1386bacd5bb10cc3223b7c1b2704818f9"
+    },
+    "calib_seed4.txt": {
+      "role": "calibration repeat",
+      "seed": 4,
+      "n_bona": 250,
+      "n_spoof": 250,
+      "ids_sha256": "ef2c5526951dbce7869b3f6472abc8ae2715c7351cb28f1f4246d463f7594942"
+    },
+    "calib_seed5.txt": {
+      "role": "calibration repeat",
+      "seed": 5,
+      "n_bona": 250,
+      "n_spoof": 250,
+      "ids_sha256": "6da0f4891c23b614f5d4b5aa7ca4e0c80cf3ad4984437e142c9a0e14577bccb2"
+    }
+  },
+  "calibration_overlap": {
+    "calib_search_seed100.txt": {
+      "calib_search_seed100.txt": 500,
+      "calib_seed1.txt": 43,
+      "calib_seed2.txt": 54,
+      "calib_seed3.txt": 43,
+      "calib_seed4.txt": 42,
+      "calib_seed5.txt": 41
+    },
+    "calib_seed1.txt": {
+      "calib_search_seed100.txt": 43,
+      "calib_seed1.txt": 500,
+      "calib_seed2.txt": 41,
+      "calib_seed3.txt": 41,
+      "calib_seed4.txt": 48,
+      "calib_seed5.txt": 49
+    },
+    "calib_seed2.txt": {
+      "calib_search_seed100.txt": 54,
+      "calib_seed1.txt": 41,
+      "calib_seed2.txt": 500,
+      "calib_seed3.txt": 38,
+      "calib_seed4.txt": 36,
+      "calib_seed5.txt": 32
+    },
+    "calib_seed3.txt": {
+      "calib_search_seed100.txt": 43,
+      "calib_seed1.txt": 41,
+      "calib_seed2.txt": 38,
+      "calib_seed3.txt": 500,
+      "calib_seed4.txt": 44,
+      "calib_seed5.txt": 44
+    },
+    "calib_seed4.txt": {
+      "calib_search_seed100.txt": 42,
+      "calib_seed1.txt": 48,
+      "calib_seed2.txt": 36,
+      "calib_seed3.txt": 44,
+      "calib_seed4.txt": 500,
+      "calib_seed5.txt": 46
+    },
+    "calib_seed5.txt": {
+      "calib_search_seed100.txt": 41,
+      "calib_seed1.txt": 49,
+      "calib_seed2.txt": 32,
+      "calib_seed3.txt": 44,
+      "calib_seed4.txt": 46,
+      "calib_seed5.txt": 500
+    }
+  }
+}
