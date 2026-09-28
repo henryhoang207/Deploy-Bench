@@ -275,16 +275,19 @@ def build(model, ev, dv, published, published_note, gate, tau_path, refreeze,
                   "use downstream (conversion parity, device runs, stress "
                   "conditions). Nothing re-tunes them.", ""]
 
-        lines += ["## Threshold transfer dev -> eval (in-domain sanity)", "",
+        lines += ["## Threshold transfer dev -> eval (seen corpus, unseen attacks)", "",
                   "| point | HTER at frozen tau | oracle HTER on eval | TTG |",
                   "|---|---|---|---|"]
         for name in ("eer", "frr1", "frr5"):
             r = M.ttg(ev_s, ev_y, use[name])
             lines.append(f"| {name} | {r['hter_fixed']*100:.3f}% | "
                          f"{r['hter_oracle']*100:.3f}% | {r['ttg']*100:+.3f} pp |")
-        lines += ["", "In-domain TTG should be small. A large gap here means "
-                  "dev and eval score distributions already differ, which would "
-                  "contaminate every out-of-domain TTG in the paper.", ""]
+        # D37: 19LA dev -> eval is NOT in-domain. Eval attacks A07-A19 are unseen in
+        # train/dev, and the measured transfer is large for the GAT models.
+        lines += ["", "Dev and eval share a corpus, but eval attacks A07-A19 are "
+                  "unseen in train/dev (A16/A19 = A04/A06), so this TTG measures an "
+                  "attack shift, not a sanity floor (D37). Report it and keep it "
+                  "separate from the cross-corpus TTGs.", ""]
     else:
         lines += ["## Frozen operating points (tau)", "",
                   "**Not computed — no `--dev-scores` supplied.** tau must be "

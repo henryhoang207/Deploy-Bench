@@ -12,6 +12,13 @@ is excluded from every "majority of models" count below.
   models; family test: per-model paired bootstrap FRR vs FAR.
 - **H3** QTS > 0.01 (1 HTER point) for at least half of (ranked model x int8) cells
   in-domain; per-cell bootstrap CI excludes 0.
+  **Amendment 2026-09-28 (D37, review S2), before the tag.** "In-domain" means the source
+  corpus: ASVspoof19 LA eval scored at taus frozen on ASVspoof19 LA dev. That is **seen corpus,
+  unseen attacks**, not in-distribution. Eval attacks A07-A19 are absent from train/dev, except
+  A16/A19, which equal A04/A06. The measured dev->eval transfer is not small: at the dev-EER tau,
+  AASIST eval HTER is 5.0% vs oracle 0.8% (FAR 9.8%), and Res-TSSDNet's is 3.17% vs 1.59%.
+  H3's test, threshold and cells are unchanged. Only the label and its interpretation change:
+  a non-zero QTS here is measured under an attack shift, not on matched data.
 - **H5** EnCodec-6k stress increases FRR more than FAR relative to clean, for a
   majority of the 4 ranked models (bona-fide corruption asymmetry).
 - **H6** **int8 coverage is non-uniform across OP CLASSES, and the fp32-fallback set is
@@ -22,6 +29,31 @@ is excluded from every "majority of models" count below.
   **Stated in advance — this is hypothesis-generating, not a predictive rule.** With one
   model per op class, AASIST/AASIST-L is the study's only within-class replication, so a
   confirmed H6 licenses "these op classes behaved this way here", not "GAT models fail".
+  **Amendment 2026-09-28 (D36, review S1), before the tag. The primary DV changes. The text above
+  is kept as history.**
+  - *Primary DV:* per ranked model, the **smallest fp32 exclusion set, among the tested
+    configurations, whose int8 artifact keeps EER within 1.0 pp (point estimate) of the same
+    model's fp32 EER on the held-out ASVspoof19 LA dev diagnostic subset.** Configurations are
+    tried in a bounded, pre-declared order (D35). The diagnostic subset is disjoint from the PTQ
+    calibration pool, and its IDs are frozen before any search. Selection never uses eval,
+    DF21, ITW or MLAAD scores. This is the smallest set *among those tested*, not a global
+    minimum. A model with no qualifying configuration is reported as such, not given a default.
+  - *Prediction (same mechanism as above, restated for the new DV):* the minimal exclusion set
+    contains graph-attention nodes for AASIST and AASIST-L, and GRU nodes for RawNet2.
+  - *Secondary:* the converter's fallback-op list per artifact (the D30 DV above), plus
+    decision flips and dEER per cell at the frozen taus.
+  - *Scope narrowed to "the behaviour of these five artifacts".* All four ranked models take
+    raw waveform input, and three begin with SincConv. So the design cannot attribute an int8
+    failure to op class (GAT, GRU) rather than to the shared waveform front-end. The front-end
+    is a named, uncontrolled factor.
+  - *The Res-TSSDNet arm is NOT blind.* The 2026-07-19 registration (`f3401f8`) predicted that
+    plain-conv models would not fail. Default int8 PTQ then gave EER 17.20% (every clip scored
+    spoof). The working recipe (percentile calibration, first 8 of 17 convs in fp32) was
+    developed with evaluation data. Its full-eval cost is dEER +0.94 pp (CI 0.78-1.07). The
+    1.0 pp budget was fixed after that result was known.
+  - *Still open before the tag:* OD-6 (how mixed-precision artifacts are labelled), the
+    diagnostic subset's size and IDs, the exclusion order and attempt cap, and OD-5
+    (calibration size), which are all D35 items.
 
 ## Exploratory (effect size + CI only; NO confirm/refute language)
 - **H1** Spearman rho between source-oracle EER and ITW TTG over
