@@ -127,7 +127,10 @@ models. XLS-R is outside this budget.
   budget on the diagnostic subset. If none does, the model has no qualifying int8 artifact.
   That is reported, and no other seed is substituted.
 - **Res-TSSDNet** goes through the same procedure at 500 clips. Its arm stays non-blind (D36).
-- **OPEN:** which evaluation surface(s) every seed is scored on.
+- **Evaluation surface (D41):** every seed, plus the repeatability rebuild, is scored on
+  **ASVspoof19 LA eval** (71,237 trials) at the frozen taus. Only the canonical device artifact
+  is scored on the ASVspoof 2021 DF verified surface and In-the-Wild, as in the main matrix. No
+  surface is added in response to observed results.
 
 ## Declared limitations of the frozen roster (write into the paper, do not discover later)
 - No handcrafted-feature model (LFCC-LCNN excluded), so on-device feature-extraction parity
