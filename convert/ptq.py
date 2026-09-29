@@ -124,10 +124,18 @@ def main():
                     help="run mode: the seed of --calib-manifest (0/100/1-5 in D39)")
     ap.add_argument("--ledger", default=None,
                     help="run mode: JSONL file; one line per attempt, failures included")
+    ap.add_argument("--calib-chunk", type=int, default=None,
+                    help="percentile/entropy only: feed the histogram calibrator N clips "
+                         "at a time (DEV-1). ORT's HistogramCalibrater otherwise holds "
+                         "every intermediate tensor of every clip in RAM (AASIST-L "
+                         "percentile passed 105 GB on sol1). Changes the histogram bins "
+                         "slightly, so it is part of the recipe and is recorded.")
     a = ap.parse_args()
     import json
     import time
 
+    if a.calib_chunk is not None and (a.calib_method == "minmax" or a.calib_chunk < 1):
+        raise SystemExit("--calib-chunk applies only to percentile/entropy, with N >= 1")
     src = Path(a.onnx)
     exclude = [n for n in a.exclude_nodes.split(",") if n]
     if a.run_dir:
@@ -210,7 +218,8 @@ def run_metadata(a, src: Path, exclude) -> dict:
         "calib_manifest": str(man) if man else None,
         "calib_manifest_file_sha256": file_sha256(man) if man else None,
         "calib_ids_sha256": ids_digest(read_ids(man)) if man else None,
-        "calib_method": a.calib_method, "excluded_nodes": exclude,
+        "calib_method": a.calib_method, "calib_chunk": a.calib_chunk,
+        "excluded_nodes": exclude,
         "n_fp32_excluded": len(exclude),
         "precision_label": precision_label(len(exclude)),
         "activation_type": a.activation_type,
@@ -231,6 +240,49 @@ def append_ledger(path, entry: dict):
     p.parent.mkdir(parents=True, exist_ok=True)
     with open(p, "a", encoding="utf-8") as f:
         f.write(json.dumps(entry, sort_keys=True) + "\n")
+
+
+class _ListReader:
+    def __init__(self, items):
+        self.items, self.i = items, 0
+
+    def get_next(self):
+        if self.i >= len(self.items):
+            return None
+        self.i += 1
+        return self.items[self.i - 1]
+
+
+def chunk_histogram_calibration(n: int) -> None:
+    """Make ORT's HistogramCalibrater (percentile/entropy) consume the reader n clips
+    at a time. Its collect_data() otherwise keeps every intermediate output of every
+    clip before building histograms; HistogramCollector already merges repeated
+    collect() calls (it extends the bins at the same stride), so calling the original
+    once per chunk is ORT's own incremental path. Process-wide on purpose: ptq.py
+    quantizes one model per process."""
+    from onnxruntime.quantization.calibrate import HistogramCalibrater
+    orig = getattr(HistogramCalibrater.collect_data, "_unchunked", HistogramCalibrater.collect_data)
+
+    def collect_data(self, data_reader):
+        seen = 0
+        while True:
+            chunk = []
+            while len(chunk) < n:
+                x = data_reader.get_next()
+                if x is None:
+                    break
+                chunk.append(x)
+            if not chunk:
+                break
+            orig(self, _ListReader(chunk))
+            seen += len(chunk)
+            if len(chunk) < n:
+                break
+        if seen == 0:
+            raise ValueError("No data is collected.")
+
+    collect_data._unchunked = orig
+    HistogramCalibrater.collect_data = collect_data
 
 
 def check_exclusions(model_path: str, exclude) -> None:
@@ -287,6 +339,8 @@ def quantize_and_account(a, src: Path, dst: Path, exclude) -> dict:
     reader = WavCalibrationReader(Path(a.calib_dir), a.input_samples, "waveform",
                                   manifest=a.calib_manifest)
     calib_clips = len(reader.files)
+    if a.calib_chunk:
+        chunk_histogram_calibration(a.calib_chunk)
 
     def _quantize(model_in: str, model_out: str):
         # ORT's quant_pre_process runs symbolic shape inference and, critically,

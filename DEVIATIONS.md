@@ -44,3 +44,20 @@ registered arm and never instead of it. **A percentile-arm artifact does not bec
 device artifact** unless a further, logged decision says so. Under D39, the registered
 device-artifact rule gives RawNet2 seed 2 and no int8 artifact for AASIST, AASIST-L or
 Res-TSSDNet.
+
+### DEV-1 amendment (2026-09-29, before any percentile result existed)
+- **The first launch (08:29, 4 models in 2 lanes) ran sol1 out of memory.** ORT 1.23's
+  `HistogramCalibrater.collect_data` keeps every intermediate output of all 500
+  calibration clips in RAM. AASIST p01 died with no ledger entry, most likely killed by the
+  kernel OOM killer (the kernel log is not readable without root). AASIST-L p01 passed
+  105 GB (machine 125 GB, shared), so Claude stopped every percentile process, including
+  tssdnet p01, which was still running. **No percentile attempt had a ledger entry or an
+  artifact** (all p01 directories were empty), so nothing was produced and nothing is
+  being retried.
+- **Fix, part of the arm's recipe from here:** `ptq.py --calib-chunk 20` feeds the
+  histogram calibrator 20 clips at a time. HistogramCollector merges repeated calls by
+  extending its bins at the first chunk's stride, so the percentile ranges differ slightly
+  from a single 500-clip pass. The chunk size is recorded in every sidecar and ledger line.
+- The already-derived `search_plan_<model>_percentile.json` files are unchanged: the chunk
+  is not a plan field. The arm now runs **one model at a time**, under a watchdog that
+  stops the job if sol1's available memory falls below 15 GB.

@@ -489,3 +489,21 @@ def test_ort_smoke_accepts_a_good_graph_and_rejects_an_unloadable_one(tmp_path):
     onnx.save(m, str(bad))
     with pytest.raises(Exception):
         to_onnx.ort_smoke(bad, N)
+
+
+def test_chunked_percentile_calibration_is_deterministic_and_recorded(calib):
+    tmp, model, wavs, man = calib
+    outs = []
+    for run in ("c1", "c2"):
+        r = _ptq(tmp, model, wavs, man, run, "--calib-method", "percentile", "--calib-chunk", "4")
+        assert r.returncode == 0, r.stderr[-2000:]
+        side = json.loads((tmp / run / "tiny_int8_ptq_log.json").read_text())
+        assert side["calib_chunk"] == 4 and side["calib_method"] == "percentile"
+        outs.append(side["dst_sha256"]["tiny_int8.onnx"])
+    assert outs[0] == outs[1]
+
+
+def test_calib_chunk_is_refused_for_minmax(calib):
+    tmp, model, wavs, man = calib
+    r = _ptq(tmp, model, wavs, man, "c3", "--calib-chunk", "4")
+    assert r.returncode != 0 and "only to percentile" in r.stderr

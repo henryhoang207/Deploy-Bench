@@ -52,6 +52,9 @@ RANKED = ("aasist", "aasist_l", "rawnet2", "tssdnet")     # D35 scope; XLS-R exc
 # "minmax" is the registered arm (D39 as frozen). "percentile" is DEV-1 in
 # DEVIATIONS.md: post-hoc, exploratory, never replaces a registered result.
 ARMS = ("minmax", "percentile")
+# DEV-1: histogram calibration is fed 20 clips at a time (ptq.py --calib-chunk) so it
+# fits in RAM; fixed before any percentile result existed, recorded in every sidecar.
+ARM_CHUNK = {"minmax": None, "percentile": 20}
 
 
 def py(*args):
@@ -116,11 +119,12 @@ class Model:
         if e is not None:
             print(f"= {rid} seed {seed}: already logged ({e['outcome']}), not re-run")
             return e
+        chunk = ARM_CHUNK[self.arm]
         py(REPO / "convert" / "ptq.py", "--onnx", self.fp32, "--calib-dir", self.dev_flac,
            "--calib-manifest", manifest, "--input-samples", self.n,
            "--calib-method", calib_method, "--exclude-nodes", ",".join(exclude),
            "--run-dir", self.dir / run, "--recipe-id", rid, "--calib-seed", seed,
-           "--ledger", self.ledger)
+           "--ledger", self.ledger, *(["--calib-chunk", chunk] if chunk else []))
         e = self.logged(rid, seed)
         if e is None:
             raise SystemExit(f"ptq.py left no ledger entry for {rid} seed {seed}")
