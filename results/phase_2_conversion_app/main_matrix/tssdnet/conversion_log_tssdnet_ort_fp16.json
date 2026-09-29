@@ -1,0 +1,27 @@
+{
+  "model": "tssdnet",
+  "runtime": "ort",
+  "precision": "fp16",
+  "input_samples": 96000,
+  "opset": 17,
+  "converts": true,
+  "fallback_ops": [],
+  "error": null,
+  "ops": [
+    "Add",
+    "BatchNormalization",
+    "Cast",
+    "Constant",
+    "Conv",
+    "Flatten",
+    "Gather",
+    "Gemm",
+    "MaxPool",
+    "Relu",
+    "Sub",
+    "Unsqueeze"
+  ],
+  "size_mb": 0.71,
+  "shipped_bytes": 709121,
+  "wall_s": 0.3
+}

@@ -1,0 +1,25 @@
+{
+  "mode": "quantization",
+  "gates": false,
+  "n": 1000,
+  "max_abs_delta": 0.13229632377624512,
+  "mean_abs_delta": 0.004162396706640728,
+  "pearson_r": 0.9999983307615014,
+  "decision_flips": {
+    "eer": 0,
+    "frr1": 0,
+    "frr5": 1
+  },
+  "eer_pct": {
+    "ref": 1.2000000000000006,
+    "test": 1.2000000000000006,
+    "delta_pp": 0.0
+  },
+  "spearman_r": 0.9999928269890002,
+  "score_std": {
+    "ref": 5.954101976777483,
+    "test": 5.95320437864527
+  },
+  "pass": null,
+  "note": "DIAGNOSTIC ONLY \u2014 decision flips vs a different precision are the cost of quantisation (H6), not a parity result. Stage P3 parity is --mode device."
+}

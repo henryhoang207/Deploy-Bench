@@ -1,0 +1,11 @@
+{
+  "model": "xlsr_aasist",
+  "runtime": "ort",
+  "precision": "fp32",
+  "input_samples": 64600,
+  "opset": 17,
+  "converts": false,
+  "fallback_ops": [],
+  "error": "AttributeError: 'Tensor' object has no attribute 'is_integer'",
+  "wall_s": 1.3
+}

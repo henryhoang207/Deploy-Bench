@@ -1,0 +1,11 @@
+{
+  "model": "rawnet2",
+  "runtime": "ort",
+  "precision": "fp16",
+  "input_samples": 64600,
+  "opset": 17,
+  "converts": false,
+  "fallback_ops": [],
+  "error": "Fail: [ONNXRuntimeError] : 1 : FAIL : Load model from exports/rawnet2_fp16.onnx failed:Type Error: Type (tensor(float16)) of output arg (/m/Sinc_conv/Cast_output_0) of node (/m/Sinc_conv/Cast) does not match expected type (tensor(float)).",
+  "wall_s": 3.5
+}
