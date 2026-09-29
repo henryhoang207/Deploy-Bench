@@ -154,6 +154,14 @@ def test_itw(tmp_path):
     assert rows[0][0] == "0"
 
 
+@pytest.mark.parametrize("label", ["", "fake", "Bona fide"])
+def test_itw_refuses_unknown_labels(tmp_path, label):
+    _mk(tmp_path, "release_in_the_wild/meta.csv",
+        f"file,speaker,label\n0.wav,Alec Guinness,{label}\n")
+    with pytest.raises(ValueError, match="unusable row"):
+        list(protocol_iter("itw", root=tmp_path))
+
+
 def test_mlaad(tmp_path):
     _mk(tmp_path, "mlaad/meta.csv",
         "path|language|model_name\nfake/de/x1.wav|de|xtts_v2\n")

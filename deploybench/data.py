@@ -215,7 +215,11 @@ def _iter_itw(root: Path):
         for row in _csv.DictReader(f):
             fn = row.get("file") or row.get("filename")
             lab = (row.get("label") or "").strip().lower()
-            yield Path(fn).stem, base / fn, int(lab in ("bona-fide", "bonafide"))
+            # Refuse, never default: an unknown or empty label used to become
+            # "spoof" silently (the B4 pattern). meta.csv has only these two.
+            if lab not in ("bona-fide", "bonafide", "spoof") or not fn:
+                raise ValueError(f"{base / proto}: unusable row {row!r}")
+            yield Path(fn).stem, base / fn, int(lab != "spoof")
 
 
 def _iter_mlaad(root: Path):
