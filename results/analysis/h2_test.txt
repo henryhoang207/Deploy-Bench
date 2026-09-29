@@ -1,0 +1,11 @@
+aasist    FRR  43.77%  FAR  41.91%  FRR-FAR  +1.86 pp  95% CI [+0.74, +3.04]  p=0.000  Holm reject H0: True
+aasist_l  FRR  50.65%  FAR  36.54%  FRR-FAR +14.11 pp  95% CI [+12.95, +15.24]  p=0.000  Holm reject H0: True
+rawnet2   FRR  33.75%  FAR  69.07%  FRR-FAR -35.31 pp  95% CI [-36.38, -34.28]  p=1.000  Holm reject H0: False
+tssdnet   FRR  50.28%  FAR  18.97%  FRR-FAR +31.32 pp  95% CI [+30.29, +32.37]  p=0.000  Holm reject H0: True
+
+FRR > FAR (Holm, alpha 0.05) in 3 of 4 ranked models; majority needs 3 -> H2 SUPPORTED
+
+Robustness of the closest case (aasist, +1.86 pp), not part of the registered test:
+class-stratified bootstrap seeds 1-5 give p = 0.000-0.002 (95% CI about [+0.7, +3.0] pp); an
+unstratified bootstrap (seed 0) gives p = 0.001. Every variant stays far below 0.025, the Holm
+threshold for the third-smallest p. Reported p = 0.000 means p < 0.001 at B = 1000.
