@@ -1,4 +1,4 @@
 aasist    n=31779 EER  43.02%  AUC 0.601 | tau_eer: HTER  42.84%  FRR  43.77%  FAR  41.91%  TTG  +2.94 pp
 aasist_l  n=31779 EER  44.46%  AUC 0.590 | tau_eer: HTER  43.59%  FRR  50.65%  FAR  36.54%  TTG  +1.55 pp
 rawnet2   n=31779 EER  49.00%  AUC 0.510 | tau_eer: HTER  51.41%  FRR  33.75%  FAR  69.07%  TTG  +5.44 pp
-tssdnet   (no fp32 ITW scores yet)
+tssdnet   n=31779 EER  34.17%  AUC 0.734 | tau_eer: HTER  34.62%  FRR  50.28%  FAR  18.97%  TTG  +0.73 pp
