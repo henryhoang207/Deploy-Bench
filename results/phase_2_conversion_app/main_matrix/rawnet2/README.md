@@ -57,3 +57,8 @@ own pipeline. This is the ASVspoof 2021 DF baseline checkpoint (D33), so the fig
 directly comparable. Treat this as provisional until a second model has been scored on ITW.
 The ITW loader now refuses unknown labels instead of mapping them to spoof (none occur in
 meta.csv).
+
+**Update (same day):** AASIST and AASIST-L fp32 on ITW, through the same loader and scorer,
+come out above chance: EER 43.02% (AUC 0.601) and 44.46% (AUC 0.590). This supports reading
+RawNet2's 49.0% as a property of this checkpoint rather than a pipeline fault
+(`python analysis/itw_fp32_descriptives.py`).
