@@ -1,0 +1,19 @@
+{
+  "mode": "conversion",
+  "gates": true,
+  "n": 1000,
+  "max_abs_delta": 0.0001726150512677549,
+  "mean_abs_delta": 1.9998401403327397e-05,
+  "pearson_r": 0.9999999999988337,
+  "decision_flips": {
+    "eer": 0,
+    "frr1": 0,
+    "frr5": 0
+  },
+  "pass": true,
+  "checkpoint": "/mnt/data8tb/henry/deploybench/vendor/end-to-end-synthetic-speech-detection/pretrained/Res_TSSDNet_time_frame_61_ASVspoof2019_LA_Loss_0.0017_dEER_0.74%_eEER_1.64%.pth",
+  "checkpoint_sha256": "056a65fc241a94b4a72e8842278509fdf0421c090da72bb5085b97ff3a1772ba",
+  "fp32_export_sha256": {
+    "tssdnet_fp32.onnx": "98098c2eba9df4cbcfdf546717323ebd764302b41d38fca285d3bc754bcc6152"
+  }
+}

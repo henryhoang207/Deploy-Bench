@@ -1,0 +1,935 @@
+{
+  "design": "PREREGISTRATION.md conversion sensitivity (D35/D39); D36 budget",
+  "model": "rawnet2",
+  "frozen": "2026-09-28T16:46:53Z",
+  "fp32_sha256": {
+    "rawnet2_fp32.onnx": "5d0531a4408e13d7185f326074ba76eee6d6e45723d4f46549451c91777f61c6"
+  },
+  "r01_sha256": {
+    "rawnet2_int8.onnx": "075d97827af670f47d843424f2089e9d7d88bd9721faebaa05e4236a25ce5383"
+  },
+  "r01_sidecar_sha256": "5e0ca6416d834fd9ce60ffcc7a9b02a874cc1fc3e46ebbb01813dbc0382251a5",
+  "search_calibration_manifest": "/mnt/data8tb/henry/deploybench/configs/conversion_sensitivity/calib_search_seed100.txt",
+  "search_calibration_ids_sha256": "9f70ec14afe8adcb9c1bc0d884a1d00c2b3e48a334a9ca686f020d2d9731f760",
+  "diag_manifest": "/mnt/data8tb/henry/deploybench/configs/conversion_sensitivity/diag_seed0.txt",
+  "diag_ids_sha256": "85b585d63830cf011446112071519d77a600a1df2602bb62e4521ca9a4e297ad",
+  "diag_clips_used": 2000,
+  "rank_seconds": 988.5,
+  "ranking_rule": "damage_db = min input SQNR - output SQNR (fp32 vs int8, streamed over the diagnostic clips); largest first; ties by graph order",
+  "k_schedule_declared": "1,2,3,4,6,8,12,16,24,32,48",
+  "max_attempts": 12,
+  "budget": "int8 EER - fp32 EER <= 1.0 pp on the diagnostic subset (D36)",
+  "selection_rule": "smallest K among qualifying attempts; ties -> earlier attempt (D39)",
+  "attempts": [
+    {
+      "recipe_id": "r01",
+      "role": "default recipe (already run)",
+      "calib_method": "minmax",
+      "exclude_nodes": [],
+      "n_fp32_excluded": 0
+    },
+    {
+      "recipe_id": "r02",
+      "role": "top-1 exclusion",
+      "calib_method": "minmax",
+      "exclude_nodes": [
+        "/m/bn_before_gru/BatchNormalization"
+      ],
+      "n_fp32_excluded": 1
+    },
+    {
+      "recipe_id": "r03",
+      "role": "top-2 exclusion",
+      "calib_method": "minmax",
+      "exclude_nodes": [
+        "/m/bn_before_gru/BatchNormalization",
+        "/m/first_bn/BatchNormalization"
+      ],
+      "n_fp32_excluded": 2
+    },
+    {
+      "recipe_id": "r04",
+      "role": "top-3 exclusion",
+      "calib_method": "minmax",
+      "exclude_nodes": [
+        "/m/bn_before_gru/BatchNormalization",
+        "/m/first_bn/BatchNormalization",
+        "/m/avgpool/GlobalAveragePool"
+      ],
+      "n_fp32_excluded": 3
+    },
+    {
+      "recipe_id": "r05",
+      "role": "top-4 exclusion",
+      "calib_method": "minmax",
+      "exclude_nodes": [
+        "/m/bn_before_gru/BatchNormalization",
+        "/m/first_bn/BatchNormalization",
+        "/m/avgpool/GlobalAveragePool",
+        "/m/block2/block2.0/conv1/Conv"
+      ],
+      "n_fp32_excluded": 4
+    },
+    {
+      "recipe_id": "r06",
+      "role": "top-6 exclusion",
+      "calib_method": "minmax",
+      "exclude_nodes": [
+        "/m/bn_before_gru/BatchNormalization",
+        "/m/first_bn/BatchNormalization",
+        "/m/avgpool/GlobalAveragePool",
+        "/m/block2/block2.0/conv1/Conv",
+        "/m/block5/block5.0/conv1/Conv",
+        "/m/block4/block4.0/conv1/Conv"
+      ],
+      "n_fp32_excluded": 6
+    },
+    {
+      "recipe_id": "r07",
+      "role": "top-8 exclusion",
+      "calib_method": "minmax",
+      "exclude_nodes": [
+        "/m/bn_before_gru/BatchNormalization",
+        "/m/first_bn/BatchNormalization",
+        "/m/avgpool/GlobalAveragePool",
+        "/m/block2/block2.0/conv1/Conv",
+        "/m/block5/block5.0/conv1/Conv",
+        "/m/block4/block4.0/conv1/Conv",
+        "/m/block3/block3.0/conv1/Conv",
+        "/m/Sinc_conv/Conv"
+      ],
+      "n_fp32_excluded": 8
+    },
+    {
+      "recipe_id": "r08",
+      "role": "top-12 exclusion",
+      "calib_method": "minmax",
+      "exclude_nodes": [
+        "/m/bn_before_gru/BatchNormalization",
+        "/m/first_bn/BatchNormalization",
+        "/m/avgpool/GlobalAveragePool",
+        "/m/block2/block2.0/conv1/Conv",
+        "/m/block5/block5.0/conv1/Conv",
+        "/m/block4/block4.0/conv1/Conv",
+        "/m/block3/block3.0/conv1/Conv",
+        "/m/Sinc_conv/Conv",
+        "/m/avgpool_1/GlobalAveragePool",
+        "/m/block1/block1.0/conv1/Conv",
+        "/m/block0/block0.0/lrelu/LeakyRelu",
+        "/m/selu/Selu"
+      ],
+      "n_fp32_excluded": 12
+    },
+    {
+      "recipe_id": "r09",
+      "role": "top-16 exclusion",
+      "calib_method": "minmax",
+      "exclude_nodes": [
+        "/m/bn_before_gru/BatchNormalization",
+        "/m/first_bn/BatchNormalization",
+        "/m/avgpool/GlobalAveragePool",
+        "/m/block2/block2.0/conv1/Conv",
+        "/m/block5/block5.0/conv1/Conv",
+        "/m/block4/block4.0/conv1/Conv",
+        "/m/block3/block3.0/conv1/Conv",
+        "/m/Sinc_conv/Conv",
+        "/m/avgpool_1/GlobalAveragePool",
+        "/m/block1/block1.0/conv1/Conv",
+        "/m/block0/block0.0/lrelu/LeakyRelu",
+        "/m/selu/Selu",
+        "/m/block1/block1.0/conv2/Conv",
+        "/m/block1/block1.0/lrelu/LeakyRelu",
+        "/m/Mul_2",
+        "/m/Mul_3"
+      ],
+      "n_fp32_excluded": 16
+    },
+    {
+      "recipe_id": "r10",
+      "role": "top-24 exclusion",
+      "calib_method": "minmax",
+      "exclude_nodes": [
+        "/m/bn_before_gru/BatchNormalization",
+        "/m/first_bn/BatchNormalization",
+        "/m/avgpool/GlobalAveragePool",
+        "/m/block2/block2.0/conv1/Conv",
+        "/m/block5/block5.0/conv1/Conv",
+        "/m/block4/block4.0/conv1/Conv",
+        "/m/block3/block3.0/conv1/Conv",
+        "/m/Sinc_conv/Conv",
+        "/m/avgpool_1/GlobalAveragePool",
+        "/m/block1/block1.0/conv1/Conv",
+        "/m/block0/block0.0/lrelu/LeakyRelu",
+        "/m/selu/Selu",
+        "/m/block1/block1.0/conv2/Conv",
+        "/m/block1/block1.0/lrelu/LeakyRelu",
+        "/m/Mul_2",
+        "/m/Mul_3",
+        "/m/block2/block2.0/lrelu/LeakyRelu",
+        "/m/Mul_4",
+        "/m/Mul",
+        "/m/avgpool_2/GlobalAveragePool",
+        "/m/Mul_5",
+        "/m/block4/block4.0/lrelu/LeakyRelu",
+        "/m/Mul_1",
+        "/m/Reshape_1"
+      ],
+      "n_fp32_excluded": 24
+    },
+    {
+      "recipe_id": "r11",
+      "role": "top-32 exclusion",
+      "calib_method": "minmax",
+      "exclude_nodes": [
+        "/m/bn_before_gru/BatchNormalization",
+        "/m/first_bn/BatchNormalization",
+        "/m/avgpool/GlobalAveragePool",
+        "/m/block2/block2.0/conv1/Conv",
+        "/m/block5/block5.0/conv1/Conv",
+        "/m/block4/block4.0/conv1/Conv",
+        "/m/block3/block3.0/conv1/Conv",
+        "/m/Sinc_conv/Conv",
+        "/m/avgpool_1/GlobalAveragePool",
+        "/m/block1/block1.0/conv1/Conv",
+        "/m/block0/block0.0/lrelu/LeakyRelu",
+        "/m/selu/Selu",
+        "/m/block1/block1.0/conv2/Conv",
+        "/m/block1/block1.0/lrelu/LeakyRelu",
+        "/m/Mul_2",
+        "/m/Mul_3",
+        "/m/block2/block2.0/lrelu/LeakyRelu",
+        "/m/Mul_4",
+        "/m/Mul",
+        "/m/avgpool_2/GlobalAveragePool",
+        "/m/Mul_5",
+        "/m/block4/block4.0/lrelu/LeakyRelu",
+        "/m/Mul_1",
+        "/m/Reshape_1",
+        "/m/Reshape_2",
+        "/m/Reshape_3",
+        "/m/Reshape_4",
+        "/m/Reshape_5",
+        "/m/Reshape_6",
+        "/m/Reshape_7",
+        "/m/Reshape_8",
+        "/m/Reshape_9"
+      ],
+      "n_fp32_excluded": 32
+    },
+    {
+      "recipe_id": "r12",
+      "role": "top-48 exclusion",
+      "calib_method": "minmax",
+      "exclude_nodes": [
+        "/m/bn_before_gru/BatchNormalization",
+        "/m/first_bn/BatchNormalization",
+        "/m/avgpool/GlobalAveragePool",
+        "/m/block2/block2.0/conv1/Conv",
+        "/m/block5/block5.0/conv1/Conv",
+        "/m/block4/block4.0/conv1/Conv",
+        "/m/block3/block3.0/conv1/Conv",
+        "/m/Sinc_conv/Conv",
+        "/m/avgpool_1/GlobalAveragePool",
+        "/m/block1/block1.0/conv1/Conv",
+        "/m/block0/block0.0/lrelu/LeakyRelu",
+        "/m/selu/Selu",
+        "/m/block1/block1.0/conv2/Conv",
+        "/m/block1/block1.0/lrelu/LeakyRelu",
+        "/m/Mul_2",
+        "/m/Mul_3",
+        "/m/block2/block2.0/lrelu/LeakyRelu",
+        "/m/Mul_4",
+        "/m/Mul",
+        "/m/avgpool_2/GlobalAveragePool",
+        "/m/Mul_5",
+        "/m/block4/block4.0/lrelu/LeakyRelu",
+        "/m/Mul_1",
+        "/m/Reshape_1",
+        "/m/Reshape_2",
+        "/m/Reshape_3",
+        "/m/Reshape_4",
+        "/m/Reshape_5",
+        "/m/Reshape_6",
+        "/m/Reshape_7",
+        "/m/Reshape_8",
+        "/m/Reshape_9",
+        "/m/Reshape_10",
+        "/m/Reshape_11",
+        "/m/Reshape_12",
+        "/m/Abs",
+        "/m/block3/block3.0/lrelu/LeakyRelu",
+        "/m/block0/block0.0/conv1/Conv",
+        "/m/fc2_gru/Gemm",
+        "/m/fc1_gru/Gemm",
+        "/m/block5/block5.0/lrelu/LeakyRelu",
+        "/m/block2/block2.0/mp/MaxPool",
+        "/m/block0/block0.0/conv2/Conv",
+        "/m/selu_1/Selu",
+        "/m/block3/block3.0/conv2/Conv",
+        "/m/block0/block0.0/mp/MaxPool",
+        "/m/block3/block3.0/mp/MaxPool",
+        "/m/block4/block4.0/conv2/Conv"
+      ],
+      "n_fp32_excluded": 48
+    }
+  ],
+  "ranking": [
+    {
+      "node": "/m/bn_before_gru/BatchNormalization",
+      "op_type": "BatchNormalization",
+      "graph_idx": 282,
+      "in_sqnr_db": 18.2259,
+      "out_sqnr_db": 6.7819,
+      "damage_db": 11.444
+    },
+    {
+      "node": "/m/first_bn/BatchNormalization",
+      "op_type": "BatchNormalization",
+      "graph_idx": 57,
+      "in_sqnr_db": 24.8921,
+      "out_sqnr_db": 17.3746,
+      "damage_db": 7.5175
+    },
+    {
+      "node": "/m/avgpool/GlobalAveragePool",
+      "op_type": "GlobalAveragePool",
+      "graph_idx": 78,
+      "in_sqnr_db": 13.3221,
+      "out_sqnr_db": 6.1783,
+      "damage_db": 7.1438
+    },
+    {
+      "node": "/m/block2/block2.0/conv1/Conv",
+      "op_type": "Conv",
+      "graph_idx": 136,
+      "in_sqnr_db": 17.1201,
+      "out_sqnr_db": 9.9991,
+      "damage_db": 7.1209
+    },
+    {
+      "node": "/m/block5/block5.0/conv1/Conv",
+      "op_type": "Conv",
+      "graph_idx": 246,
+      "in_sqnr_db": 15.8679,
+      "out_sqnr_db": 11.1923,
+      "damage_db": 4.6756
+    },
+    {
+      "node": "/m/block4/block4.0/conv1/Conv",
+      "op_type": "Conv",
+      "graph_idx": 210,
+      "in_sqnr_db": 15.4008,
+      "out_sqnr_db": 10.7527,
+      "damage_db": 4.6481
+    },
+    {
+      "node": "/m/block3/block3.0/conv1/Conv",
+      "op_type": "Conv",
+      "graph_idx": 174,
+      "in_sqnr_db": 14.3968,
+      "out_sqnr_db": 10.6425,
+      "damage_db": 3.7543
+    },
+    {
+      "node": "/m/Sinc_conv/Conv",
+      "op_type": "Conv",
+      "graph_idx": 50,
+      "in_sqnr_db": 36.0575,
+      "out_sqnr_db": 32.782,
+      "damage_db": 3.2755
+    },
+    {
+      "node": "/m/avgpool_1/GlobalAveragePool",
+      "op_type": "GlobalAveragePool",
+      "graph_idx": 114,
+      "in_sqnr_db": 13.0884,
+      "out_sqnr_db": 11.4002,
+      "damage_db": 1.6882
+    },
+    {
+      "node": "/m/block1/block1.0/conv1/Conv",
+      "op_type": "Conv",
+      "graph_idx": 99,
+      "in_sqnr_db": 14.9137,
+      "out_sqnr_db": 13.2326,
+      "damage_db": 1.6812
+    },
+    {
+      "node": "/m/block0/block0.0/lrelu/LeakyRelu",
+      "op_type": "LeakyRelu",
+      "graph_idx": 66,
+      "in_sqnr_db": 14.0723,
+      "out_sqnr_db": 13.0638,
+      "damage_db": 1.0085
+    },
+    {
+      "node": "/m/selu/Selu",
+      "op_type": "Selu",
+      "graph_idx": 60,
+      "in_sqnr_db": 15.9315,
+      "out_sqnr_db": 15.022,
+      "damage_db": 0.9095
+    },
+    {
+      "node": "/m/block1/block1.0/conv2/Conv",
+      "op_type": "Conv",
+      "graph_idx": 105,
+      "in_sqnr_db": 11.348,
+      "out_sqnr_db": 10.5985,
+      "damage_db": 0.7495
+    },
+    {
+      "node": "/m/block1/block1.0/lrelu/LeakyRelu",
+      "op_type": "LeakyRelu",
+      "graph_idx": 102,
+      "in_sqnr_db": 12.8245,
+      "out_sqnr_db": 12.181,
+      "damage_db": 0.6435
+    },
+    {
+      "node": "/m/Mul_2",
+      "op_type": "Mul",
+      "graph_idx": 168,
+      "in_sqnr_db": 12.5484,
+      "out_sqnr_db": 11.9718,
+      "damage_db": 0.5766
+    },
+    {
+      "node": "/m/Mul_3",
+      "op_type": "Mul",
+      "graph_idx": 204,
+      "in_sqnr_db": 12.5251,
+      "out_sqnr_db": 12.0784,
+      "damage_db": 0.4467
+    },
+    {
+      "node": "/m/block2/block2.0/lrelu/LeakyRelu",
+      "op_type": "LeakyRelu",
+      "graph_idx": 141,
+      "in_sqnr_db": 9.6681,
+      "out_sqnr_db": 9.2822,
+      "damage_db": 0.3859
+    },
+    {
+      "node": "/m/Mul_4",
+      "op_type": "Mul",
+      "graph_idx": 240,
+      "in_sqnr_db": 13.5303,
+      "out_sqnr_db": 13.1572,
+      "damage_db": 0.3731
+    },
+    {
+      "node": "/m/Mul",
+      "op_type": "Mul",
+      "graph_idx": 93,
+      "in_sqnr_db": 13.3221,
+      "out_sqnr_db": 13.0246,
+      "damage_db": 0.2975
+    },
+    {
+      "node": "/m/avgpool_2/GlobalAveragePool",
+      "op_type": "GlobalAveragePool",
+      "graph_idx": 153,
+      "in_sqnr_db": 12.5484,
+      "out_sqnr_db": 12.292,
+      "damage_db": 0.2564
+    },
+    {
+      "node": "/m/Mul_5",
+      "op_type": "Mul",
+      "graph_idx": 276,
+      "in_sqnr_db": 15.7244,
+      "out_sqnr_db": 15.5026,
+      "damage_db": 0.2218
+    },
+    {
+      "node": "/m/block4/block4.0/lrelu/LeakyRelu",
+      "op_type": "LeakyRelu",
+      "graph_idx": 213,
+      "in_sqnr_db": 10.5953,
+      "out_sqnr_db": 10.433,
+      "damage_db": 0.1623
+    },
+    {
+      "node": "/m/Mul_1",
+      "op_type": "Mul",
+      "graph_idx": 129,
+      "in_sqnr_db": 13.0884,
+      "out_sqnr_db": 12.9593,
+      "damage_db": 0.1291
+    },
+    {
+      "node": "/m/Reshape_1",
+      "op_type": "Reshape",
+      "graph_idx": 81,
+      "in_sqnr_db": 6.1749,
+      "out_sqnr_db": 6.1749,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/Reshape_2",
+      "op_type": "Reshape",
+      "graph_idx": 90,
+      "in_sqnr_db": 27.5116,
+      "out_sqnr_db": 27.5116,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/Reshape_3",
+      "op_type": "Reshape",
+      "graph_idx": 117,
+      "in_sqnr_db": 11.397,
+      "out_sqnr_db": 11.397,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/Reshape_4",
+      "op_type": "Reshape",
+      "graph_idx": 126,
+      "in_sqnr_db": 29.1831,
+      "out_sqnr_db": 29.1831,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/Reshape_5",
+      "op_type": "Reshape",
+      "graph_idx": 156,
+      "in_sqnr_db": 12.2848,
+      "out_sqnr_db": 12.2848,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/Reshape_6",
+      "op_type": "Reshape",
+      "graph_idx": 165,
+      "in_sqnr_db": 28.0731,
+      "out_sqnr_db": 28.0731,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/Reshape_7",
+      "op_type": "Reshape",
+      "graph_idx": 192,
+      "in_sqnr_db": 15.6419,
+      "out_sqnr_db": 15.6419,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/Reshape_8",
+      "op_type": "Reshape",
+      "graph_idx": 201,
+      "in_sqnr_db": 31.9626,
+      "out_sqnr_db": 31.9626,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/Reshape_9",
+      "op_type": "Reshape",
+      "graph_idx": 228,
+      "in_sqnr_db": 18.6461,
+      "out_sqnr_db": 18.6461,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/Reshape_10",
+      "op_type": "Reshape",
+      "graph_idx": 237,
+      "in_sqnr_db": 34.8932,
+      "out_sqnr_db": 34.8932,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/Reshape_11",
+      "op_type": "Reshape",
+      "graph_idx": 264,
+      "in_sqnr_db": 21.1076,
+      "out_sqnr_db": 21.1076,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/Reshape_12",
+      "op_type": "Reshape",
+      "graph_idx": 273,
+      "in_sqnr_db": 33.1001,
+      "out_sqnr_db": 33.1001,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/Abs",
+      "op_type": "Abs",
+      "graph_idx": 53,
+      "in_sqnr_db": 24.7003,
+      "out_sqnr_db": 24.7061,
+      "damage_db": -0.0059
+    },
+    {
+      "node": "/m/block3/block3.0/lrelu/LeakyRelu",
+      "op_type": "LeakyRelu",
+      "graph_idx": 177,
+      "in_sqnr_db": 10.4207,
+      "out_sqnr_db": 10.4306,
+      "damage_db": -0.0099
+    },
+    {
+      "node": "/m/block0/block0.0/conv1/Conv",
+      "op_type": "Conv",
+      "graph_idx": 63,
+      "in_sqnr_db": 14.9278,
+      "out_sqnr_db": 14.9392,
+      "damage_db": -0.0113
+    },
+    {
+      "node": "/m/fc2_gru/Gemm",
+      "op_type": "Gemm",
+      "graph_idx": 300,
+      "in_sqnr_db": 13.1539,
+      "out_sqnr_db": 13.1655,
+      "damage_db": -0.0116
+    },
+    {
+      "node": "/m/fc1_gru/Gemm",
+      "op_type": "Gemm",
+      "graph_idx": 297,
+      "in_sqnr_db": 13.1198,
+      "out_sqnr_db": 13.1619,
+      "damage_db": -0.0421
+    },
+    {
+      "node": "/m/block5/block5.0/lrelu/LeakyRelu",
+      "op_type": "LeakyRelu",
+      "graph_idx": 249,
+      "in_sqnr_db": 11.0489,
+      "out_sqnr_db": 11.1433,
+      "damage_db": -0.0944
+    },
+    {
+      "node": "/m/block2/block2.0/mp/MaxPool",
+      "op_type": "MaxPool",
+      "graph_idx": 150,
+      "in_sqnr_db": 12.427,
+      "out_sqnr_db": 12.5484,
+      "damage_db": -0.1214
+    },
+    {
+      "node": "/m/block0/block0.0/conv2/Conv",
+      "op_type": "Conv",
+      "graph_idx": 69,
+      "in_sqnr_db": 12.8548,
+      "out_sqnr_db": 13.0689,
+      "damage_db": -0.2141
+    },
+    {
+      "node": "/m/selu_1/Selu",
+      "op_type": "Selu",
+      "graph_idx": 285,
+      "in_sqnr_db": 6.7864,
+      "out_sqnr_db": 7.0739,
+      "damage_db": -0.2875
+    },
+    {
+      "node": "/m/block3/block3.0/conv2/Conv",
+      "op_type": "Conv",
+      "graph_idx": 180,
+      "in_sqnr_db": 10.3658,
+      "out_sqnr_db": 10.9296,
+      "damage_db": -0.5638
+    },
+    {
+      "node": "/m/block0/block0.0/mp/MaxPool",
+      "op_type": "MaxPool",
+      "graph_idx": 75,
+      "in_sqnr_db": 12.6087,
+      "out_sqnr_db": 13.3221,
+      "damage_db": -0.7134
+    },
+    {
+      "node": "/m/block3/block3.0/mp/MaxPool",
+      "op_type": "MaxPool",
+      "graph_idx": 186,
+      "in_sqnr_db": 11.7931,
+      "out_sqnr_db": 12.5251,
+      "damage_db": -0.7321
+    },
+    {
+      "node": "/m/block4/block4.0/conv2/Conv",
+      "op_type": "Conv",
+      "graph_idx": 216,
+      "in_sqnr_db": 10.3536,
+      "out_sqnr_db": 11.1867,
+      "damage_db": -0.833
+    },
+    {
+      "node": "/m/block2/block2.0/Add",
+      "op_type": "Add",
+      "graph_idx": 147,
+      "in_sqnr_db": 11.941,
+      "out_sqnr_db": 12.835,
+      "damage_db": -0.894
+    },
+    {
+      "node": "/m/logsoftmax/LogSoftmax",
+      "op_type": "LogSoftmax",
+      "graph_idx": 303,
+      "in_sqnr_db": 13.1652,
+      "out_sqnr_db": 14.0886,
+      "damage_db": -0.9234
+    },
+    {
+      "node": "/m/block1/block1.0/mp/MaxPool",
+      "op_type": "MaxPool",
+      "graph_idx": 111,
+      "in_sqnr_db": 12.1487,
+      "out_sqnr_db": 13.0884,
+      "damage_db": -0.9397
+    },
+    {
+      "node": "/m/block2/block2.0/conv_downsample/Conv",
+      "op_type": "Conv",
+      "graph_idx": 135,
+      "in_sqnr_db": 17.1201,
+      "out_sqnr_db": 18.2274,
+      "damage_db": -1.1073
+    },
+    {
+      "node": "/m/fc_attention1/fc_attention1.0/Gemm",
+      "op_type": "Gemm",
+      "graph_idx": 120,
+      "in_sqnr_db": 11.397,
+      "out_sqnr_db": 12.5097,
+      "damage_db": -1.1127
+    },
+    {
+      "node": "/m/block3/block3.0/Add",
+      "op_type": "Add",
+      "graph_idx": 183,
+      "in_sqnr_db": 10.7024,
+      "out_sqnr_db": 12.0434,
+      "damage_db": -1.341
+    },
+    {
+      "node": "/m/block5/block5.0/conv2/Conv",
+      "op_type": "Conv",
+      "graph_idx": 252,
+      "in_sqnr_db": 11.0928,
+      "out_sqnr_db": 12.461,
+      "damage_db": -1.3682
+    },
+    {
+      "node": "/m/block4/block4.0/mp/MaxPool",
+      "op_type": "MaxPool",
+      "graph_idx": 222,
+      "in_sqnr_db": 12.16,
+      "out_sqnr_db": 13.5303,
+      "damage_db": -1.3703
+    },
+    {
+      "node": "/m/block4/block4.0/Add",
+      "op_type": "Add",
+      "graph_idx": 219,
+      "in_sqnr_db": 10.9523,
+      "out_sqnr_db": 12.5211,
+      "damage_db": -1.5688
+    },
+    {
+      "node": "/m/block5/block5.0/Add",
+      "op_type": "Add",
+      "graph_idx": 255,
+      "in_sqnr_db": 12.3754,
+      "out_sqnr_db": 14.1692,
+      "damage_db": -1.7938
+    },
+    {
+      "node": "/m/block5/block5.0/mp/MaxPool",
+      "op_type": "MaxPool",
+      "graph_idx": 258,
+      "in_sqnr_db": 13.9092,
+      "out_sqnr_db": 15.7244,
+      "damage_db": -1.8152
+    },
+    {
+      "node": "/m/block0/block0.0/Add",
+      "op_type": "Add",
+      "graph_idx": 72,
+      "in_sqnr_db": 11.6838,
+      "out_sqnr_db": 13.7018,
+      "damage_db": -2.018
+    },
+    {
+      "node": "/m/Add",
+      "op_type": "Add",
+      "graph_idx": 96,
+      "in_sqnr_db": 12.8221,
+      "out_sqnr_db": 14.9185,
+      "damage_db": -2.0964
+    },
+    {
+      "node": "/m/block1/block1.0/Add",
+      "op_type": "Add",
+      "graph_idx": 108,
+      "in_sqnr_db": 10.3164,
+      "out_sqnr_db": 12.5862,
+      "damage_db": -2.2698
+    },
+    {
+      "node": "/m/Add_5",
+      "op_type": "Add",
+      "graph_idx": 279,
+      "in_sqnr_db": 15.3983,
+      "out_sqnr_db": 18.3085,
+      "damage_db": -2.9102
+    },
+    {
+      "node": "/m/fc_attention0/fc_attention0.0/Gemm",
+      "op_type": "Gemm",
+      "graph_idx": 84,
+      "in_sqnr_db": 6.1749,
+      "out_sqnr_db": 9.1366,
+      "damage_db": -2.9617
+    },
+    {
+      "node": "/m/block2/block2.0/conv2/Conv",
+      "op_type": "Conv",
+      "graph_idx": 144,
+      "in_sqnr_db": 9.1916,
+      "out_sqnr_db": 12.2706,
+      "damage_db": -3.079
+    },
+    {
+      "node": "/m/avgpool_3/GlobalAveragePool",
+      "op_type": "GlobalAveragePool",
+      "graph_idx": 189,
+      "in_sqnr_db": 12.5251,
+      "out_sqnr_db": 15.6463,
+      "damage_db": -3.1211
+    },
+    {
+      "node": "/m/Add_2",
+      "op_type": "Add",
+      "graph_idx": 171,
+      "in_sqnr_db": 11.6143,
+      "out_sqnr_db": 14.8449,
+      "damage_db": -3.2305
+    },
+    {
+      "node": "/m/Add_4",
+      "op_type": "Add",
+      "graph_idx": 243,
+      "in_sqnr_db": 12.6942,
+      "out_sqnr_db": 16.1711,
+      "damage_db": -3.4769
+    },
+    {
+      "node": "/m/fc_attention5/fc_attention5.0/Gemm",
+      "op_type": "Gemm",
+      "graph_idx": 267,
+      "in_sqnr_db": 21.1076,
+      "out_sqnr_db": 24.6332,
+      "damage_db": -3.5257
+    },
+    {
+      "node": "/m/Add_3",
+      "op_type": "Add",
+      "graph_idx": 207,
+      "in_sqnr_db": 11.5813,
+      "out_sqnr_db": 15.7662,
+      "damage_db": -4.1849
+    },
+    {
+      "node": "/m/Add_1",
+      "op_type": "Add",
+      "graph_idx": 132,
+      "in_sqnr_db": 12.9091,
+      "out_sqnr_db": 17.418,
+      "damage_db": -4.5089
+    },
+    {
+      "node": "/m/fc_attention2/fc_attention2.0/Gemm",
+      "op_type": "Gemm",
+      "graph_idx": 159,
+      "in_sqnr_db": 12.2848,
+      "out_sqnr_db": 17.2451,
+      "damage_db": -4.9603
+    },
+    {
+      "node": "/m/avgpool_4/GlobalAveragePool",
+      "op_type": "GlobalAveragePool",
+      "graph_idx": 225,
+      "in_sqnr_db": 13.5303,
+      "out_sqnr_db": 18.6492,
+      "damage_db": -5.119
+    },
+    {
+      "node": "/m/avgpool_5/GlobalAveragePool",
+      "op_type": "GlobalAveragePool",
+      "graph_idx": 261,
+      "in_sqnr_db": 15.7244,
+      "out_sqnr_db": 21.1248,
+      "damage_db": -5.4004
+    },
+    {
+      "node": "/m/sig_4/Sigmoid",
+      "op_type": "Sigmoid",
+      "graph_idx": 234,
+      "in_sqnr_db": 27.4006,
+      "out_sqnr_db": 34.9621,
+      "damage_db": -7.5615
+    },
+    {
+      "node": "/m/fc_attention3/fc_attention3.0/Gemm",
+      "op_type": "Gemm",
+      "graph_idx": 195,
+      "in_sqnr_db": 15.6419,
+      "out_sqnr_db": 23.737,
+      "damage_db": -8.0951
+    },
+    {
+      "node": "/m/sig_3/Sigmoid",
+      "op_type": "Sigmoid",
+      "graph_idx": 198,
+      "in_sqnr_db": 23.697,
+      "out_sqnr_db": 31.9905,
+      "damage_db": -8.2935
+    },
+    {
+      "node": "/m/sig_5/Sigmoid",
+      "op_type": "Sigmoid",
+      "graph_idx": 270,
+      "in_sqnr_db": 24.547,
+      "out_sqnr_db": 33.1448,
+      "damage_db": -8.5977
+    },
+    {
+      "node": "/m/fc_attention4/fc_attention4.0/Gemm",
+      "op_type": "Gemm",
+      "graph_idx": 231,
+      "in_sqnr_db": 18.6461,
+      "out_sqnr_db": 27.4797,
+      "damage_db": -8.8336
+    },
+    {
+      "node": "/m/sig_2/Sigmoid",
+      "op_type": "Sigmoid",
+      "graph_idx": 162,
+      "in_sqnr_db": 17.23,
+      "out_sqnr_db": 28.0841,
+      "damage_db": -10.8541
+    },
+    {
+      "node": "/m/sig_1/Sigmoid",
+      "op_type": "Sigmoid",
+      "graph_idx": 123,
+      "in_sqnr_db": 12.5288,
+      "out_sqnr_db": 29.192,
+      "damage_db": -16.6632
+    },
+    {
+      "node": "/m/sig/Sigmoid",
+      "op_type": "Sigmoid",
+      "graph_idx": 87,
+      "in_sqnr_db": 9.1335,
+      "out_sqnr_db": 27.5292,
+      "damage_db": -18.3958
+    }
+  ],
+  "unranked_quantized_nodes": []
+}

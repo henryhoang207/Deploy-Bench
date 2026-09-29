@@ -1,0 +1,70 @@
+{
+  "src": "/mnt/data8tb/henry/deploybench/exports/rawnet2_fp32.onnx",
+  "dst": "/mnt/data8tb/henry/deploybench/results/phase_2_conversion_app/conversion_sensitivity/rawnet2/r02/rawnet2_int8.onnx",
+  "calib_method": "minmax",
+  "calib_dir": "/mnt/data8tb/henry/data/deepfake/LA/ASVspoof2019_LA_dev/flac",
+  "calib_manifest": "/mnt/data8tb/henry/deploybench/configs/conversion_sensitivity/calib_search_seed100.txt",
+  "calib_clips": 500,
+  "excluded_nodes": [
+    "/m/bn_before_gru/BatchNormalization"
+  ],
+  "keep_io_fp32": false,
+  "graph_input_type": 1,
+  "quantized_op_types": [
+    "Abs",
+    "Add",
+    "BatchNormalization",
+    "Conv",
+    "Gemm",
+    "GlobalAveragePool",
+    "LeakyRelu",
+    "LogSoftmax",
+    "MaxPool",
+    "Mul",
+    "Reshape",
+    "Selu",
+    "Sigmoid"
+  ],
+  "fp32_fallback_op_types": [
+    "GRU",
+    "Gather",
+    "MaxPool",
+    "Reshape",
+    "Selu",
+    "Squeeze",
+    "Transpose"
+  ],
+  "n_quantize_linear": 81,
+  "n_dequantize_linear": 126,
+  "artifact_bytes": 66243404,
+  "n_nodes": 301,
+  "recipe_id": "r02",
+  "calib_seed": 100,
+  "run_dir": "/mnt/data8tb/henry/deploybench/results/phase_2_conversion_app/conversion_sensitivity/rawnet2/r02",
+  "src_sha256": {
+    "rawnet2_fp32.onnx": "5d0531a4408e13d7185f326074ba76eee6d6e45723d4f46549451c91777f61c6"
+  },
+  "calib_manifest_file_sha256": "eb23eb2f71a26c8cdf95409624f9979ced2547a6dd26e1d9cdafd2ee3dbd171f",
+  "calib_ids_sha256": "9f70ec14afe8adcb9c1bc0d884a1d00c2b3e48a334a9ca686f020d2d9731f760",
+  "n_fp32_excluded": 1,
+  "precision_label": "int8-mixed (K=1)",
+  "activation_type": "int8",
+  "symmetric_activations": false,
+  "per_channel": true,
+  "pre_process": true,
+  "versions": {
+    "onnxruntime": "1.23.2",
+    "onnx": "1.22.0",
+    "numpy": "1.23.5",
+    "python": "3.10.21"
+  },
+  "host": "sol1",
+  "platform": "Linux-7.0.0-30-generic-x86_64-with-glibc2.39",
+  "started": "2026-09-28T16:46:56Z",
+  "outcome": "ok",
+  "elapsed_s": 121.8,
+  "finished": "2026-09-28T16:48:58Z",
+  "dst_sha256": {
+    "rawnet2_int8.onnx": "9b290fec50e18d08da58a672292955222c910fa275892807c212be8554d4bd46"
+  }
+}

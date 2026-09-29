@@ -1,0 +1,19 @@
+{
+  "mode": "conversion",
+  "gates": true,
+  "n": 1000,
+  "max_abs_delta": 4.291534423828125e-06,
+  "mean_abs_delta": 6.011947989573185e-07,
+  "pearson_r": 0.9999999999999883,
+  "decision_flips": {
+    "eer": 0,
+    "frr1": 0,
+    "frr5": 0
+  },
+  "pass": true,
+  "checkpoint": "/mnt/data8tb/henry/deploybench/vendor/aasist/models/weights/AASIST.pth",
+  "checkpoint_sha256": "51d2d9cf0738172f61e2a384ec50a54a55363240f67c971ed55a92435bc1a1c0",
+  "fp32_export_sha256": {
+    "aasist_fp32.onnx": "06ba4a1f2506a8d4e40dd2e97296d6e6d1ee7ea29d843e1ce73591a3031c2f48"
+  }
+}

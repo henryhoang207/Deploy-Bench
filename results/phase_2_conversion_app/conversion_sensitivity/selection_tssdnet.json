@@ -1,0 +1,167 @@
+{
+  "mode": "search",
+  "locked_recipe": null,
+  "locked_k": null,
+  "model": "tssdnet",
+  "fp32_diag_eer": 0.006999999999999999,
+  "budget_pp": 1.0,
+  "fp32_reference": "/mnt/data8tb/henry/deploybench/results/phase_1_reproduction/scores_dev_tssdnet.csv",
+  "n_diag": 2000,
+  "n_attempts": 12,
+  "n_failed": 1,
+  "attempts": [
+    {
+      "recipe_id": "r01",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 0,
+      "precision_label": "int8",
+      "eer": 0.12725,
+      "delta_eer_pp": 12.025,
+      "qualifies": false,
+      "artifact_sha256": {
+        "tssdnet_int8.onnx": "927a7d4375f5a93aed91989828338ba5e889942a52b6eed054aef3ad19a7b371"
+      }
+    },
+    {
+      "recipe_id": "r02",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 1,
+      "precision_label": "int8-mixed (K=1)",
+      "eer": 0.08239999999999999,
+      "delta_eer_pp": 7.54,
+      "qualifies": false,
+      "artifact_sha256": {
+        "tssdnet_int8.onnx": "8ae898dbc1c80a4c4249a97a726bf179ff047bb3fd7b405c1cb7d9ed62bea307"
+      }
+    },
+    {
+      "recipe_id": "r03",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 2,
+      "precision_label": "int8-mixed (K=2)",
+      "eer": 0.08433333333333333,
+      "delta_eer_pp": 7.7333,
+      "qualifies": false,
+      "artifact_sha256": {
+        "tssdnet_int8.onnx": "94e06463047ce0619e8cf6eded0547a7ce3f7522e8c76e8d37474ff4665d9c3e"
+      }
+    },
+    {
+      "recipe_id": "r04",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 3,
+      "precision_label": "int8-mixed (K=3)",
+      "eer": 0.081,
+      "delta_eer_pp": 7.4,
+      "qualifies": false,
+      "artifact_sha256": {
+        "tssdnet_int8.onnx": "910e50a7f0f406458ccfacfcdba8d13d0606c7e41a34f1236b765b8a1f260c82"
+      }
+    },
+    {
+      "recipe_id": "r05",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 4,
+      "precision_label": "int8-mixed (K=4)",
+      "eer": 0.07949999999999999,
+      "delta_eer_pp": 7.25,
+      "qualifies": false,
+      "artifact_sha256": {
+        "tssdnet_int8.onnx": "cd1714d4d7f79c207ca343f2c947cbd1f72534e68e008e3dda8eebeebc58df27"
+      }
+    },
+    {
+      "recipe_id": "r06",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 6,
+      "precision_label": "int8-mixed (K=6)",
+      "eer": 0.07769230769230769,
+      "delta_eer_pp": 7.0692,
+      "qualifies": false,
+      "artifact_sha256": {
+        "tssdnet_int8.onnx": "540518b527d752b4f8a41372bbbf111efc73f1de38d63ec997d3e393307c4bbf"
+      }
+    },
+    {
+      "recipe_id": "r07",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 8,
+      "precision_label": "int8-mixed (K=8)",
+      "eer": 0.08033333333333331,
+      "delta_eer_pp": 7.3333,
+      "qualifies": false,
+      "artifact_sha256": {
+        "tssdnet_int8.onnx": "3c96b18d8c88a91c6fc86527446b3f6ec2eb8197b1a51b54494cbd5f41dd5138"
+      }
+    },
+    {
+      "recipe_id": "r08",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 12,
+      "precision_label": "int8-mixed (K=12)",
+      "eer": 0.06623529411764704,
+      "delta_eer_pp": 5.9235,
+      "qualifies": false,
+      "artifact_sha256": {
+        "tssdnet_int8.onnx": "40fc20515ef162f897144f08eb8ac1dd8d4f58aa83afc5b75177ae95c81deac4"
+      }
+    },
+    {
+      "recipe_id": "r09",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 16,
+      "precision_label": "int8-mixed (K=16)",
+      "eer": 0.07213333333333331,
+      "delta_eer_pp": 6.5133,
+      "qualifies": false,
+      "artifact_sha256": {
+        "tssdnet_int8.onnx": "4382206c4c121811b3d7c5df60afb9dae59249662964b88e1cd8104a4538b734"
+      }
+    },
+    {
+      "recipe_id": "r10",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 24,
+      "precision_label": "int8-mixed (K=24)",
+      "eer": 0.07199999999999995,
+      "delta_eer_pp": 6.5,
+      "qualifies": false,
+      "artifact_sha256": {
+        "tssdnet_int8.onnx": "9c198b9d235320bc6b7d74835d3549ed45d232b07b6bed8653a03cd7ae96f681"
+      }
+    },
+    {
+      "recipe_id": "r11",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 32,
+      "precision_label": "int8-mixed (K=32)",
+      "eer": 0.036,
+      "delta_eer_pp": 2.9,
+      "qualifies": false,
+      "artifact_sha256": {
+        "tssdnet_int8.onnx": "ed457a58b19ae1c0c58e7fce0f13e9f361a18e4361f19d189178d21073a34fda"
+      }
+    },
+    {
+      "recipe_id": "r12",
+      "calib_seed": 100,
+      "outcome": "no_int8_ops",
+      "n_fp32_excluded": 37,
+      "precision_label": "int8-mixed (K=37)",
+      "qualifies": false,
+      "note": "conversion left no QuantizeLinear/DequantizeLinear: an fp32 graph"
+    }
+  ],
+  "note": "no attempt meets the D36 budget: this model has no qualifying int8 artifact under the frozen design (report it; do not substitute)"
+}

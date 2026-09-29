@@ -1,0 +1,19 @@
+{
+  "mode": "conversion",
+  "gates": true,
+  "n": 1000,
+  "max_abs_delta": 3.719329833984375e-05,
+  "mean_abs_delta": 1.1977231770117724e-06,
+  "pearson_r": 0.9999999999998327,
+  "decision_flips": {
+    "eer": 0,
+    "frr1": 0,
+    "frr5": 0
+  },
+  "pass": true,
+  "checkpoint": "/mnt/data8tb/henry/deploybench/vendor/asvspoof2021_baselines/LA/Baseline-RawNet2/pre_trained_DF_RawNet2.pth",
+  "checkpoint_sha256": "52d8ad5f524a0f600c7c876d7a157a8f06c44a03504d0b2795c852f5e42c9127",
+  "fp32_export_sha256": {
+    "rawnet2_fp32.onnx": "5d0531a4408e13d7185f326074ba76eee6d6e45723d4f46549451c91777f61c6"
+  }
+}

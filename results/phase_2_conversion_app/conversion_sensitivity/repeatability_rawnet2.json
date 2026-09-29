@@ -1,0 +1,10 @@
+{
+  "model": "rawnet2",
+  "recipe_id": "r09",
+  "seed": 1,
+  "seed1_outcome": "ok",
+  "rebuild_outcome": "ok",
+  "artifact_sha256_identical": true,
+  "scores_diag.csv_max_abs_diff": 0.0,
+  "scores_19la_eval.csv_max_abs_diff": 0.0
+}

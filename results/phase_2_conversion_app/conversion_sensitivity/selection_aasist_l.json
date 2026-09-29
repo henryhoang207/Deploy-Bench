@@ -1,0 +1,171 @@
+{
+  "mode": "search",
+  "locked_recipe": null,
+  "locked_k": null,
+  "model": "aasist_l",
+  "fp32_diag_eer": 0.004,
+  "budget_pp": 1.0,
+  "fp32_reference": "/mnt/data8tb/henry/deploybench/results/phase_1_reproduction/scores_dev_aasist_l.csv",
+  "n_diag": 2000,
+  "n_attempts": 12,
+  "n_failed": 0,
+  "attempts": [
+    {
+      "recipe_id": "r01",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 0,
+      "precision_label": "int8",
+      "eer": 0.12508,
+      "delta_eer_pp": 12.108,
+      "qualifies": false,
+      "artifact_sha256": {
+        "aasist_l_int8.onnx": "535e7f77d90011906643effcedac3410a8cca7689562cae1248619d5f2007a59"
+      }
+    },
+    {
+      "recipe_id": "r02",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 1,
+      "precision_label": "int8-mixed (K=1)",
+      "eer": 0.1245,
+      "delta_eer_pp": 12.05,
+      "qualifies": false,
+      "artifact_sha256": {
+        "aasist_l_int8.onnx": "453aaf89c29cfe1033b7cb3830ac309b64b6ad160602aab8bbbf5c71692f9160"
+      }
+    },
+    {
+      "recipe_id": "r03",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 2,
+      "precision_label": "int8-mixed (K=2)",
+      "eer": 0.12492592592592593,
+      "delta_eer_pp": 12.0926,
+      "qualifies": false,
+      "artifact_sha256": {
+        "aasist_l_int8.onnx": "d49bc8c0f4c247dc35fd425760057755856d4765480494a23be594f064f401fb"
+      }
+    },
+    {
+      "recipe_id": "r04",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 3,
+      "precision_label": "int8-mixed (K=3)",
+      "eer": 0.08199999999999998,
+      "delta_eer_pp": 7.8,
+      "qualifies": false,
+      "artifact_sha256": {
+        "aasist_l_int8.onnx": "340415e8807217e8ef73b7da149332b4f1ddca80c739d40fbac39eadb0bcf608"
+      }
+    },
+    {
+      "recipe_id": "r05",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 4,
+      "precision_label": "int8-mixed (K=4)",
+      "eer": 0.027000000000000007,
+      "delta_eer_pp": 2.3,
+      "qualifies": false,
+      "artifact_sha256": {
+        "aasist_l_int8.onnx": "ab973ebee1bb533c6033775ce473bf25a9ec3baceabe2897a2379b70f96a2104"
+      }
+    },
+    {
+      "recipe_id": "r06",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 6,
+      "precision_label": "int8-mixed (K=6)",
+      "eer": 0.027000000000000007,
+      "delta_eer_pp": 2.3,
+      "qualifies": false,
+      "artifact_sha256": {
+        "aasist_l_int8.onnx": "29e534acaddce11c574ead914e0127d675ffc93da20b9d186a6800a99889dc3b"
+      }
+    },
+    {
+      "recipe_id": "r07",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 8,
+      "precision_label": "int8-mixed (K=8)",
+      "eer": 0.027000000000000007,
+      "delta_eer_pp": 2.3,
+      "qualifies": false,
+      "artifact_sha256": {
+        "aasist_l_int8.onnx": "ee1a0908942c6d9d23711d5f4e3dffe1aec2da9d0a138701a5342a1be8794647"
+      }
+    },
+    {
+      "recipe_id": "r08",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 12,
+      "precision_label": "int8-mixed (K=12)",
+      "eer": 0.025000000000000015,
+      "delta_eer_pp": 2.1,
+      "qualifies": false,
+      "artifact_sha256": {
+        "aasist_l_int8.onnx": "231d8089d1b9ec33941cf6977c57eb93d31ec6934bde4eae40ea63b8ebd8e6a2"
+      }
+    },
+    {
+      "recipe_id": "r09",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 16,
+      "precision_label": "int8-mixed (K=16)",
+      "eer": 0.025000000000000015,
+      "delta_eer_pp": 2.1,
+      "qualifies": false,
+      "artifact_sha256": {
+        "aasist_l_int8.onnx": "c5f50c65f40a25eaf4e4bd47148ce2b3f311a49a31566f98ee71cc1b6a225a7d"
+      }
+    },
+    {
+      "recipe_id": "r10",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 24,
+      "precision_label": "int8-mixed (K=24)",
+      "eer": 0.030400000000000003,
+      "delta_eer_pp": 2.64,
+      "qualifies": false,
+      "artifact_sha256": {
+        "aasist_l_int8.onnx": "1a9d85d59c9990ae03695d04b91df6fe425b4a15d8aa6569683e6d6cdf56f7d4"
+      }
+    },
+    {
+      "recipe_id": "r11",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 32,
+      "precision_label": "int8-mixed (K=32)",
+      "eer": 0.036,
+      "delta_eer_pp": 3.2,
+      "qualifies": false,
+      "artifact_sha256": {
+        "aasist_l_int8.onnx": "7cee4ddda41ba54b3aeca76d5567d0693c599267691035a81ac8aa6ef24306ea"
+      }
+    },
+    {
+      "recipe_id": "r12",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 48,
+      "precision_label": "int8-mixed (K=48)",
+      "eer": 0.021,
+      "delta_eer_pp": 1.7,
+      "qualifies": false,
+      "artifact_sha256": {
+        "aasist_l_int8.onnx": "fa974a6957e5477917dd4a87006ac9f1e106c15a54300112411499a2ccf3be31"
+      }
+    }
+  ],
+  "note": "no attempt meets the D36 budget: this model has no qualifying int8 artifact under the frozen design (report it; do not substitute)"
+}

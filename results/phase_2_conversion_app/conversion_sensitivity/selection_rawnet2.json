@@ -1,0 +1,170 @@
+{
+  "mode": "search",
+  "locked_recipe": "r09",
+  "locked_k": 16,
+  "model": "rawnet2",
+  "fp32_diag_eer": 0.006,
+  "budget_pp": 1.0,
+  "fp32_reference": "/mnt/data8tb/henry/deploybench/results/phase_1_reproduction/scores_dev_rawnet2.csv",
+  "n_diag": 2000,
+  "n_attempts": 12,
+  "n_failed": 0,
+  "attempts": [
+    {
+      "recipe_id": "r01",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 0,
+      "precision_label": "int8",
+      "eer": 0.037666666666666695,
+      "delta_eer_pp": 3.1667,
+      "qualifies": false,
+      "artifact_sha256": {
+        "rawnet2_int8.onnx": "075d97827af670f47d843424f2089e9d7d88bd9721faebaa05e4236a25ce5383"
+      }
+    },
+    {
+      "recipe_id": "r02",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 1,
+      "precision_label": "int8-mixed (K=1)",
+      "eer": 0.038000000000000034,
+      "delta_eer_pp": 3.2,
+      "qualifies": false,
+      "artifact_sha256": {
+        "rawnet2_int8.onnx": "9b290fec50e18d08da58a672292955222c910fa275892807c212be8554d4bd46"
+      }
+    },
+    {
+      "recipe_id": "r03",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 2,
+      "precision_label": "int8-mixed (K=2)",
+      "eer": 0.027999999999999997,
+      "delta_eer_pp": 2.2,
+      "qualifies": false,
+      "artifact_sha256": {
+        "rawnet2_int8.onnx": "ae23f5c1dba455804d073414374bb18caeaa3e5a78e3951b03b19db994617d7a"
+      }
+    },
+    {
+      "recipe_id": "r04",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 3,
+      "precision_label": "int8-mixed (K=3)",
+      "eer": 0.027999999999999997,
+      "delta_eer_pp": 2.2,
+      "qualifies": false,
+      "artifact_sha256": {
+        "rawnet2_int8.onnx": "9dde8946154c04bb7b19e4a43acb70334e046b23d66e7fbe2429fa6d8640d8a6"
+      }
+    },
+    {
+      "recipe_id": "r05",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 4,
+      "precision_label": "int8-mixed (K=4)",
+      "eer": 0.02850000000000001,
+      "delta_eer_pp": 2.25,
+      "qualifies": false,
+      "artifact_sha256": {
+        "rawnet2_int8.onnx": "db3ec9138325adac667104c77026406db5a7d70d36b663eb5ded7e74aab9713f"
+      }
+    },
+    {
+      "recipe_id": "r06",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 6,
+      "precision_label": "int8-mixed (K=6)",
+      "eer": 0.02800000000000001,
+      "delta_eer_pp": 2.2,
+      "qualifies": false,
+      "artifact_sha256": {
+        "rawnet2_int8.onnx": "6c021a68566315308c148f35ef4d28efc4f68af6018537c6786cad8a80f39e6a"
+      }
+    },
+    {
+      "recipe_id": "r07",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 8,
+      "precision_label": "int8-mixed (K=8)",
+      "eer": 0.019000000000000003,
+      "delta_eer_pp": 1.3,
+      "qualifies": false,
+      "artifact_sha256": {
+        "rawnet2_int8.onnx": "8fa77828f4530033d824bc35d5b53ff14cfc057c981a477a4918ddf613b2b3e6"
+      }
+    },
+    {
+      "recipe_id": "r08",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 12,
+      "precision_label": "int8-mixed (K=12)",
+      "eer": 0.018,
+      "delta_eer_pp": 1.2,
+      "qualifies": false,
+      "artifact_sha256": {
+        "rawnet2_int8.onnx": "ac9f1017b66d8cbff38611710d0f35964cb83fb00a94240d3dd2e2b4f5b9137d"
+      }
+    },
+    {
+      "recipe_id": "r09",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 16,
+      "precision_label": "int8-mixed (K=16)",
+      "eer": 0.015000000000000013,
+      "delta_eer_pp": 0.9,
+      "qualifies": true,
+      "artifact_sha256": {
+        "rawnet2_int8.onnx": "e340add21b3f26464644b3c95e77881bc4d474b35f1a25425082712425e1d3ec"
+      }
+    },
+    {
+      "recipe_id": "r10",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 24,
+      "precision_label": "int8-mixed (K=24)",
+      "eer": 0.016,
+      "delta_eer_pp": 1.0,
+      "qualifies": true,
+      "artifact_sha256": {
+        "rawnet2_int8.onnx": "4f4fc156d5802311a2cb61bca925f38ba3922a9f634667d22b6e5742b845a328"
+      }
+    },
+    {
+      "recipe_id": "r11",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 32,
+      "precision_label": "int8-mixed (K=32)",
+      "eer": 0.016,
+      "delta_eer_pp": 1.0,
+      "qualifies": true,
+      "artifact_sha256": {
+        "rawnet2_int8.onnx": "8f313029afeb6f587fe2a9f34b494522f556fe92d287955153b8217a416adcf6"
+      }
+    },
+    {
+      "recipe_id": "r12",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 48,
+      "precision_label": "int8-mixed (K=48)",
+      "eer": 0.016,
+      "delta_eer_pp": 1.0,
+      "qualifies": true,
+      "artifact_sha256": {
+        "rawnet2_int8.onnx": "54f33f7923de04e2a2d549aec38c0347abbbfa45a8d20db5090a4cc74a0b0b6f"
+      }
+    }
+  ]
+}

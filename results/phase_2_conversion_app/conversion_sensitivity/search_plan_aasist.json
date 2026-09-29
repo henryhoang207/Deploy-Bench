@@ -1,0 +1,2939 @@
+{
+  "design": "PREREGISTRATION.md conversion sensitivity (D35/D39); D36 budget",
+  "model": "aasist",
+  "frozen": "2026-09-28T20:52:12Z",
+  "fp32_sha256": {
+    "aasist_fp32.onnx": "06ba4a1f2506a8d4e40dd2e97296d6e6d1ee7ea29d843e1ce73591a3031c2f48"
+  },
+  "r01_sha256": {
+    "aasist_int8.onnx": "4a4343c2c54192611065a8cce4a767fe8a13a05362219fde1bfa5e1a687c5211"
+  },
+  "r01_sidecar_sha256": "fe8abd853459a31b870aa84075d7a27c3d8fc9e525388b7ceaf64ea492ed316e",
+  "search_calibration_manifest": "/mnt/data8tb/henry/deploybench/configs/conversion_sensitivity/calib_search_seed100.txt",
+  "search_calibration_ids_sha256": "9f70ec14afe8adcb9c1bc0d884a1d00c2b3e48a334a9ca686f020d2d9731f760",
+  "diag_manifest": "/mnt/data8tb/henry/deploybench/configs/conversion_sensitivity/diag_seed0.txt",
+  "diag_ids_sha256": "85b585d63830cf011446112071519d77a600a1df2602bb62e4521ca9a4e297ad",
+  "diag_clips_used": 2000,
+  "rank_seconds": 13479.2,
+  "ranking_rule": "damage_db = min input SQNR - output SQNR (fp32 vs int8, streamed over the diagnostic clips); largest first; ties by graph order",
+  "k_schedule_declared": "1,2,3,4,6,8,12,16,24,32,48",
+  "max_attempts": 12,
+  "budget": "int8 EER - fp32 EER <= 1.0 pp on the diagnostic subset (D36)",
+  "selection_rule": "smallest K among qualifying attempts; ties -> earlier attempt (D39)",
+  "attempts": [
+    {
+      "recipe_id": "r01",
+      "role": "default recipe (already run)",
+      "calib_method": "minmax",
+      "exclude_nodes": [],
+      "n_fp32_excluded": 0
+    },
+    {
+      "recipe_id": "r02",
+      "role": "top-1 exclusion",
+      "calib_method": "minmax",
+      "exclude_nodes": [
+        "/m/GAT_layer_S/bn/BatchNormalization"
+      ],
+      "n_fp32_excluded": 1
+    },
+    {
+      "recipe_id": "r03",
+      "role": "top-2 exclusion",
+      "calib_method": "minmax",
+      "exclude_nodes": [
+        "/m/GAT_layer_S/bn/BatchNormalization",
+        "/m/GAT_layer_T/bn/BatchNormalization"
+      ],
+      "n_fp32_excluded": 2
+    },
+    {
+      "recipe_id": "r04",
+      "role": "top-3 exclusion",
+      "calib_method": "minmax",
+      "exclude_nodes": [
+        "/m/GAT_layer_S/bn/BatchNormalization",
+        "/m/GAT_layer_T/bn/BatchNormalization",
+        "/m/GAT_layer_S/MatMul"
+      ],
+      "n_fp32_excluded": 3
+    },
+    {
+      "recipe_id": "r05",
+      "role": "top-4 exclusion",
+      "calib_method": "minmax",
+      "exclude_nodes": [
+        "/m/GAT_layer_S/bn/BatchNormalization",
+        "/m/GAT_layer_T/bn/BatchNormalization",
+        "/m/GAT_layer_S/MatMul",
+        "/m/GAT_layer_S/Mul_1"
+      ],
+      "n_fp32_excluded": 4
+    },
+    {
+      "recipe_id": "r06",
+      "role": "top-6 exclusion",
+      "calib_method": "minmax",
+      "exclude_nodes": [
+        "/m/GAT_layer_S/bn/BatchNormalization",
+        "/m/GAT_layer_T/bn/BatchNormalization",
+        "/m/GAT_layer_S/MatMul",
+        "/m/GAT_layer_S/Mul_1",
+        "/m/pool_hT2/proj/MatMul/MatMulAddFusion",
+        "/m/conv_time/Conv"
+      ],
+      "n_fp32_excluded": 6
+    },
+    {
+      "recipe_id": "r07",
+      "role": "top-8 exclusion",
+      "calib_method": "minmax",
+      "exclude_nodes": [
+        "/m/GAT_layer_S/bn/BatchNormalization",
+        "/m/GAT_layer_T/bn/BatchNormalization",
+        "/m/GAT_layer_S/MatMul",
+        "/m/GAT_layer_S/Mul_1",
+        "/m/pool_hT2/proj/MatMul/MatMulAddFusion",
+        "/m/conv_time/Conv",
+        "/m/GAT_layer_T/Mul_1",
+        "/m/HtrgGAT_layer_ST22/att_projM/MatMul/MatMulAddFusion"
+      ],
+      "n_fp32_excluded": 8
+    },
+    {
+      "recipe_id": "r08",
+      "role": "top-12 exclusion",
+      "calib_method": "minmax",
+      "exclude_nodes": [
+        "/m/GAT_layer_S/bn/BatchNormalization",
+        "/m/GAT_layer_T/bn/BatchNormalization",
+        "/m/GAT_layer_S/MatMul",
+        "/m/GAT_layer_S/Mul_1",
+        "/m/pool_hT2/proj/MatMul/MatMulAddFusion",
+        "/m/conv_time/Conv",
+        "/m/GAT_layer_T/Mul_1",
+        "/m/HtrgGAT_layer_ST22/att_projM/MatMul/MatMulAddFusion",
+        "/m/HtrgGAT_layer_ST22/att_proj/MatMul/MatMulAddFusion",
+        "/m/HtrgGAT_layer_ST11/Mul_1",
+        "/m/HtrgGAT_layer_ST21/Mul_1",
+        "/m/encoder/encoder.5/encoder.5.0/conv1/Conv"
+      ],
+      "n_fp32_excluded": 12
+    },
+    {
+      "recipe_id": "r09",
+      "role": "top-16 exclusion",
+      "calib_method": "minmax",
+      "exclude_nodes": [
+        "/m/GAT_layer_S/bn/BatchNormalization",
+        "/m/GAT_layer_T/bn/BatchNormalization",
+        "/m/GAT_layer_S/MatMul",
+        "/m/GAT_layer_S/Mul_1",
+        "/m/pool_hT2/proj/MatMul/MatMulAddFusion",
+        "/m/conv_time/Conv",
+        "/m/GAT_layer_T/Mul_1",
+        "/m/HtrgGAT_layer_ST22/att_projM/MatMul/MatMulAddFusion",
+        "/m/HtrgGAT_layer_ST22/att_proj/MatMul/MatMulAddFusion",
+        "/m/HtrgGAT_layer_ST11/Mul_1",
+        "/m/HtrgGAT_layer_ST21/Mul_1",
+        "/m/encoder/encoder.5/encoder.5.0/conv1/Conv",
+        "/m/encoder/encoder.0/encoder.0.0/conv1/Conv",
+        "/m/HtrgGAT_layer_ST12/att_projM/MatMul/MatMulAddFusion",
+        "/m/HtrgGAT_layer_ST12/att_proj/MatMul/MatMulAddFusion",
+        "/m/pool_hS1/proj/MatMul/MatMulAddFusion"
+      ],
+      "n_fp32_excluded": 16
+    },
+    {
+      "recipe_id": "r10",
+      "role": "top-24 exclusion",
+      "calib_method": "minmax",
+      "exclude_nodes": [
+        "/m/GAT_layer_S/bn/BatchNormalization",
+        "/m/GAT_layer_T/bn/BatchNormalization",
+        "/m/GAT_layer_S/MatMul",
+        "/m/GAT_layer_S/Mul_1",
+        "/m/pool_hT2/proj/MatMul/MatMulAddFusion",
+        "/m/conv_time/Conv",
+        "/m/GAT_layer_T/Mul_1",
+        "/m/HtrgGAT_layer_ST22/att_projM/MatMul/MatMulAddFusion",
+        "/m/HtrgGAT_layer_ST22/att_proj/MatMul/MatMulAddFusion",
+        "/m/HtrgGAT_layer_ST11/Mul_1",
+        "/m/HtrgGAT_layer_ST21/Mul_1",
+        "/m/encoder/encoder.5/encoder.5.0/conv1/Conv",
+        "/m/encoder/encoder.0/encoder.0.0/conv1/Conv",
+        "/m/HtrgGAT_layer_ST12/att_projM/MatMul/MatMulAddFusion",
+        "/m/HtrgGAT_layer_ST12/att_proj/MatMul/MatMulAddFusion",
+        "/m/pool_hS1/proj/MatMul/MatMulAddFusion",
+        "/m/encoder/encoder.0/encoder.0.0/selu/Selu",
+        "/m/encoder/encoder.2/encoder.2.0/selu/Selu",
+        "/m/out_layer/Gemm",
+        "/m/encoder/encoder.1/encoder.1.0/conv1/Conv",
+        "/m/encoder/encoder.3/encoder.3.0/selu/Selu",
+        "/m/encoder/encoder.1/encoder.1.0/selu/Selu",
+        "/m/encoder/encoder.2/encoder.2.0/conv1/Conv",
+        "/m/pool_hS2/Mul_1"
+      ],
+      "n_fp32_excluded": 24
+    },
+    {
+      "recipe_id": "r11",
+      "role": "top-32 exclusion",
+      "calib_method": "minmax",
+      "exclude_nodes": [
+        "/m/GAT_layer_S/bn/BatchNormalization",
+        "/m/GAT_layer_T/bn/BatchNormalization",
+        "/m/GAT_layer_S/MatMul",
+        "/m/GAT_layer_S/Mul_1",
+        "/m/pool_hT2/proj/MatMul/MatMulAddFusion",
+        "/m/conv_time/Conv",
+        "/m/GAT_layer_T/Mul_1",
+        "/m/HtrgGAT_layer_ST22/att_projM/MatMul/MatMulAddFusion",
+        "/m/HtrgGAT_layer_ST22/att_proj/MatMul/MatMulAddFusion",
+        "/m/HtrgGAT_layer_ST11/Mul_1",
+        "/m/HtrgGAT_layer_ST21/Mul_1",
+        "/m/encoder/encoder.5/encoder.5.0/conv1/Conv",
+        "/m/encoder/encoder.0/encoder.0.0/conv1/Conv",
+        "/m/HtrgGAT_layer_ST12/att_projM/MatMul/MatMulAddFusion",
+        "/m/HtrgGAT_layer_ST12/att_proj/MatMul/MatMulAddFusion",
+        "/m/pool_hS1/proj/MatMul/MatMulAddFusion",
+        "/m/encoder/encoder.0/encoder.0.0/selu/Selu",
+        "/m/encoder/encoder.2/encoder.2.0/selu/Selu",
+        "/m/out_layer/Gemm",
+        "/m/encoder/encoder.1/encoder.1.0/conv1/Conv",
+        "/m/encoder/encoder.3/encoder.3.0/selu/Selu",
+        "/m/encoder/encoder.1/encoder.1.0/selu/Selu",
+        "/m/encoder/encoder.2/encoder.2.0/conv1/Conv",
+        "/m/pool_hS2/Mul_1",
+        "/m/pool_hT2/Mul_1",
+        "/m/pool_S/Mul_1",
+        "/m/encoder/encoder.2/encoder.2.0/mp/MaxPool",
+        "/m/GAT_layer_T/Tanh",
+        "/m/GAT_layer_S/proj_with_att/MatMul/MatMulAddFusion",
+        "/m/selu/Selu",
+        "/m/HtrgGAT_layer_ST21/bn/BatchNormalization",
+        "/m/HtrgGAT_layer_ST21/MatMul"
+      ],
+      "n_fp32_excluded": 32
+    },
+    {
+      "recipe_id": "r12",
+      "role": "top-48 exclusion",
+      "calib_method": "minmax",
+      "exclude_nodes": [
+        "/m/GAT_layer_S/bn/BatchNormalization",
+        "/m/GAT_layer_T/bn/BatchNormalization",
+        "/m/GAT_layer_S/MatMul",
+        "/m/GAT_layer_S/Mul_1",
+        "/m/pool_hT2/proj/MatMul/MatMulAddFusion",
+        "/m/conv_time/Conv",
+        "/m/GAT_layer_T/Mul_1",
+        "/m/HtrgGAT_layer_ST22/att_projM/MatMul/MatMulAddFusion",
+        "/m/HtrgGAT_layer_ST22/att_proj/MatMul/MatMulAddFusion",
+        "/m/HtrgGAT_layer_ST11/Mul_1",
+        "/m/HtrgGAT_layer_ST21/Mul_1",
+        "/m/encoder/encoder.5/encoder.5.0/conv1/Conv",
+        "/m/encoder/encoder.0/encoder.0.0/conv1/Conv",
+        "/m/HtrgGAT_layer_ST12/att_projM/MatMul/MatMulAddFusion",
+        "/m/HtrgGAT_layer_ST12/att_proj/MatMul/MatMulAddFusion",
+        "/m/pool_hS1/proj/MatMul/MatMulAddFusion",
+        "/m/encoder/encoder.0/encoder.0.0/selu/Selu",
+        "/m/encoder/encoder.2/encoder.2.0/selu/Selu",
+        "/m/out_layer/Gemm",
+        "/m/encoder/encoder.1/encoder.1.0/conv1/Conv",
+        "/m/encoder/encoder.3/encoder.3.0/selu/Selu",
+        "/m/encoder/encoder.1/encoder.1.0/selu/Selu",
+        "/m/encoder/encoder.2/encoder.2.0/conv1/Conv",
+        "/m/pool_hS2/Mul_1",
+        "/m/pool_hT2/Mul_1",
+        "/m/pool_S/Mul_1",
+        "/m/encoder/encoder.2/encoder.2.0/mp/MaxPool",
+        "/m/GAT_layer_T/Tanh",
+        "/m/GAT_layer_S/proj_with_att/MatMul/MatMulAddFusion",
+        "/m/selu/Selu",
+        "/m/HtrgGAT_layer_ST21/bn/BatchNormalization",
+        "/m/HtrgGAT_layer_ST21/MatMul",
+        "/m/HtrgGAT_layer_ST22/Add_1",
+        "/m/GAT_layer_S/Tanh",
+        "/m/HtrgGAT_layer_ST22/proj_without_attM/MatMul/MatMulAddFusion",
+        "/m/Add_5",
+        "/m/HtrgGAT_layer_ST11/proj_without_att/MatMul/MatMulAddFusion",
+        "/m/HtrgGAT_layer_ST12/proj_without_attM/MatMul/MatMulAddFusion",
+        "/m/encoder/encoder.1/encoder.1.0/mp/MaxPool",
+        "/m/encoder/encoder.4/encoder.4.0/selu/Selu",
+        "/m/HtrgGAT_layer_ST12/act/Selu",
+        "/m/first_bn/BatchNormalization",
+        "/m/encoder/encoder.5/encoder.5.0/conv2/Conv",
+        "/m/HtrgGAT_layer_ST12/bn/BatchNormalization",
+        "/m/encoder/encoder.0/encoder.0.0/mp/MaxPool",
+        "/m/pool_T/GatherElements",
+        "/m/HtrgGAT_layer_ST21/proj_type1/MatMul/MatMulAddFusion",
+        "/m/encoder/encoder.3/encoder.3.0/mp/MaxPool"
+      ],
+      "n_fp32_excluded": 48
+    }
+  ],
+  "ranking": [
+    {
+      "node": "/m/GAT_layer_S/bn/BatchNormalization",
+      "op_type": "BatchNormalization",
+      "graph_idx": 409,
+      "in_sqnr_db": 10.4064,
+      "out_sqnr_db": -0.2894,
+      "damage_db": 10.6958
+    },
+    {
+      "node": "/m/GAT_layer_T/bn/BatchNormalization",
+      "op_type": "BatchNormalization",
+      "graph_idx": 398,
+      "in_sqnr_db": 11.441,
+      "out_sqnr_db": 4.0845,
+      "damage_db": 7.3565
+    },
+    {
+      "node": "/m/GAT_layer_S/MatMul",
+      "op_type": "MatMul",
+      "graph_idx": 349,
+      "in_sqnr_db": 4.9953,
+      "out_sqnr_db": -0.8235,
+      "damage_db": 5.8188
+    },
+    {
+      "node": "/m/GAT_layer_S/Mul_1",
+      "op_type": "Mul",
+      "graph_idx": 319,
+      "in_sqnr_db": 9.8975,
+      "out_sqnr_db": 4.1891,
+      "damage_db": 5.7084
+    },
+    {
+      "node": "/m/pool_hT2/proj/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 853,
+      "in_sqnr_db": 4.212,
+      "out_sqnr_db": -1.3147,
+      "damage_db": 5.5267
+    },
+    {
+      "node": "/m/conv_time/Conv",
+      "op_type": "Conv",
+      "graph_idx": 155,
+      "in_sqnr_db": 36.0575,
+      "out_sqnr_db": 31.2435,
+      "damage_db": 4.814
+    },
+    {
+      "node": "/m/GAT_layer_T/Mul_1",
+      "op_type": "Mul",
+      "graph_idx": 301,
+      "in_sqnr_db": 10.1401,
+      "out_sqnr_db": 5.5331,
+      "damage_db": 4.607
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST22/att_projM/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 1007,
+      "in_sqnr_db": 4.0877,
+      "out_sqnr_db": 0.0,
+      "damage_db": 4.0877
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST22/att_proj/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 1050,
+      "in_sqnr_db": 3.2459,
+      "out_sqnr_db": 0.0,
+      "damage_db": 3.2459
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST11/Mul_1",
+      "op_type": "Mul",
+      "graph_idx": 563,
+      "in_sqnr_db": 1.2621,
+      "out_sqnr_db": -1.3273,
+      "damage_db": 2.5895
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/Mul_1",
+      "op_type": "Mul",
+      "graph_idx": 561,
+      "in_sqnr_db": 1.1091,
+      "out_sqnr_db": -1.3533,
+      "damage_db": 2.4625
+    },
+    {
+      "node": "/m/encoder/encoder.5/encoder.5.0/conv1/Conv",
+      "op_type": "Conv",
+      "graph_idx": 252,
+      "in_sqnr_db": 3.6201,
+      "out_sqnr_db": 1.247,
+      "damage_db": 2.3731
+    },
+    {
+      "node": "/m/encoder/encoder.0/encoder.0.0/conv1/Conv",
+      "op_type": "Conv",
+      "graph_idx": 172,
+      "in_sqnr_db": 18.9429,
+      "out_sqnr_db": 16.7224,
+      "damage_db": 2.2205
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST12/att_projM/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 1010,
+      "in_sqnr_db": 2.2063,
+      "out_sqnr_db": 0.0,
+      "damage_db": 2.2063
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST12/att_proj/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 1052,
+      "in_sqnr_db": 2.2319,
+      "out_sqnr_db": 0.1085,
+      "damage_db": 2.1234
+    },
+    {
+      "node": "/m/pool_hS1/proj/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 856,
+      "in_sqnr_db": 0.77,
+      "out_sqnr_db": -1.1208,
+      "damage_db": 1.8908
+    },
+    {
+      "node": "/m/encoder/encoder.0/encoder.0.0/selu/Selu",
+      "op_type": "Selu",
+      "graph_idx": 177,
+      "in_sqnr_db": 11.0294,
+      "out_sqnr_db": 9.1605,
+      "damage_db": 1.8689
+    },
+    {
+      "node": "/m/encoder/encoder.2/encoder.2.0/selu/Selu",
+      "op_type": "Selu",
+      "graph_idx": 210,
+      "in_sqnr_db": 3.3736,
+      "out_sqnr_db": 1.8024,
+      "damage_db": 1.5712
+    },
+    {
+      "node": "/m/out_layer/Gemm",
+      "op_type": "Gemm",
+      "graph_idx": 1328,
+      "in_sqnr_db": 3.6503,
+      "out_sqnr_db": 2.2073,
+      "damage_db": 1.443
+    },
+    {
+      "node": "/m/encoder/encoder.1/encoder.1.0/conv1/Conv",
+      "op_type": "Conv",
+      "graph_idx": 189,
+      "in_sqnr_db": 8.0557,
+      "out_sqnr_db": 6.8038,
+      "damage_db": 1.2519
+    },
+    {
+      "node": "/m/encoder/encoder.3/encoder.3.0/selu/Selu",
+      "op_type": "Selu",
+      "graph_idx": 225,
+      "in_sqnr_db": 2.4398,
+      "out_sqnr_db": 1.1941,
+      "damage_db": 1.2458
+    },
+    {
+      "node": "/m/encoder/encoder.1/encoder.1.0/selu/Selu",
+      "op_type": "Selu",
+      "graph_idx": 192,
+      "in_sqnr_db": 6.0677,
+      "out_sqnr_db": 4.8719,
+      "damage_db": 1.1958
+    },
+    {
+      "node": "/m/encoder/encoder.2/encoder.2.0/conv1/Conv",
+      "op_type": "Conv",
+      "graph_idx": 205,
+      "in_sqnr_db": 4.8289,
+      "out_sqnr_db": 3.6404,
+      "damage_db": 1.1885
+    },
+    {
+      "node": "/m/pool_hS2/Mul_1",
+      "op_type": "Mul",
+      "graph_idx": 891,
+      "in_sqnr_db": 1.2508,
+      "out_sqnr_db": 0.0728,
+      "damage_db": 1.178
+    },
+    {
+      "node": "/m/pool_hT2/Mul_1",
+      "op_type": "Mul",
+      "graph_idx": 889,
+      "in_sqnr_db": 4.212,
+      "out_sqnr_db": 3.0924,
+      "damage_db": 1.1196
+    },
+    {
+      "node": "/m/pool_S/Mul_1",
+      "op_type": "Mul",
+      "graph_idx": 455,
+      "in_sqnr_db": 0.1666,
+      "out_sqnr_db": -0.9186,
+      "damage_db": 1.0851
+    },
+    {
+      "node": "/m/encoder/encoder.2/encoder.2.0/mp/MaxPool",
+      "op_type": "MaxPool",
+      "graph_idx": 219,
+      "in_sqnr_db": 3.5437,
+      "out_sqnr_db": 2.4873,
+      "damage_db": 1.0563
+    },
+    {
+      "node": "/m/GAT_layer_T/Tanh",
+      "op_type": "Tanh",
+      "graph_idx": 332,
+      "in_sqnr_db": 6.1679,
+      "out_sqnr_db": 5.1267,
+      "damage_db": 1.0412
+    },
+    {
+      "node": "/m/GAT_layer_S/proj_with_att/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 385,
+      "in_sqnr_db": 11.1528,
+      "out_sqnr_db": 10.17,
+      "damage_db": 0.9828
+    },
+    {
+      "node": "/m/selu/Selu",
+      "op_type": "Selu",
+      "graph_idx": 168,
+      "in_sqnr_db": 22.4764,
+      "out_sqnr_db": 21.4983,
+      "damage_db": 0.9781
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/bn/BatchNormalization",
+      "op_type": "BatchNormalization",
+      "graph_idx": 815,
+      "in_sqnr_db": 3.6873,
+      "out_sqnr_db": 2.7173,
+      "damage_db": 0.97
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/MatMul",
+      "op_type": "MatMul",
+      "graph_idx": 652,
+      "in_sqnr_db": 20.5917,
+      "out_sqnr_db": 19.7193,
+      "damage_db": 0.8724
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST22/Add_1",
+      "op_type": "Add",
+      "graph_idx": 1259,
+      "in_sqnr_db": 4.0809,
+      "out_sqnr_db": 3.2387,
+      "damage_db": 0.8421
+    },
+    {
+      "node": "/m/GAT_layer_S/Tanh",
+      "op_type": "Tanh",
+      "graph_idx": 343,
+      "in_sqnr_db": 5.773,
+      "out_sqnr_db": 4.9798,
+      "damage_db": 0.7932
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST22/proj_without_attM/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 774,
+      "in_sqnr_db": 9.7781,
+      "out_sqnr_db": 9.0128,
+      "damage_db": 0.7654
+    },
+    {
+      "node": "/m/Add_5",
+      "op_type": "Add",
+      "graph_idx": 1227,
+      "in_sqnr_db": 4.7857,
+      "out_sqnr_db": 4.1397,
+      "damage_db": 0.646
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST11/proj_without_att/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 529,
+      "in_sqnr_db": 1.2621,
+      "out_sqnr_db": 0.6437,
+      "damage_db": 0.6184
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST12/proj_without_attM/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 776,
+      "in_sqnr_db": 4.7857,
+      "out_sqnr_db": 4.1881,
+      "damage_db": 0.5976
+    },
+    {
+      "node": "/m/encoder/encoder.1/encoder.1.0/mp/MaxPool",
+      "op_type": "MaxPool",
+      "graph_idx": 201,
+      "in_sqnr_db": 5.421,
+      "out_sqnr_db": 4.8289,
+      "damage_db": 0.592
+    },
+    {
+      "node": "/m/encoder/encoder.4/encoder.4.0/selu/Selu",
+      "op_type": "Selu",
+      "graph_idx": 240,
+      "in_sqnr_db": 3.328,
+      "out_sqnr_db": 2.8178,
+      "damage_db": 0.5102
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST12/act/Selu",
+      "op_type": "Selu",
+      "graph_idx": 1284,
+      "in_sqnr_db": 3.5647,
+      "out_sqnr_db": 3.0822,
+      "damage_db": 0.4825
+    },
+    {
+      "node": "/m/first_bn/BatchNormalization",
+      "op_type": "BatchNormalization",
+      "graph_idx": 165,
+      "in_sqnr_db": 23.0117,
+      "out_sqnr_db": 22.5311,
+      "damage_db": 0.4805
+    },
+    {
+      "node": "/m/encoder/encoder.5/encoder.5.0/conv2/Conv",
+      "op_type": "Conv",
+      "graph_idx": 258,
+      "in_sqnr_db": 1.9903,
+      "out_sqnr_db": 1.5641,
+      "damage_db": 0.4262
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST12/bn/BatchNormalization",
+      "op_type": "BatchNormalization",
+      "graph_idx": 1272,
+      "in_sqnr_db": 3.9575,
+      "out_sqnr_db": 3.5655,
+      "damage_db": 0.3919
+    },
+    {
+      "node": "/m/encoder/encoder.0/encoder.0.0/mp/MaxPool",
+      "op_type": "MaxPool",
+      "graph_idx": 186,
+      "in_sqnr_db": 8.441,
+      "out_sqnr_db": 8.0557,
+      "damage_db": 0.3853
+    },
+    {
+      "node": "/m/pool_T/GatherElements",
+      "op_type": "GatherElements",
+      "graph_idx": 450,
+      "in_sqnr_db": 4.9068,
+      "out_sqnr_db": 4.5621,
+      "damage_db": 0.3446
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/proj_type1/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 469,
+      "in_sqnr_db": 4.5621,
+      "out_sqnr_db": 4.2645,
+      "damage_db": 0.2977
+    },
+    {
+      "node": "/m/encoder/encoder.3/encoder.3.0/mp/MaxPool",
+      "op_type": "MaxPool",
+      "graph_idx": 234,
+      "in_sqnr_db": 2.7445,
+      "out_sqnr_db": 2.5225,
+      "damage_db": 0.222
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/proj_without_att/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 526,
+      "in_sqnr_db": 1.1091,
+      "out_sqnr_db": 0.9503,
+      "damage_db": 0.1588
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/proj_type2/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 489,
+      "in_sqnr_db": -0.9213,
+      "out_sqnr_db": -1.0444,
+      "damage_db": 0.123
+    },
+    {
+      "node": "/m/pool_hS2/sigmoid/Sigmoid",
+      "op_type": "Sigmoid",
+      "graph_idx": 878,
+      "in_sqnr_db": 1.6483,
+      "out_sqnr_db": 1.5618,
+      "damage_db": 0.0865
+    },
+    {
+      "node": "/m/pool_hT1/GatherElements",
+      "op_type": "GatherElements",
+      "graph_idx": 919,
+      "in_sqnr_db": 3.0574,
+      "out_sqnr_db": 2.9744,
+      "damage_db": 0.083
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST12/Mul_18",
+      "op_type": "Mul",
+      "graph_idx": 974,
+      "in_sqnr_db": 2.2881,
+      "out_sqnr_db": 2.2106,
+      "damage_db": 0.0774
+    },
+    {
+      "node": "/m/pool_hS2/GatherElements",
+      "op_type": "GatherElements",
+      "graph_idx": 918,
+      "in_sqnr_db": 0.0719,
+      "out_sqnr_db": -0.0012,
+      "damage_db": 0.0731
+    },
+    {
+      "node": "/m/pool_hS1/GatherElements",
+      "op_type": "GatherElements",
+      "graph_idx": 920,
+      "in_sqnr_db": 1.2904,
+      "out_sqnr_db": 1.2198,
+      "damage_db": 0.0706
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST22/bn/BatchNormalization",
+      "op_type": "BatchNormalization",
+      "graph_idx": 1271,
+      "in_sqnr_db": 3.2372,
+      "out_sqnr_db": 3.1675,
+      "damage_db": 0.0697
+    },
+    {
+      "node": "/m/pool_hT2/GatherElements",
+      "op_type": "GatherElements",
+      "graph_idx": 917,
+      "in_sqnr_db": 3.0969,
+      "out_sqnr_db": 3.0366,
+      "damage_db": 0.0603
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST12/proj_type1/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 943,
+      "in_sqnr_db": 2.9744,
+      "out_sqnr_db": 2.9338,
+      "damage_db": 0.0406
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST12/Mul_1",
+      "op_type": "Mul",
+      "graph_idx": 1028,
+      "in_sqnr_db": 2.2881,
+      "out_sqnr_db": 2.2478,
+      "damage_db": 0.0403
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST22/act/Selu",
+      "op_type": "Selu",
+      "graph_idx": 1283,
+      "in_sqnr_db": 3.1648,
+      "out_sqnr_db": 3.1257,
+      "damage_db": 0.0391
+    },
+    {
+      "node": "/m/Max",
+      "op_type": "Max",
+      "graph_idx": 1310,
+      "in_sqnr_db": 3.0166,
+      "out_sqnr_db": 2.978,
+      "damage_db": 0.0386
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST12/proj_type2/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 944,
+      "in_sqnr_db": 1.2198,
+      "out_sqnr_db": 1.1848,
+      "damage_db": 0.035
+    },
+    {
+      "node": "/m/pool_S/GatherElements",
+      "op_type": "GatherElements",
+      "graph_idx": 468,
+      "in_sqnr_db": -0.9186,
+      "out_sqnr_db": -0.9213,
+      "damage_db": 0.0027
+    },
+    {
+      "node": "/m/Unsqueeze_1",
+      "op_type": "Unsqueeze",
+      "graph_idx": 158,
+      "in_sqnr_db": 21.4199,
+      "out_sqnr_db": 21.4199,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/GAT_layer_T/Unsqueeze",
+      "op_type": "Unsqueeze",
+      "graph_idx": 276,
+      "in_sqnr_db": 10.1401,
+      "out_sqnr_db": 10.1401,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_26",
+      "op_type": "Reshape",
+      "graph_idx": 277,
+      "in_sqnr_db": 10.1401,
+      "out_sqnr_db": 10.1401,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/GAT_layer_S/Unsqueeze",
+      "op_type": "Unsqueeze",
+      "graph_idx": 287,
+      "in_sqnr_db": 9.8975,
+      "out_sqnr_db": 9.8975,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape",
+      "op_type": "Reshape",
+      "graph_idx": 288,
+      "in_sqnr_db": 9.8975,
+      "out_sqnr_db": 9.8975,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/GAT_layer_T/Transpose",
+      "op_type": "Transpose",
+      "graph_idx": 289,
+      "in_sqnr_db": 10.1401,
+      "out_sqnr_db": 10.1401,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_29",
+      "op_type": "Reshape",
+      "graph_idx": 298,
+      "in_sqnr_db": 11.274,
+      "out_sqnr_db": 11.274,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/GAT_layer_S/Expand",
+      "op_type": "Expand",
+      "graph_idx": 299,
+      "in_sqnr_db": 9.8975,
+      "out_sqnr_db": 9.8975,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/GAT_layer_S/Transpose",
+      "op_type": "Transpose",
+      "graph_idx": 310,
+      "in_sqnr_db": 9.8975,
+      "out_sqnr_db": 9.8975,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape",
+      "op_type": "Reshape",
+      "graph_idx": 311,
+      "in_sqnr_db": 10.0714,
+      "out_sqnr_db": 10.0714,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_32",
+      "op_type": "Reshape",
+      "graph_idx": 312,
+      "in_sqnr_db": 5.4984,
+      "out_sqnr_db": 5.4984,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_2",
+      "op_type": "Reshape",
+      "graph_idx": 325,
+      "in_sqnr_db": 4.1757,
+      "out_sqnr_db": 4.1757,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_35",
+      "op_type": "Reshape",
+      "graph_idx": 326,
+      "in_sqnr_db": 6.1679,
+      "out_sqnr_db": 6.1679,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_5",
+      "op_type": "Reshape",
+      "graph_idx": 337,
+      "in_sqnr_db": 5.773,
+      "out_sqnr_db": 5.773,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/GAT_layer_T/Div",
+      "op_type": "Div",
+      "graph_idx": 344,
+      "in_sqnr_db": 6.2136,
+      "out_sqnr_db": 6.2136,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/GAT_layer_S/Div",
+      "op_type": "Div",
+      "graph_idx": 355,
+      "in_sqnr_db": -0.8226,
+      "out_sqnr_db": -0.8226,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/GAT_layer_T/Squeeze",
+      "op_type": "Squeeze",
+      "graph_idx": 356,
+      "in_sqnr_db": 10.6747,
+      "out_sqnr_db": 10.6747,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/GAT_layer_S/Squeeze",
+      "op_type": "Squeeze",
+      "graph_idx": 367,
+      "in_sqnr_db": 10.9938,
+      "out_sqnr_db": 10.9938,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_38",
+      "op_type": "Reshape",
+      "graph_idx": 368,
+      "in_sqnr_db": 11.5791,
+      "out_sqnr_db": 11.5791,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_8",
+      "op_type": "Reshape",
+      "graph_idx": 379,
+      "in_sqnr_db": 11.1528,
+      "out_sqnr_db": 11.1528,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_41",
+      "op_type": "Reshape",
+      "graph_idx": 380,
+      "in_sqnr_db": 11.9551,
+      "out_sqnr_db": 11.9551,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_11",
+      "op_type": "Reshape",
+      "graph_idx": 391,
+      "in_sqnr_db": 10.2405,
+      "out_sqnr_db": 10.2405,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/GAT_layer_T/Reshape",
+      "op_type": "Reshape",
+      "graph_idx": 392,
+      "in_sqnr_db": 11.441,
+      "out_sqnr_db": 11.441,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/GAT_layer_S/Reshape",
+      "op_type": "Reshape",
+      "graph_idx": 403,
+      "in_sqnr_db": 10.4064,
+      "out_sqnr_db": 10.4064,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/GAT_layer_T/Reshape_1",
+      "op_type": "Reshape",
+      "graph_idx": 404,
+      "in_sqnr_db": 4.0815,
+      "out_sqnr_db": 4.0815,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/GAT_layer_S/Reshape_1",
+      "op_type": "Reshape",
+      "graph_idx": 415,
+      "in_sqnr_db": -0.2927,
+      "out_sqnr_db": -0.2927,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_44",
+      "op_type": "Reshape",
+      "graph_idx": 416,
+      "in_sqnr_db": 4.2136,
+      "out_sqnr_db": 4.2136,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_14",
+      "op_type": "Reshape",
+      "graph_idx": 427,
+      "in_sqnr_db": 0.1666,
+      "out_sqnr_db": 0.1666,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_47",
+      "op_type": "Reshape",
+      "graph_idx": 428,
+      "in_sqnr_db": 4.2345,
+      "out_sqnr_db": 4.2345,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_17",
+      "op_type": "Reshape",
+      "graph_idx": 439,
+      "in_sqnr_db": 3.581,
+      "out_sqnr_db": 3.581,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_50",
+      "op_type": "Reshape",
+      "graph_idx": 457,
+      "in_sqnr_db": 4.5621,
+      "out_sqnr_db": 4.5621,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_134",
+      "op_type": "Reshape",
+      "graph_idx": 458,
+      "in_sqnr_db": 4.5621,
+      "out_sqnr_db": 4.5621,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_20",
+      "op_type": "Reshape",
+      "graph_idx": 477,
+      "in_sqnr_db": -0.9213,
+      "out_sqnr_db": -0.9213,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_128",
+      "op_type": "Reshape",
+      "graph_idx": 478,
+      "in_sqnr_db": -0.9213,
+      "out_sqnr_db": -0.9213,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_53",
+      "op_type": "Reshape",
+      "graph_idx": 479,
+      "in_sqnr_db": 4.2633,
+      "out_sqnr_db": 4.2633,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_137",
+      "op_type": "Reshape",
+      "graph_idx": 480,
+      "in_sqnr_db": 4.6973,
+      "out_sqnr_db": 4.6973,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_23",
+      "op_type": "Reshape",
+      "graph_idx": 495,
+      "in_sqnr_db": -1.045,
+      "out_sqnr_db": -1.045,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_131",
+      "op_type": "Reshape",
+      "graph_idx": 496,
+      "in_sqnr_db": -0.6394,
+      "out_sqnr_db": -0.6394,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/Unsqueeze",
+      "op_type": "Unsqueeze",
+      "graph_idx": 507,
+      "in_sqnr_db": 1.1091,
+      "out_sqnr_db": 1.1091,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_74",
+      "op_type": "Reshape",
+      "graph_idx": 508,
+      "in_sqnr_db": 1.1091,
+      "out_sqnr_db": 1.1091,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST11/Unsqueeze",
+      "op_type": "Unsqueeze",
+      "graph_idx": 510,
+      "in_sqnr_db": 1.2621,
+      "out_sqnr_db": 1.2621,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_158",
+      "op_type": "Reshape",
+      "graph_idx": 511,
+      "in_sqnr_db": 1.2621,
+      "out_sqnr_db": 1.2621,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/Expand",
+      "op_type": "Expand",
+      "graph_idx": 525,
+      "in_sqnr_db": 1.1091,
+      "out_sqnr_db": 1.1091,
+      "damage_db": -0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_56",
+      "op_type": "Reshape",
+      "graph_idx": 527,
+      "in_sqnr_db": 1.7997,
+      "out_sqnr_db": 1.7997,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST11/Expand",
+      "op_type": "Expand",
+      "graph_idx": 528,
+      "in_sqnr_db": 1.2621,
+      "out_sqnr_db": 1.2621,
+      "damage_db": -0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_140",
+      "op_type": "Reshape",
+      "graph_idx": 530,
+      "in_sqnr_db": 1.3433,
+      "out_sqnr_db": 1.3433,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/Transpose",
+      "op_type": "Transpose",
+      "graph_idx": 543,
+      "in_sqnr_db": 1.1091,
+      "out_sqnr_db": 1.1091,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_77",
+      "op_type": "Reshape",
+      "graph_idx": 544,
+      "in_sqnr_db": 0.9515,
+      "out_sqnr_db": 0.9515,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST11/Transpose",
+      "op_type": "Transpose",
+      "graph_idx": 546,
+      "in_sqnr_db": 1.2621,
+      "out_sqnr_db": 1.2621,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_161",
+      "op_type": "Reshape",
+      "graph_idx": 547,
+      "in_sqnr_db": 0.6425,
+      "out_sqnr_db": 0.6425,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_59",
+      "op_type": "Reshape",
+      "graph_idx": 562,
+      "in_sqnr_db": 2.0234,
+      "out_sqnr_db": 2.0234,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_143",
+      "op_type": "Reshape",
+      "graph_idx": 564,
+      "in_sqnr_db": 2.092,
+      "out_sqnr_db": 2.092,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_80",
+      "op_type": "Reshape",
+      "graph_idx": 573,
+      "in_sqnr_db": -1.3757,
+      "out_sqnr_db": -1.3757,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/Tanh_1",
+      "op_type": "Tanh",
+      "graph_idx": 574,
+      "in_sqnr_db": 2.0234,
+      "out_sqnr_db": 2.0234,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_164",
+      "op_type": "Reshape",
+      "graph_idx": 575,
+      "in_sqnr_db": -1.3417,
+      "out_sqnr_db": -1.3417,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST11/Tanh_1",
+      "op_type": "Tanh",
+      "graph_idx": 576,
+      "in_sqnr_db": 2.092,
+      "out_sqnr_db": 2.092,
+      "damage_db": -0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_83",
+      "op_type": "Reshape",
+      "graph_idx": 597,
+      "in_sqnr_db": 19.4317,
+      "out_sqnr_db": 19.4317,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_167",
+      "op_type": "Reshape",
+      "graph_idx": 599,
+      "in_sqnr_db": 13.2575,
+      "out_sqnr_db": 13.2575,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST11/Div_1",
+      "op_type": "Div",
+      "graph_idx": 600,
+      "in_sqnr_db": 2.1577,
+      "out_sqnr_db": 2.1577,
+      "damage_db": -0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/Softmax_1",
+      "op_type": "Softmax",
+      "graph_idx": 610,
+      "in_sqnr_db": 300.0,
+      "out_sqnr_db": 300.0,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST11/Tanh",
+      "op_type": "Tanh",
+      "graph_idx": 611,
+      "in_sqnr_db": 13.2575,
+      "out_sqnr_db": 13.2575,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/Squeeze",
+      "op_type": "Squeeze",
+      "graph_idx": 633,
+      "in_sqnr_db": 31.2289,
+      "out_sqnr_db": 31.2289,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST11/Squeeze",
+      "op_type": "Squeeze",
+      "graph_idx": 638,
+      "in_sqnr_db": 31.2289,
+      "out_sqnr_db": 31.2289,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/Unsqueeze_17",
+      "op_type": "Unsqueeze",
+      "graph_idx": 663,
+      "in_sqnr_db": 31.2289,
+      "out_sqnr_db": 31.2289,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST11/Unsqueeze_17",
+      "op_type": "Unsqueeze",
+      "graph_idx": 668,
+      "in_sqnr_db": 31.2289,
+      "out_sqnr_db": 31.2289,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/Reshape_3",
+      "op_type": "Reshape",
+      "graph_idx": 679,
+      "in_sqnr_db": 30.6129,
+      "out_sqnr_db": 30.6129,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/Reshape_1",
+      "op_type": "Reshape",
+      "graph_idx": 680,
+      "in_sqnr_db": 15.0402,
+      "out_sqnr_db": 15.0402,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/Reshape_2",
+      "op_type": "Reshape",
+      "graph_idx": 681,
+      "in_sqnr_db": 30.6129,
+      "out_sqnr_db": 30.6129,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/Reshape",
+      "op_type": "Reshape",
+      "graph_idx": 682,
+      "in_sqnr_db": 19.7029,
+      "out_sqnr_db": 19.7029,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/ScatterND",
+      "op_type": "ScatterND",
+      "graph_idx": 709,
+      "in_sqnr_db": 19.7029,
+      "out_sqnr_db": 19.7029,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_62",
+      "op_type": "Reshape",
+      "graph_idx": 714,
+      "in_sqnr_db": 4.6415,
+      "out_sqnr_db": 4.6415,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_146",
+      "op_type": "Reshape",
+      "graph_idx": 716,
+      "in_sqnr_db": 2.3731,
+      "out_sqnr_db": 2.3731,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_65",
+      "op_type": "Reshape",
+      "graph_idx": 738,
+      "in_sqnr_db": 6.8177,
+      "out_sqnr_db": 6.8177,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST11/Softmax",
+      "op_type": "Softmax",
+      "graph_idx": 739,
+      "in_sqnr_db": 300.0,
+      "out_sqnr_db": 300.0,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_149",
+      "op_type": "Reshape",
+      "graph_idx": 740,
+      "in_sqnr_db": 3.8941,
+      "out_sqnr_db": 3.8941,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/Squeeze_1",
+      "op_type": "Squeeze",
+      "graph_idx": 749,
+      "in_sqnr_db": 31.2289,
+      "out_sqnr_db": 31.2289,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST11/Squeeze_1",
+      "op_type": "Squeeze",
+      "graph_idx": 751,
+      "in_sqnr_db": 31.2289,
+      "out_sqnr_db": 31.2289,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_68",
+      "op_type": "Reshape",
+      "graph_idx": 762,
+      "in_sqnr_db": 9.7781,
+      "out_sqnr_db": 9.7781,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_152",
+      "op_type": "Reshape",
+      "graph_idx": 764,
+      "in_sqnr_db": 4.7857,
+      "out_sqnr_db": 4.7857,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_86",
+      "op_type": "Reshape",
+      "graph_idx": 773,
+      "in_sqnr_db": 4.6415,
+      "out_sqnr_db": 4.6415,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_170",
+      "op_type": "Reshape",
+      "graph_idx": 775,
+      "in_sqnr_db": 2.3731,
+      "out_sqnr_db": 2.3731,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_71",
+      "op_type": "Reshape",
+      "graph_idx": 786,
+      "in_sqnr_db": 9.0098,
+      "out_sqnr_db": 9.0098,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_155",
+      "op_type": "Reshape",
+      "graph_idx": 788,
+      "in_sqnr_db": 4.1874,
+      "out_sqnr_db": 4.1874,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_89",
+      "op_type": "Reshape",
+      "graph_idx": 797,
+      "in_sqnr_db": 7.0443,
+      "out_sqnr_db": 7.0443,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_173",
+      "op_type": "Reshape",
+      "graph_idx": 798,
+      "in_sqnr_db": 3.0117,
+      "out_sqnr_db": 3.0117,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/Reshape_4",
+      "op_type": "Reshape",
+      "graph_idx": 809,
+      "in_sqnr_db": 3.6873,
+      "out_sqnr_db": 3.6873,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST11/Reshape_4",
+      "op_type": "Reshape",
+      "graph_idx": 810,
+      "in_sqnr_db": 1.1856,
+      "out_sqnr_db": 1.1856,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/Reshape_5",
+      "op_type": "Reshape",
+      "graph_idx": 821,
+      "in_sqnr_db": 2.7158,
+      "out_sqnr_db": 2.7158,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST11/Reshape_5",
+      "op_type": "Reshape",
+      "graph_idx": 822,
+      "in_sqnr_db": 1.1992,
+      "out_sqnr_db": 1.1992,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_104",
+      "op_type": "Reshape",
+      "graph_idx": 841,
+      "in_sqnr_db": 4.212,
+      "out_sqnr_db": 4.212,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_92",
+      "op_type": "Reshape",
+      "graph_idx": 842,
+      "in_sqnr_db": 1.2508,
+      "out_sqnr_db": 1.2508,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_188",
+      "op_type": "Reshape",
+      "graph_idx": 843,
+      "in_sqnr_db": 2.7746,
+      "out_sqnr_db": 2.7746,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_176",
+      "op_type": "Reshape",
+      "graph_idx": 844,
+      "in_sqnr_db": 0.77,
+      "out_sqnr_db": 0.77,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_107",
+      "op_type": "Reshape",
+      "graph_idx": 865,
+      "in_sqnr_db": -1.2797,
+      "out_sqnr_db": -1.2797,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_95",
+      "op_type": "Reshape",
+      "graph_idx": 866,
+      "in_sqnr_db": 1.6483,
+      "out_sqnr_db": 1.6483,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_191",
+      "op_type": "Reshape",
+      "graph_idx": 867,
+      "in_sqnr_db": 9.8565,
+      "out_sqnr_db": 9.8565,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_179",
+      "op_type": "Reshape",
+      "graph_idx": 868,
+      "in_sqnr_db": -1.1177,
+      "out_sqnr_db": -1.1177,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_110",
+      "op_type": "Reshape",
+      "graph_idx": 929,
+      "in_sqnr_db": 3.0366,
+      "out_sqnr_db": 3.0366,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_98",
+      "op_type": "Reshape",
+      "graph_idx": 930,
+      "in_sqnr_db": -0.0012,
+      "out_sqnr_db": -0.0012,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_194",
+      "op_type": "Reshape",
+      "graph_idx": 931,
+      "in_sqnr_db": 2.9744,
+      "out_sqnr_db": 2.9744,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_182",
+      "op_type": "Reshape",
+      "graph_idx": 932,
+      "in_sqnr_db": 1.2198,
+      "out_sqnr_db": 1.2198,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_113",
+      "op_type": "Reshape",
+      "graph_idx": 953,
+      "in_sqnr_db": 4.3669,
+      "out_sqnr_db": 4.3669,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_101",
+      "op_type": "Reshape",
+      "graph_idx": 954,
+      "in_sqnr_db": 0.8221,
+      "out_sqnr_db": 0.8221,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_197",
+      "op_type": "Reshape",
+      "graph_idx": 955,
+      "in_sqnr_db": 2.9372,
+      "out_sqnr_db": 2.9372,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_185",
+      "op_type": "Reshape",
+      "graph_idx": 956,
+      "in_sqnr_db": 1.1836,
+      "out_sqnr_db": 1.1836,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST22/Unsqueeze",
+      "op_type": "Unsqueeze",
+      "graph_idx": 972,
+      "in_sqnr_db": 3.141,
+      "out_sqnr_db": 3.141,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_212",
+      "op_type": "Reshape",
+      "graph_idx": 973,
+      "in_sqnr_db": 3.141,
+      "out_sqnr_db": 3.141,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST12/Unsqueeze",
+      "op_type": "Unsqueeze",
+      "graph_idx": 975,
+      "in_sqnr_db": 2.2881,
+      "out_sqnr_db": 2.2881,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_230",
+      "op_type": "Reshape",
+      "graph_idx": 976,
+      "in_sqnr_db": 2.2881,
+      "out_sqnr_db": 2.2881,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_116",
+      "op_type": "Reshape",
+      "graph_idx": 989,
+      "in_sqnr_db": 4.0877,
+      "out_sqnr_db": 4.0877,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST22/Expand",
+      "op_type": "Expand",
+      "graph_idx": 990,
+      "in_sqnr_db": 3.141,
+      "out_sqnr_db": 3.141,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_200",
+      "op_type": "Reshape",
+      "graph_idx": 992,
+      "in_sqnr_db": 2.2063,
+      "out_sqnr_db": 2.2063,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST12/Expand",
+      "op_type": "Expand",
+      "graph_idx": 993,
+      "in_sqnr_db": 2.2881,
+      "out_sqnr_db": 2.2881,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST22/Transpose",
+      "op_type": "Transpose",
+      "graph_idx": 1008,
+      "in_sqnr_db": 3.141,
+      "out_sqnr_db": 3.141,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_215",
+      "op_type": "Reshape",
+      "graph_idx": 1009,
+      "in_sqnr_db": 4.0809,
+      "out_sqnr_db": 4.0809,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST12/Transpose",
+      "op_type": "Transpose",
+      "graph_idx": 1011,
+      "in_sqnr_db": 2.2881,
+      "out_sqnr_db": 2.2881,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_233",
+      "op_type": "Reshape",
+      "graph_idx": 1012,
+      "in_sqnr_db": 2.5218,
+      "out_sqnr_db": 2.5218,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_119",
+      "op_type": "Reshape",
+      "graph_idx": 1025,
+      "in_sqnr_db": 0.0,
+      "out_sqnr_db": 0.0,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_203",
+      "op_type": "Reshape",
+      "graph_idx": 1027,
+      "in_sqnr_db": 0.0,
+      "out_sqnr_db": 0.0,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST22/Tanh_1",
+      "op_type": "Tanh",
+      "graph_idx": 1037,
+      "in_sqnr_db": 0.0,
+      "out_sqnr_db": 0.0,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_218",
+      "op_type": "Reshape",
+      "graph_idx": 1038,
+      "in_sqnr_db": 3.2459,
+      "out_sqnr_db": 3.2459,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST12/Tanh_1",
+      "op_type": "Tanh",
+      "graph_idx": 1039,
+      "in_sqnr_db": 0.0,
+      "out_sqnr_db": 0.0,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_236",
+      "op_type": "Reshape",
+      "graph_idx": 1040,
+      "in_sqnr_db": 2.2319,
+      "out_sqnr_db": 2.2319,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_221",
+      "op_type": "Reshape",
+      "graph_idx": 1062,
+      "in_sqnr_db": 0.0,
+      "out_sqnr_db": 0.0,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_239",
+      "op_type": "Reshape",
+      "graph_idx": 1064,
+      "in_sqnr_db": 0.1072,
+      "out_sqnr_db": 0.1072,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST22/Softmax_1",
+      "op_type": "Softmax",
+      "graph_idx": 1073,
+      "in_sqnr_db": 300.0,
+      "out_sqnr_db": 300.0,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST22/Tanh",
+      "op_type": "Tanh",
+      "graph_idx": 1074,
+      "in_sqnr_db": 0.0,
+      "out_sqnr_db": 0.0,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST12/Softmax_1",
+      "op_type": "Softmax",
+      "graph_idx": 1075,
+      "in_sqnr_db": 300.0,
+      "out_sqnr_db": 300.0,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST12/Tanh",
+      "op_type": "Tanh",
+      "graph_idx": 1076,
+      "in_sqnr_db": 0.1072,
+      "out_sqnr_db": 0.1072,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST22/Squeeze",
+      "op_type": "Squeeze",
+      "graph_idx": 1093,
+      "in_sqnr_db": 300.0,
+      "out_sqnr_db": 300.0,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST12/Squeeze",
+      "op_type": "Squeeze",
+      "graph_idx": 1098,
+      "in_sqnr_db": 300.0,
+      "out_sqnr_db": 300.0,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST22/Unsqueeze_17",
+      "op_type": "Unsqueeze",
+      "graph_idx": 1123,
+      "in_sqnr_db": 300.0,
+      "out_sqnr_db": 300.0,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST12/Unsqueeze_17",
+      "op_type": "Unsqueeze",
+      "graph_idx": 1128,
+      "in_sqnr_db": 300.0,
+      "out_sqnr_db": 300.0,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_122",
+      "op_type": "Reshape",
+      "graph_idx": 1177,
+      "in_sqnr_db": 4.2406,
+      "out_sqnr_db": 4.2406,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_206",
+      "op_type": "Reshape",
+      "graph_idx": 1179,
+      "in_sqnr_db": 2.8875,
+      "out_sqnr_db": 2.8875,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_125",
+      "op_type": "Reshape",
+      "graph_idx": 1201,
+      "in_sqnr_db": 4.9521,
+      "out_sqnr_db": 4.9521,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST22/Softmax",
+      "op_type": "Softmax",
+      "graph_idx": 1202,
+      "in_sqnr_db": 300.0,
+      "out_sqnr_db": 300.0,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_209",
+      "op_type": "Reshape",
+      "graph_idx": 1203,
+      "in_sqnr_db": 4.8671,
+      "out_sqnr_db": 4.8671,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST12/Softmax",
+      "op_type": "Softmax",
+      "graph_idx": 1204,
+      "in_sqnr_db": 300.0,
+      "out_sqnr_db": 300.0,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST22/Squeeze_1",
+      "op_type": "Squeeze",
+      "graph_idx": 1214,
+      "in_sqnr_db": 300.0,
+      "out_sqnr_db": 300.0,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST12/Squeeze_1",
+      "op_type": "Squeeze",
+      "graph_idx": 1216,
+      "in_sqnr_db": 300.0,
+      "out_sqnr_db": 300.0,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_224",
+      "op_type": "Reshape",
+      "graph_idx": 1237,
+      "in_sqnr_db": 4.2406,
+      "out_sqnr_db": 4.2406,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_input_reshape_token_242",
+      "op_type": "Reshape",
+      "graph_idx": 1239,
+      "in_sqnr_db": 2.8875,
+      "out_sqnr_db": 2.8875,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_227",
+      "op_type": "Reshape",
+      "graph_idx": 1253,
+      "in_sqnr_db": 5.7581,
+      "out_sqnr_db": 5.7581,
+      "damage_db": 0.0
+    },
+    {
+      "node": "gemm_output_reshape_token_245",
+      "op_type": "Reshape",
+      "graph_idx": 1254,
+      "in_sqnr_db": 4.8538,
+      "out_sqnr_db": 4.8538,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST22/Reshape_4",
+      "op_type": "Reshape",
+      "graph_idx": 1265,
+      "in_sqnr_db": 3.2372,
+      "out_sqnr_db": 3.2372,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST12/Reshape_4",
+      "op_type": "Reshape",
+      "graph_idx": 1266,
+      "in_sqnr_db": 3.9575,
+      "out_sqnr_db": 3.9575,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST22/Reshape_5",
+      "op_type": "Reshape",
+      "graph_idx": 1277,
+      "in_sqnr_db": 3.1648,
+      "out_sqnr_db": 3.1648,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST12/Reshape_5",
+      "op_type": "Reshape",
+      "graph_idx": 1278,
+      "in_sqnr_db": 3.5647,
+      "out_sqnr_db": 3.5647,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/Abs",
+      "op_type": "Abs",
+      "graph_idx": 161,
+      "in_sqnr_db": 21.4199,
+      "out_sqnr_db": 21.42,
+      "damage_db": -0.0001
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/Tanh",
+      "op_type": "Tanh",
+      "graph_idx": 609,
+      "in_sqnr_db": 19.4317,
+      "out_sqnr_db": 19.4326,
+      "damage_db": -0.0009
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST11/bn/BatchNormalization",
+      "op_type": "BatchNormalization",
+      "graph_idx": 816,
+      "in_sqnr_db": 1.1856,
+      "out_sqnr_db": 1.2003,
+      "damage_db": -0.0147
+    },
+    {
+      "node": "/m/pool_T/proj/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 422,
+      "in_sqnr_db": 4.2136,
+      "out_sqnr_db": 4.2327,
+      "damage_db": -0.0192
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/act/Selu",
+      "op_type": "Selu",
+      "graph_idx": 827,
+      "in_sqnr_db": 2.7158,
+      "out_sqnr_db": 2.7365,
+      "damage_db": -0.0207
+    },
+    {
+      "node": "/m/Add",
+      "op_type": "Add",
+      "graph_idx": 278,
+      "in_sqnr_db": 9.8697,
+      "out_sqnr_db": 9.8934,
+      "damage_db": -0.0236
+    },
+    {
+      "node": "/m/Add_1",
+      "op_type": "Add",
+      "graph_idx": 1300,
+      "in_sqnr_db": 2.9744,
+      "out_sqnr_db": 3.0166,
+      "damage_db": -0.0423
+    },
+    {
+      "node": "/m/encoder/encoder.3/encoder.3.0/conv1/Conv",
+      "op_type": "Conv",
+      "graph_idx": 222,
+      "in_sqnr_db": 2.4873,
+      "out_sqnr_db": 2.5488,
+      "damage_db": -0.0615
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST11/Mul_18",
+      "op_type": "Mul",
+      "graph_idx": 512,
+      "in_sqnr_db": 1.2621,
+      "out_sqnr_db": 1.3245,
+      "damage_db": -0.0623
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST11/MatMul_4",
+      "op_type": "MatMul",
+      "graph_idx": 588,
+      "in_sqnr_db": 2.092,
+      "out_sqnr_db": 2.1544,
+      "damage_db": -0.0624
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST22/Mul_1",
+      "op_type": "Mul",
+      "graph_idx": 1026,
+      "in_sqnr_db": 3.141,
+      "out_sqnr_db": 3.2562,
+      "damage_db": -0.1153
+    },
+    {
+      "node": "/m/GAT_layer_T/act/Selu",
+      "op_type": "Selu",
+      "graph_idx": 410,
+      "in_sqnr_db": 4.0815,
+      "out_sqnr_db": 4.2167,
+      "damage_db": -0.1352
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST11/proj_type1/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 470,
+      "in_sqnr_db": 4.5621,
+      "out_sqnr_db": 4.6995,
+      "damage_db": -0.1374
+    },
+    {
+      "node": "/m/pool_hS2/TopK",
+      "op_type": "TopK",
+      "graph_idx": 892,
+      "in_sqnr_db": 1.5651,
+      "out_sqnr_db": 1.7207,
+      "damage_db": -0.1556
+    },
+    {
+      "node": "/m/GAT_layer_T/Add",
+      "op_type": "Add",
+      "graph_idx": 386,
+      "in_sqnr_db": 11.274,
+      "out_sqnr_db": 11.4495,
+      "damage_db": -0.1756
+    },
+    {
+      "node": "/m/GAT_layer_S/proj_without_att/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 300,
+      "in_sqnr_db": 9.8975,
+      "out_sqnr_db": 10.0782,
+      "damage_db": -0.1807
+    },
+    {
+      "node": "/m/encoder/encoder.1/encoder.1.0/conv2/Conv",
+      "op_type": "Conv",
+      "graph_idx": 195,
+      "in_sqnr_db": 4.7981,
+      "out_sqnr_db": 5.0049,
+      "damage_db": -0.2068
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/att_projM/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 545,
+      "in_sqnr_db": 1.7997,
+      "out_sqnr_db": 2.0214,
+      "damage_db": -0.2216
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST12/proj_without_att/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 994,
+      "in_sqnr_db": 2.2881,
+      "out_sqnr_db": 2.5232,
+      "damage_db": -0.2351
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST11/proj_type2/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 490,
+      "in_sqnr_db": -0.9213,
+      "out_sqnr_db": -0.6384,
+      "damage_db": -0.283
+    },
+    {
+      "node": "/m/pool_hT1/Mul_1",
+      "op_type": "Mul",
+      "graph_idx": 893,
+      "in_sqnr_db": 2.7746,
+      "out_sqnr_db": 3.058,
+      "damage_db": -0.2835
+    },
+    {
+      "node": "/m/encoder/encoder.0/encoder.0.0/conv2/Conv",
+      "op_type": "Conv",
+      "graph_idx": 180,
+      "in_sqnr_db": 8.6304,
+      "out_sqnr_db": 8.9577,
+      "damage_db": -0.3273
+    },
+    {
+      "node": "/m/GAT_layer_S/Add",
+      "op_type": "Add",
+      "graph_idx": 397,
+      "in_sqnr_db": 10.0714,
+      "out_sqnr_db": 10.4059,
+      "damage_db": -0.3345
+    },
+    {
+      "node": "/m/GAT_layer_T/proj_with_att/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 374,
+      "in_sqnr_db": 11.5791,
+      "out_sqnr_db": 11.9508,
+      "damage_db": -0.3717
+    },
+    {
+      "node": "/m/pool_hS2/proj/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 854,
+      "in_sqnr_db": 1.2508,
+      "out_sqnr_db": 1.6443,
+      "damage_db": -0.3935
+    },
+    {
+      "node": "/m/encoder/encoder.2/encoder.2.0/conv2/Conv",
+      "op_type": "Conv",
+      "graph_idx": 213,
+      "in_sqnr_db": 1.8443,
+      "out_sqnr_db": 2.2525,
+      "damage_db": -0.4082
+    },
+    {
+      "node": "/m/GAT_layer_S/act/Selu",
+      "op_type": "Selu",
+      "graph_idx": 421,
+      "in_sqnr_db": -0.2927,
+      "out_sqnr_db": 0.1687,
+      "damage_db": -0.4614
+    },
+    {
+      "node": "/m/encoder/encoder.4/encoder.4.0/Add",
+      "op_type": "Add",
+      "graph_idx": 246,
+      "in_sqnr_db": 2.5225,
+      "out_sqnr_db": 3.0038,
+      "damage_db": -0.4813
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST11/act/Selu",
+      "op_type": "Selu",
+      "graph_idx": 828,
+      "in_sqnr_db": 1.1992,
+      "out_sqnr_db": 1.7154,
+      "damage_db": -0.5162
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/ScatterND_3",
+      "op_type": "ScatterND",
+      "graph_idx": 721,
+      "in_sqnr_db": 20.3079,
+      "out_sqnr_db": 20.8262,
+      "damage_db": -0.5183
+    },
+    {
+      "node": "/m/pool_hS1/Mul_1",
+      "op_type": "Mul",
+      "graph_idx": 895,
+      "in_sqnr_db": 0.77,
+      "out_sqnr_db": 1.2912,
+      "damage_db": -0.5212
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST11/Add_1",
+      "op_type": "Add",
+      "graph_idx": 804,
+      "in_sqnr_db": 0.6425,
+      "out_sqnr_db": 1.1869,
+      "damage_db": -0.5444
+    },
+    {
+      "node": "/m/Max_1",
+      "op_type": "Max",
+      "graph_idx": 1309,
+      "in_sqnr_db": 0.8998,
+      "out_sqnr_db": 1.4819,
+      "damage_db": -0.5821
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST12/MatMul_5",
+      "op_type": "MatMul",
+      "graph_idx": 1158,
+      "in_sqnr_db": 2.2881,
+      "out_sqnr_db": 2.8879,
+      "damage_db": -0.5998
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST12/MatMul_6",
+      "op_type": "MatMul",
+      "graph_idx": 1228,
+      "in_sqnr_db": 2.2881,
+      "out_sqnr_db": 2.8879,
+      "damage_db": -0.5998
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/ScatterND_2",
+      "op_type": "ScatterND",
+      "graph_idx": 717,
+      "in_sqnr_db": 19.7024,
+      "out_sqnr_db": 20.3079,
+      "damage_db": -0.6055
+    },
+    {
+      "node": "/m/Abs_1",
+      "op_type": "Abs",
+      "graph_idx": 267,
+      "in_sqnr_db": 4.4373,
+      "out_sqnr_db": 5.0469,
+      "damage_db": -0.6095
+    },
+    {
+      "node": "/m/encoder/encoder.4/encoder.4.0/mp/MaxPool",
+      "op_type": "MaxPool",
+      "graph_idx": 249,
+      "in_sqnr_db": 2.9864,
+      "out_sqnr_db": 3.6201,
+      "damage_db": -0.6338
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST12/Add",
+      "op_type": "Add",
+      "graph_idx": 1215,
+      "in_sqnr_db": 4.1874,
+      "out_sqnr_db": 4.8237,
+      "damage_db": -0.6363
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST11/proj_with_att/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 787,
+      "in_sqnr_db": 2.3731,
+      "out_sqnr_db": 3.0106,
+      "damage_db": -0.6375
+    },
+    {
+      "node": "/m/Add_3",
+      "op_type": "Add",
+      "graph_idx": 1299,
+      "in_sqnr_db": 1.2198,
+      "out_sqnr_db": 1.8759,
+      "damage_db": -0.6561
+    },
+    {
+      "node": "/m/encoder/encoder.3/encoder.3.0/conv2/Conv",
+      "op_type": "Conv",
+      "graph_idx": 228,
+      "in_sqnr_db": 1.4205,
+      "out_sqnr_db": 2.0819,
+      "damage_db": -0.6614
+    },
+    {
+      "node": "/m/pool_T/Mul_1",
+      "op_type": "Mul",
+      "graph_idx": 440,
+      "in_sqnr_db": 4.2136,
+      "out_sqnr_db": 4.9087,
+      "damage_db": -0.6951
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/Mul_18",
+      "op_type": "Mul",
+      "graph_idx": 509,
+      "in_sqnr_db": 1.1091,
+      "out_sqnr_db": 1.8048,
+      "damage_db": -0.6957
+    },
+    {
+      "node": "/m/GAT_layer_T/att_proj/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 320,
+      "in_sqnr_db": 5.4984,
+      "out_sqnr_db": 6.2115,
+      "damage_db": -0.7131
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST22/proj_with_attM/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 1189,
+      "in_sqnr_db": 4.2406,
+      "out_sqnr_db": 4.9542,
+      "damage_db": -0.7135
+    },
+    {
+      "node": "/m/encoder/encoder.3/encoder.3.0/Add",
+      "op_type": "Add",
+      "graph_idx": 231,
+      "in_sqnr_db": 2.0544,
+      "out_sqnr_db": 2.7826,
+      "damage_db": -0.7283
+    },
+    {
+      "node": "/m/encoder/encoder.5/encoder.5.0/selu/Selu",
+      "op_type": "Selu",
+      "graph_idx": 255,
+      "in_sqnr_db": 1.2426,
+      "out_sqnr_db": 1.9792,
+      "damage_db": -0.7366
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST11/att_projM/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 548,
+      "in_sqnr_db": 1.3433,
+      "out_sqnr_db": 2.0937,
+      "damage_db": -0.7504
+    },
+    {
+      "node": "/m/Add_6",
+      "op_type": "Add",
+      "graph_idx": 1225,
+      "in_sqnr_db": 6.2922,
+      "out_sqnr_db": 7.0561,
+      "damage_db": -0.7638
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST22/proj_type2/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 942,
+      "in_sqnr_db": -0.0012,
+      "out_sqnr_db": 0.8233,
+      "damage_db": -0.8245
+    },
+    {
+      "node": "/m/pool_T/TopK",
+      "op_type": "TopK",
+      "graph_idx": 441,
+      "in_sqnr_db": 10.7338,
+      "out_sqnr_db": 11.5948,
+      "damage_db": -0.861
+    },
+    {
+      "node": "/m/encoder/encoder.4/encoder.4.0/conv1/Conv",
+      "op_type": "Conv",
+      "graph_idx": 237,
+      "in_sqnr_db": 2.5225,
+      "out_sqnr_db": 3.385,
+      "damage_db": -0.8625
+    },
+    {
+      "node": "/m/encoder/encoder.4/encoder.4.0/conv2/Conv",
+      "op_type": "Conv",
+      "graph_idx": 243,
+      "in_sqnr_db": 2.8767,
+      "out_sqnr_db": 3.7442,
+      "damage_db": -0.8675
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST11/Add",
+      "op_type": "Add",
+      "graph_idx": 752,
+      "in_sqnr_db": 3.8941,
+      "out_sqnr_db": 4.7841,
+      "damage_db": -0.89
+    },
+    {
+      "node": "/m/Add_4",
+      "op_type": "Add",
+      "graph_idx": 1297,
+      "in_sqnr_db": -0.0012,
+      "out_sqnr_db": 0.8998,
+      "damage_db": -0.901
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST22/proj_without_att/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 991,
+      "in_sqnr_db": 3.141,
+      "out_sqnr_db": 4.0827,
+      "damage_db": -0.9417
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST22/Mul_18",
+      "op_type": "Mul",
+      "graph_idx": 971,
+      "in_sqnr_db": 3.141,
+      "out_sqnr_db": 4.0893,
+      "damage_db": -0.9483
+    },
+    {
+      "node": "/m/Max_2",
+      "op_type": "Max",
+      "graph_idx": 1238,
+      "in_sqnr_db": 4.1391,
+      "out_sqnr_db": 5.1657,
+      "damage_db": -1.0266
+    },
+    {
+      "node": "/m/GAT_layer_T/MatMul",
+      "op_type": "MatMul",
+      "graph_idx": 338,
+      "in_sqnr_db": 5.1418,
+      "out_sqnr_db": 6.2171,
+      "damage_db": -1.0753
+    },
+    {
+      "node": "/m/Add_2",
+      "op_type": "Add",
+      "graph_idx": 1298,
+      "in_sqnr_db": 3.0366,
+      "out_sqnr_db": 4.1144,
+      "damage_db": -1.0778
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST22/MatMul_5",
+      "op_type": "MatMul",
+      "graph_idx": 1153,
+      "in_sqnr_db": 3.141,
+      "out_sqnr_db": 4.242,
+      "damage_db": -1.101
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST22/MatMul_6",
+      "op_type": "MatMul",
+      "graph_idx": 1226,
+      "in_sqnr_db": 3.141,
+      "out_sqnr_db": 4.242,
+      "damage_db": -1.101
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST12/Concat",
+      "op_type": "Concat",
+      "graph_idx": 966,
+      "in_sqnr_db": 1.1836,
+      "out_sqnr_db": 2.2898,
+      "damage_db": -1.1062
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST11/MatMul_5",
+      "op_type": "MatMul",
+      "graph_idx": 698,
+      "in_sqnr_db": 1.2621,
+      "out_sqnr_db": 2.3733,
+      "damage_db": -1.1112
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST11/MatMul_6",
+      "op_type": "MatMul",
+      "graph_idx": 763,
+      "in_sqnr_db": 1.2621,
+      "out_sqnr_db": 2.3733,
+      "damage_db": -1.1112
+    },
+    {
+      "node": "/m/encoder/encoder.1/encoder.1.0/Add",
+      "op_type": "Add",
+      "graph_idx": 198,
+      "in_sqnr_db": 4.6724,
+      "out_sqnr_db": 5.784,
+      "damage_db": -1.1116
+    },
+    {
+      "node": "/m/GAT_layer_T/proj_without_att/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 286,
+      "in_sqnr_db": 10.1401,
+      "out_sqnr_db": 11.2744,
+      "damage_db": -1.1343
+    },
+    {
+      "node": "/m/encoder/encoder.0/encoder.0.0/conv_downsample/Conv",
+      "op_type": "Conv",
+      "graph_idx": 171,
+      "in_sqnr_db": 18.9429,
+      "out_sqnr_db": 20.0801,
+      "damage_db": -1.1372
+    },
+    {
+      "node": "/m/pool_hS1/TopK",
+      "op_type": "TopK",
+      "graph_idx": 896,
+      "in_sqnr_db": 8.201,
+      "out_sqnr_db": 9.3682,
+      "damage_db": -1.1671
+    },
+    {
+      "node": "/m/GAT_layer_S/MatMul_1",
+      "op_type": "MatMul",
+      "graph_idx": 373,
+      "in_sqnr_db": 9.8975,
+      "out_sqnr_db": 11.1539,
+      "damage_db": -1.2564
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST22/proj_type1/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 941,
+      "in_sqnr_db": 3.0366,
+      "out_sqnr_db": 4.3677,
+      "damage_db": -1.3311
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST22/Add",
+      "op_type": "Add",
+      "graph_idx": 1213,
+      "in_sqnr_db": 4.9521,
+      "out_sqnr_db": 6.2945,
+      "damage_db": -1.3424
+    },
+    {
+      "node": "/m/encoder/encoder.2/encoder.2.0/conv_downsample/Conv",
+      "op_type": "Conv",
+      "graph_idx": 204,
+      "in_sqnr_db": 4.8289,
+      "out_sqnr_db": 6.1907,
+      "damage_db": -1.3618
+    },
+    {
+      "node": "/m/encoder/encoder.2/encoder.2.0/Add",
+      "op_type": "Add",
+      "graph_idx": 216,
+      "in_sqnr_db": 2.2011,
+      "out_sqnr_db": 3.5815,
+      "damage_db": -1.3804
+    },
+    {
+      "node": "/m/encoder/encoder.5/encoder.5.0/Add",
+      "op_type": "Add",
+      "graph_idx": 261,
+      "in_sqnr_db": 1.5595,
+      "out_sqnr_db": 2.9739,
+      "damage_db": -1.4144
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST12/Add_1",
+      "op_type": "Add",
+      "graph_idx": 1260,
+      "in_sqnr_db": 2.5218,
+      "out_sqnr_db": 3.9586,
+      "damage_db": -1.4367
+    },
+    {
+      "node": "/m/GAT_layer_T/MatMul_1",
+      "op_type": "MatMul",
+      "graph_idx": 362,
+      "in_sqnr_db": 10.1401,
+      "out_sqnr_db": 11.58,
+      "damage_db": -1.4399
+    },
+    {
+      "node": "/m/encoder/encoder.5/encoder.5.0/mp/MaxPool",
+      "op_type": "MaxPool",
+      "graph_idx": 264,
+      "in_sqnr_db": 2.9686,
+      "out_sqnr_db": 4.4373,
+      "damage_db": -1.4687
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST22/proj_with_att/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 1246,
+      "in_sqnr_db": 4.2406,
+      "out_sqnr_db": 5.7587,
+      "damage_db": -1.518
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST11/proj_with_attM/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 728,
+      "in_sqnr_db": 2.3731,
+      "out_sqnr_db": 3.8937,
+      "damage_db": -1.5206
+    },
+    {
+      "node": "/m/encoder/encoder.0/encoder.0.0/Add",
+      "op_type": "Add",
+      "graph_idx": 183,
+      "in_sqnr_db": 7.8827,
+      "out_sqnr_db": 9.4499,
+      "damage_db": -1.5671
+    },
+    {
+      "node": "/m/GAT_layer_S/att_proj/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 331,
+      "in_sqnr_db": 4.1757,
+      "out_sqnr_db": 5.7864,
+      "damage_db": -1.6108
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/MatMul_1",
+      "op_type": "MatMul",
+      "graph_idx": 650,
+      "in_sqnr_db": 13.4219,
+      "out_sqnr_db": 15.041,
+      "damage_db": -1.6191
+    },
+    {
+      "node": "/m/pool_hT2/TopK",
+      "op_type": "TopK",
+      "graph_idx": 890,
+      "in_sqnr_db": 8.3405,
+      "out_sqnr_db": 10.0412,
+      "damage_db": -1.7007
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST11/Concat",
+      "op_type": "Concat",
+      "graph_idx": 502,
+      "in_sqnr_db": -0.6394,
+      "out_sqnr_db": 1.2632,
+      "damage_db": -1.9026
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST12/proj_with_att/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 1248,
+      "in_sqnr_db": 2.8875,
+      "out_sqnr_db": 4.8541,
+      "damage_db": -1.9666
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST12/proj_with_attM/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 1191,
+      "in_sqnr_db": 2.8875,
+      "out_sqnr_db": 4.8679,
+      "damage_db": -1.9804
+    },
+    {
+      "node": "/m/Concat",
+      "op_type": "Concat",
+      "graph_idx": 1325,
+      "in_sqnr_db": 1.5547,
+      "out_sqnr_db": 3.6506,
+      "damage_db": -2.0959
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/Concat",
+      "op_type": "Concat",
+      "graph_idx": 501,
+      "in_sqnr_db": -1.045,
+      "out_sqnr_db": 1.1099,
+      "damage_db": -2.1549
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/proj_with_attM/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 726,
+      "in_sqnr_db": 4.6415,
+      "out_sqnr_db": 6.8189,
+      "damage_db": -2.1774
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST22/Concat",
+      "op_type": "Concat",
+      "graph_idx": 965,
+      "in_sqnr_db": 0.8221,
+      "out_sqnr_db": 3.1398,
+      "damage_db": -2.3176
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/proj_with_att/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 785,
+      "in_sqnr_db": 4.6415,
+      "out_sqnr_db": 7.0454,
+      "damage_db": -2.4039
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/Add_1",
+      "op_type": "Add",
+      "graph_idx": 803,
+      "in_sqnr_db": 0.9515,
+      "out_sqnr_db": 3.6882,
+      "damage_db": -2.7367
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/Add",
+      "op_type": "Add",
+      "graph_idx": 750,
+      "in_sqnr_db": 6.8177,
+      "out_sqnr_db": 9.7801,
+      "damage_db": -2.9624
+    },
+    {
+      "node": "/m/pool_S/proj/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 433,
+      "in_sqnr_db": 0.1666,
+      "out_sqnr_db": 3.5811,
+      "damage_db": -3.4145
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/MatMul_5",
+      "op_type": "MatMul",
+      "graph_idx": 693,
+      "in_sqnr_db": 1.1091,
+      "out_sqnr_db": 4.6421,
+      "damage_db": -3.5329
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/MatMul_6",
+      "op_type": "MatMul",
+      "graph_idx": 761,
+      "in_sqnr_db": 1.1091,
+      "out_sqnr_db": 4.6421,
+      "damage_db": -3.5329
+    },
+    {
+      "node": "/m/pool_S/TopK",
+      "op_type": "TopK",
+      "graph_idx": 456,
+      "in_sqnr_db": 13.9881,
+      "out_sqnr_db": 17.862,
+      "damage_db": -3.874
+    },
+    {
+      "node": "/m/GAT_layer_T/Softmax",
+      "op_type": "Softmax",
+      "graph_idx": 350,
+      "in_sqnr_db": 6.2136,
+      "out_sqnr_db": 10.6885,
+      "damage_db": -4.4749
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/ScatterND_1",
+      "op_type": "ScatterND",
+      "graph_idx": 713,
+      "in_sqnr_db": 15.0402,
+      "out_sqnr_db": 19.7024,
+      "damage_db": -4.6622
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/MatMul_3",
+      "op_type": "MatMul",
+      "graph_idx": 649,
+      "in_sqnr_db": 24.762,
+      "out_sqnr_db": 30.6092,
+      "damage_db": -5.8472
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/MatMul_2",
+      "op_type": "MatMul",
+      "graph_idx": 651,
+      "in_sqnr_db": 24.762,
+      "out_sqnr_db": 30.6092,
+      "damage_db": -5.8472
+    },
+    {
+      "node": "/m/pool_T/sigmoid/Sigmoid",
+      "op_type": "Sigmoid",
+      "graph_idx": 434,
+      "in_sqnr_db": 4.2345,
+      "out_sqnr_db": 10.7367,
+      "damage_db": -6.5023
+    },
+    {
+      "node": "/m/pool_hT1/TopK",
+      "op_type": "TopK",
+      "graph_idx": 894,
+      "in_sqnr_db": 19.0283,
+      "out_sqnr_db": 25.5607,
+      "damage_db": -6.5324
+    },
+    {
+      "node": "/m/pool_hT1/proj/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 855,
+      "in_sqnr_db": 2.7746,
+      "out_sqnr_db": 9.8571,
+      "damage_db": -7.0826
+    },
+    {
+      "node": "/m/pool_hT1/sigmoid/Sigmoid",
+      "op_type": "Sigmoid",
+      "graph_idx": 879,
+      "in_sqnr_db": 9.8565,
+      "out_sqnr_db": 19.0235,
+      "damage_db": -9.167
+    },
+    {
+      "node": "/m/pool_hS1/sigmoid/Sigmoid",
+      "op_type": "Sigmoid",
+      "graph_idx": 880,
+      "in_sqnr_db": -1.1177,
+      "out_sqnr_db": 8.1991,
+      "damage_db": -9.3169
+    },
+    {
+      "node": "/m/pool_hT2/sigmoid/Sigmoid",
+      "op_type": "Sigmoid",
+      "graph_idx": 877,
+      "in_sqnr_db": -1.2797,
+      "out_sqnr_db": 8.3453,
+      "damage_db": -9.625
+    },
+    {
+      "node": "/m/pool_S/sigmoid/Sigmoid",
+      "op_type": "Sigmoid",
+      "graph_idx": 449,
+      "in_sqnr_db": 3.581,
+      "out_sqnr_db": 13.9837,
+      "damage_db": -10.4028
+    },
+    {
+      "node": "/m/GAT_layer_S/Softmax",
+      "op_type": "Softmax",
+      "graph_idx": 361,
+      "in_sqnr_db": -0.8226,
+      "out_sqnr_db": 11.0273,
+      "damage_db": -11.8498
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST11/att_proj/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 587,
+      "in_sqnr_db": -1.3417,
+      "out_sqnr_db": 13.2639,
+      "damage_db": -14.6056
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/att_proj/MatMul/MatMulAddFusion",
+      "op_type": "Gemm",
+      "graph_idx": 585,
+      "in_sqnr_db": -1.3757,
+      "out_sqnr_db": 19.4421,
+      "damage_db": -20.8178
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST21/Softmax",
+      "op_type": "Softmax",
+      "graph_idx": 737,
+      "in_sqnr_db": 20.8028,
+      "out_sqnr_db": 142.4558,
+      "damage_db": -121.6531
+    },
+    {
+      "node": "/m/HtrgGAT_layer_ST11/Softmax_1",
+      "op_type": "Softmax",
+      "graph_idx": 612,
+      "in_sqnr_db": 2.1577,
+      "out_sqnr_db": 300.0,
+      "damage_db": -297.8423
+    }
+  ],
+  "unranked_quantized_nodes": [
+    "/Gather",
+    "/m/HtrgGAT_layer_ST11/MatMul",
+    "/m/HtrgGAT_layer_ST11/MatMul_1",
+    "/m/HtrgGAT_layer_ST11/MatMul_2",
+    "/m/HtrgGAT_layer_ST11/MatMul_3",
+    "/m/HtrgGAT_layer_ST11/Reshape",
+    "/m/HtrgGAT_layer_ST11/Reshape_1",
+    "/m/HtrgGAT_layer_ST11/Reshape_2",
+    "/m/HtrgGAT_layer_ST11/Reshape_3",
+    "/m/HtrgGAT_layer_ST11/ScatterND",
+    "/m/HtrgGAT_layer_ST11/ScatterND_1",
+    "/m/HtrgGAT_layer_ST11/ScatterND_2",
+    "/m/HtrgGAT_layer_ST11/ScatterND_3",
+    "/m/HtrgGAT_layer_ST12/Div_1",
+    "/m/HtrgGAT_layer_ST12/MatMul",
+    "/m/HtrgGAT_layer_ST12/MatMul_1",
+    "/m/HtrgGAT_layer_ST12/MatMul_2",
+    "/m/HtrgGAT_layer_ST12/MatMul_3",
+    "/m/HtrgGAT_layer_ST12/MatMul_4",
+    "/m/HtrgGAT_layer_ST12/Reshape",
+    "/m/HtrgGAT_layer_ST12/Reshape_1",
+    "/m/HtrgGAT_layer_ST12/Reshape_2",
+    "/m/HtrgGAT_layer_ST12/Reshape_3",
+    "/m/HtrgGAT_layer_ST12/ScatterND",
+    "/m/HtrgGAT_layer_ST12/ScatterND_1",
+    "/m/HtrgGAT_layer_ST12/ScatterND_2",
+    "/m/HtrgGAT_layer_ST12/ScatterND_3",
+    "/m/HtrgGAT_layer_ST21/Div_1",
+    "/m/HtrgGAT_layer_ST21/MatMul_4",
+    "/m/HtrgGAT_layer_ST22/Div_1",
+    "/m/HtrgGAT_layer_ST22/MatMul",
+    "/m/HtrgGAT_layer_ST22/MatMul_1",
+    "/m/HtrgGAT_layer_ST22/MatMul_2",
+    "/m/HtrgGAT_layer_ST22/MatMul_3",
+    "/m/HtrgGAT_layer_ST22/MatMul_4",
+    "/m/HtrgGAT_layer_ST22/Reshape",
+    "/m/HtrgGAT_layer_ST22/Reshape_1",
+    "/m/HtrgGAT_layer_ST22/Reshape_2",
+    "/m/HtrgGAT_layer_ST22/Reshape_3",
+    "/m/HtrgGAT_layer_ST22/ScatterND",
+    "/m/HtrgGAT_layer_ST22/ScatterND_1",
+    "/m/HtrgGAT_layer_ST22/ScatterND_2",
+    "/m/HtrgGAT_layer_ST22/ScatterND_3"
+  ]
+}
