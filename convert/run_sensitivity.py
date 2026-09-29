@@ -121,6 +121,11 @@ class Model:
         if out.is_file():
             print(f"= {out.relative_to(REPO)} exists, not re-scored")
             return
+        from select_recipe import not_int8
+        if not_int8(run_dir, self.name):
+            print(f"= {run}: no Q/DQ ops left (an fp32 graph), so it is not scored as int8; "
+                  "select_recipe.py records it as no_int8_ops")
+            return
         args = [REPO / "score_onnx.py", "--onnx", run_dir / f"{self.name}_int8.onnx",
                 "--model", self.name, "--dataset", dataset, "--precision", "int8",
                 "--runtime", "ort", "--out", out]

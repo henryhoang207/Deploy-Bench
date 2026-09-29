@@ -79,6 +79,15 @@ def ledger_index(path: Path) -> dict:
     return idx
 
 
+def not_int8(run_dir: Path, model: str) -> bool:
+    """True when ptq.py's sidecar says the artifact has no Q/DQ ops at all."""
+    side = run_dir / f"{model}_int8_ptq_log.json"
+    if not side.is_file():
+        return False
+    s = json.loads(side.read_text(encoding="utf-8"))
+    return s.get("n_quantize_linear") == 0 and s.get("n_dequantize_linear") == 0
+
+
 def evaluate(key, run_dir: Path, ledger, want_ids, model, fp32_eer, expect_k=None):
     e = ledger.get(key)
     if e is None:
@@ -92,6 +101,13 @@ def evaluate(key, run_dir: Path, ledger, want_ids, model, fp32_eer, expect_k=Non
                          f"frozen plan says K={expect_k}")
     if e["outcome"] != "ok":
         row.update(error=e.get("error"), qualifies=False)
+        return row
+    if not_int8(run_dir, model):
+        # Excluding every quantized node leaves an fp32 graph (tssdnet r12,
+        # 2026-09-29). It is not an int8 artifact, so it cannot meet an int8
+        # budget. score_onnx.py refuses to label it int8, so there are no scores.
+        row.update(outcome="no_int8_ops", qualifies=False,
+                   note="conversion left no QuantizeLinear/DequantizeLinear: an fp32 graph")
         return row
     scores_path = run_dir / "scores_diag.csv"
     if not scores_path.is_file():

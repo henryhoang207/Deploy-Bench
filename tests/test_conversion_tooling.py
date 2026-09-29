@@ -415,3 +415,21 @@ def test_driver_refuses_quantization_without_a_passing_parity_report(tmp_path):
     m.parity.write_text(json.dumps({"pass": False}))
     with pytest.raises(SystemExit, match="parity"):
         rsd.step_r01(m)
+
+
+def test_attempt_that_left_no_int8_ops_is_recorded_not_scored(sel):
+    tmp, ids, labels, diag, v = sel
+    plan = _plan(tmp, diag, [0, 5])
+    with open(tmp / "ledger.jsonl", "w") as f:
+        _ledger_line(f, "r01", 100, 0)
+        _ledger_line(f, "r02", 100, 5)
+    _write_scores(tmp / "runs" / "r01" / "scores_diag.csv", ids, labels, v[3.0])
+    (tmp / "runs" / "r02").mkdir(parents=True)
+    (tmp / "runs" / "r02" / "m_int8_ptq_log.json").write_text(
+        json.dumps({"n_quantize_linear": 0, "n_dequantize_linear": 0}))
+    r, out = _select(tmp, "search", "--plan", str(plan), "--ledger",
+                     str(tmp / "ledger.jsonl"), "--runs-root", str(tmp / "runs"))
+    assert r.returncode == 0, r.stderr
+    by = {x["recipe_id"]: x for x in out["attempts"]}
+    assert by["r02"]["outcome"] == "no_int8_ops" and by["r02"]["qualifies"] is False
+    assert out["locked_recipe"] is None
