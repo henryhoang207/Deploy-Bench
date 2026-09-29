@@ -24,9 +24,19 @@ def precision_label(n_excluded: int) -> str:
     return "int8" if n_excluded == 0 else f"int8-mixed (K={n_excluded})"
 
 
+class NotInt8(ValueError):
+    pass
+
+
 def label_from_sidecar(sidecar: dict) -> str:
     """Label from a ptq sidecar. Sidecars written before D38 have no
-    n_fp32_excluded; their excluded_nodes list gives the same K."""
+    n_fp32_excluded; their excluded_nodes list gives the same K.
+
+    An artifact with no QuantizeLinear/DequantizeLinear at all is an fp32 graph
+    whatever its exclusion count says (tssdnet r12 kept all 37 ranked nodes in
+    fp32 and its sidecar was written as "int8-mixed (K=37)"). Refuse to label it int8."""
+    if sidecar.get("n_quantize_linear") == 0 and sidecar.get("n_dequantize_linear") == 0:
+        raise NotInt8("artifact has no Q/DQ ops: it is an fp32 graph, not int8")
     if "n_fp32_excluded" in sidecar:
         k = sidecar["n_fp32_excluded"]
         if "excluded_nodes" in sidecar and len(sidecar["excluded_nodes"]) != k:

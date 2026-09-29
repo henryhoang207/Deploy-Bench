@@ -22,10 +22,10 @@ MODELS = ("aasist", "aasist_l", "rawnet2", "tssdnet")
 
 
 def auc(s, y):
+    """Mann-Whitney AUC with tie-averaged ranks (ITW has a few hundred tied scores)."""
+    from scipy.stats import rankdata
     b, sp = s[y == 1], s[y == 0]
-    order = np.argsort(np.concatenate([b, sp]), kind="mergesort")
-    ranks = np.empty(len(order))
-    ranks[order] = np.arange(1, len(order) + 1)
+    ranks = rankdata(np.concatenate([b, sp]))
     return (ranks[: len(b)].sum() - len(b) * (len(b) + 1) / 2) / (len(b) * len(sp))
 
 

@@ -507,3 +507,19 @@ def test_calib_chunk_is_refused_for_minmax(calib):
     tmp, model, wavs, man = calib
     r = _ptq(tmp, model, wavs, man, "c3", "--calib-chunk", "4")
     assert r.returncode != 0 and "only to percentile" in r.stderr
+
+
+def test_an_artifact_without_qdq_ops_is_never_labelled_int8():
+    side = {"n_quantize_linear": 0, "n_dequantize_linear": 0, "n_fp32_excluded": 37,
+            "excluded_nodes": [f"n{i}" for i in range(37)]}
+    with pytest.raises(artifacts.NotInt8):
+        artifacts.label_from_sidecar(side)
+
+
+def test_ptq_labels_an_all_excluded_run_as_fp32(calib):
+    tmp, model, wavs, man = calib
+    r = _ptq(tmp, model, wavs, man, "all_ex", "--exclude-nodes", "unsq,conv_a,relu,conv_b,mean")
+    assert r.returncode == 0, r.stderr[-2000:]
+    side = json.loads((tmp / "all_ex" / "tiny_int8_ptq_log.json").read_text())
+    assert side["n_quantize_linear"] == side["n_dequantize_linear"] == 0
+    assert side["precision_label"] == "none: fp32 graph (no Q/DQ ops)"

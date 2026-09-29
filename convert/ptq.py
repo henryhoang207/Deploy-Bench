@@ -171,6 +171,9 @@ def main():
     log.update(meta)
     log.update(outcome="ok", elapsed_s=round(time.time() - t0, 1),
                finished=utc_now(), dst_sha256=artifact_hashes(dst))
+    if log["n_quantize_linear"] == 0 and log["n_dequantize_linear"] == 0:
+        # Every quantizable node excluded: the "int8" artifact is an fp32 graph.
+        log["precision_label"] = "none: fp32 graph (no Q/DQ ops)"
     sidecar = Path(str(dst).replace(".onnx", "_ptq_log.json"))
     sidecar.write_text(json.dumps(log, indent=2))
     if a.ledger:
