@@ -10,6 +10,19 @@ import time
 from pathlib import Path
 
 
+def ort_smoke(path: Path, input_samples: int) -> None:
+    """Raise unless ONNX Runtime (CPU EP) loads the graph and returns one finite
+    score for a zero waveform. Any exception is logged as the conversion result."""
+    import numpy as np
+    import onnxruntime as ort
+    sess = ort.InferenceSession(str(path), providers=["CPUExecutionProvider"])
+    inp = sess.get_inputs()[0]
+    batch = inp.shape[0] if isinstance(inp.shape[0], int) else 1
+    out = sess.run(None, {inp.name: np.zeros((batch, input_samples), np.float32)})[0]
+    if not np.all(np.isfinite(np.asarray(out, dtype=np.float64))):
+        raise ValueError(f"ORT loads {Path(path).name} but its output is not finite")
+
+
 def export(model_name: str, precision: str, out_dir: Path, checkpoint=None):
     import torch
     import sys
@@ -61,6 +74,11 @@ def export(model_name: str, precision: str, out_dir: Path, checkpoint=None):
                 sidecar.unlink()
                 log["orphan_sidecar_removed_bytes"] = orphan_bytes
         onnx.checker.check_model(m)
+        # The checker is not the runtime. rawnet2 fp16 (2026-09-29) passed
+        # check_model and was logged converts=true, yet ORT refused to load it
+        # (a Cast whose declared output type the fp16 pass changed). "Converts"
+        # means the runtime we ship loads it and runs one inference.
+        ort_smoke(out, spec.input_samples)
         log["converts"] = True
         log["ops"] = sorted({n.op_type for n in m.graph.node})
         # Every file that must actually ship, not just the .onnx: for fp32 the

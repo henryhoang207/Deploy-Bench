@@ -433,3 +433,59 @@ def test_attempt_that_left_no_int8_ops_is_recorded_not_scored(sel):
     by = {x["recipe_id"]: x for x in out["attempts"]}
     assert by["r02"]["outcome"] == "no_int8_ops" and by["r02"]["qualifies"] is False
     assert out["locked_recipe"] is None
+
+
+# ---- DEV-1 percentile arm ------------------------------------------------------
+CS_RESULTS = REPO / "results" / "phase_2_conversion_app" / "conversion_sensitivity"
+
+
+@pytest.mark.parametrize("model,expect_n,dropped", [
+    ("tssdnet", 11, ["r12"]),      # r12 = all 37 ranked nodes -> no int8 possible
+    ("aasist", 12, []),
+    ("aasist_l", 12, []),
+    ("rawnet2", 12, []),
+])
+def test_percentile_plan_reuses_the_frozen_exclusions(model, expect_n, dropped):
+    import run_sensitivity as rsd
+    base = json.loads((CS_RESULTS / f"search_plan_{model}.json").read_text())
+    plan = rsd.derive_percentile_plan(base)
+    assert len(plan["attempts"]) == expect_n and plan["dropped_attempts"] == dropped
+    kept = [t for t in base["attempts"] if t["recipe_id"] not in dropped]
+    for p, b in zip(plan["attempts"], kept):
+        assert p["calib_method"] == "percentile"
+        assert p["exclude_nodes"] == b["exclude_nodes"]
+        assert p["base_recipe_id"] == b["recipe_id"]
+    assert plan["diag_ids_sha256"] == base["diag_ids_sha256"]
+    assert plan["ranking"] == base["ranking"]
+
+
+def test_percentile_arm_paths_never_touch_the_registered_arm():
+    import run_sensitivity as rsd
+    reg, dev = rsd.Model("rawnet2"), rsd.Model("rawnet2", arm="percentile")
+    for attr in ("dir", "ledger", "plan", "selection", "canonical", "repeatability"):
+        assert getattr(reg, attr) != getattr(dev, attr), attr
+    assert reg.parity == dev.parity            # both arms quantize the same export
+
+
+# ---- to_onnx: "converts" means ORT loads and runs it ---------------------------
+def test_ort_smoke_accepts_a_good_graph_and_rejects_an_unloadable_one(tmp_path):
+    from onnx import TensorProto, helper
+    to_onnx = __import__("to_onnx")
+    good = tmp_path / "good.onnx"
+    _tiny_model(good)
+    to_onnx.ort_smoke(good, N)
+    # Cast declares FLOAT16 output but its `to` says FLOAT: onnx.checker accepts it,
+    # ORT refuses to load it (the rawnet2 fp16 failure, 2026-09-29).
+    g = helper.make_graph(
+        [helper.make_node("Cast", ["waveform"], ["c"], to=TensorProto.FLOAT),
+         helper.make_node("ReduceMean", ["c"], ["score"], axes=[1], keepdims=0)],
+        "bad", [helper.make_tensor_value_info("waveform", TensorProto.FLOAT, [1, N])],
+        [helper.make_tensor_value_info("score", TensorProto.FLOAT, [1])],
+        value_info=[helper.make_tensor_value_info("c", TensorProto.FLOAT16, [1, N])])
+    m = helper.make_model(g, opset_imports=[helper.make_opsetid("", 17)])
+    m.ir_version = 8
+    onnx.checker.check_model(m)
+    bad = tmp_path / "bad.onnx"
+    onnx.save(m, str(bad))
+    with pytest.raises(Exception):
+        to_onnx.ort_smoke(bad, N)

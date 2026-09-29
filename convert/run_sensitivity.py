@@ -49,6 +49,9 @@ PARITY_MANIFEST = REPO / "configs" / "parity_manifest_tssdnet.txt"   # model-ind
 TAUS = REPO / "results" / "phase_1_reproduction" / "tau_{model}.json"
 SEEDS = (1, 2, 3, 4, 5)
 RANKED = ("aasist", "aasist_l", "rawnet2", "tssdnet")     # D35 scope; XLS-R excluded
+# "minmax" is the registered arm (D39 as frozen). "percentile" is DEV-1 in
+# DEVIATIONS.md: post-hoc, exploratory, never replaces a registered result.
+ARMS = ("minmax", "percentile")
 
 
 def py(*args):
@@ -66,22 +69,30 @@ def must(*args):
 
 
 class Model:
-    def __init__(self, name: str, checkpoint=None):
+    def __init__(self, name: str, checkpoint=None, arm: str = "minmax"):
         if name not in RANKED:
             raise SystemExit(f"{name} is outside the D35 scope {RANKED}")
+        if arm not in ARMS:
+            raise SystemExit(f"unknown arm {arm!r}; known: {ARMS}")
         from deploybench.data import DATA_ROOT, REGISTRY
         from models.base import SPECS
         self.name = name
+        self.arm = arm
         self.checkpoint = checkpoint
         self.n = SPECS[name].input_samples
         self.dev_flac = DATA_ROOT / REGISTRY["asvspoof19_dev"][0] / "flac"
         self.fp32 = REPO / "exports" / f"{name}_fp32.onnx"
-        self.dir = OUT / name
-        self.ledger = OUT / f"ledger_{name}.jsonl"
-        self.plan = OUT / f"search_plan_{name}.json"
-        self.selection = OUT / f"selection_{name}.json"
-        self.canonical = OUT / f"canonical_{name}.json"
-        self.parity = self.dir / "parity_report_fp32_conversion.json"
+        base = OUT / name
+        # The fp32 export gate is shared: both arms quantize the same export.
+        self.parity = base / "parity_report_fp32_conversion.json"
+        self.base_plan = OUT / f"search_plan_{name}.json"
+        sfx = "" if arm == "minmax" else f"_{arm}"
+        self.dir = base if arm == "minmax" else base / arm
+        self.ledger = OUT / f"ledger_{name}{sfx}.jsonl"
+        self.plan = OUT / f"search_plan_{name}{sfx}.json"
+        self.selection = OUT / f"selection_{name}{sfx}.json"
+        self.canonical = OUT / f"canonical_{name}{sfx}.json"
+        self.repeatability = OUT / f"repeatability_{name}{sfx}.json"
 
     def need_checkpoint(self):
         if not self.checkpoint or not Path(self.checkpoint).is_file():
@@ -205,10 +216,47 @@ def step_rank(m: Model):
          "--out", m.plan)
 
 
+def derive_percentile_plan(base: dict) -> dict:
+    """DEV-1: the registered plan's exclusion lists, unchanged and in the same order
+    (the ranking is NOT recomputed), with calib_method=percentile. An attempt that
+    excludes every ranked node is dropped: it cannot yield an int8 graph (tssdnet r12)."""
+    n_ranked = len(base["ranking"])
+    atts = [t for t in base["attempts"] if t["n_fp32_excluded"] < n_ranked]
+    plan = {k: base[k] for k in ("model", "diag_manifest", "diag_ids_sha256",
+                                  "search_calibration_manifest",
+                                  "search_calibration_ids_sha256", "budget",
+                                  "selection_rule", "ranking")}
+    plan.update(
+        design="DEVIATIONS.md DEV-1: post-hoc exploratory percentile-calibration arm",
+        derived_from=base["frozen"], base_r01_sha256=base["r01_sha256"],
+        dropped_attempts=[t["recipe_id"] for t in base["attempts"]
+                          if t["n_fp32_excluded"] >= n_ranked],
+        attempts=[{"recipe_id": f"p{j:02d}", "role": f"percentile, {t['role']}",
+                   "base_recipe_id": t["recipe_id"], "calib_method": "percentile",
+                   "exclude_nodes": t["exclude_nodes"],
+                   "n_fp32_excluded": t["n_fp32_excluded"]}
+                  for j, t in enumerate(atts, start=1)])
+    return plan
+
+
+def step_derive(m: Model):
+    if m.plan.is_file():
+        print(f"= {m.plan.relative_to(REPO)} is frozen")
+        return
+    import time
+    base = json.loads(m.base_plan.read_text(encoding="utf-8"))
+    plan = derive_percentile_plan(base)
+    plan["frozen"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    m.plan.write_text(json.dumps(plan, indent=2) + "\n", encoding="utf-8")
+    print(f"froze {len(plan['attempts'])} percentile attempts for {m.name} "
+          f"(dropped {plan['dropped_attempts'] or 'none'}) -> {m.plan.relative_to(REPO)}")
+
+
 def step_search(m: Model):
     gate(m)
     plan = json.loads(m.plan.read_text(encoding="utf-8"))
-    for t in plan["attempts"][1:]:
+    # r01 (minmax arm) is already logged by step_r01, so convert() skips it.
+    for t in plan["attempts"]:
         e = m.convert(t["recipe_id"], 100, SEARCH_MAN, t["recipe_id"],
                       t["calib_method"], t["exclude_nodes"])
         if e["outcome"] == "ok":
@@ -261,22 +309,32 @@ def step_canonical(m: Model):
             if set(sa) != set(sb):
                 raise SystemExit(f"{name}: seed 1 and its rebuild scored different utterances")
             rep[f"{name}_max_abs_diff"] = max(abs(sa[u] - sb[u]) for u in sa)
-    (OUT / f"repeatability_{m.name}.json").write_text(json.dumps(rep, indent=2) + "\n")
+    m.repeatability.write_text(json.dumps(rep, indent=2) + "\n")
     print(json.dumps(rep, indent=2))
 
 
-STEPS = {"export": step_export, "parity": step_parity, "r01": step_r01, "rank": step_rank, "search": step_search,
-         "select": step_select, "repeats": step_repeats, "canonical": step_canonical}
+STEPS = {"export": step_export, "parity": step_parity, "r01": step_r01, "rank": step_rank,
+         "derive": step_derive, "search": step_search, "select": step_select,
+         "repeats": step_repeats, "canonical": step_canonical}
+ORDER = {"minmax": ["export", "parity", "r01", "rank", "search", "select", "repeats",
+                    "canonical"],
+         "percentile": ["derive", "search", "select", "repeats", "canonical"]}
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", required=True)
     ap.add_argument("--checkpoint", default=None)
+    ap.add_argument("--arm", default="minmax", choices=ARMS,
+                    help="minmax = registered D39 arm; percentile = DEVIATIONS.md DEV-1")
     ap.add_argument("step", choices=list(STEPS) + ["all"])
     a = ap.parse_args()
-    m = Model(a.model, a.checkpoint)
-    for name in (list(STEPS) if a.step == "all" else [a.step]):
+    m = Model(a.model, a.checkpoint, a.arm)
+    steps = ORDER[a.arm] if a.step == "all" else [a.step]
+    bad = [s for s in steps if s not in ORDER[a.arm]]
+    if bad:
+        raise SystemExit(f"step(s) {bad} do not belong to the {a.arm} arm: {ORDER[a.arm]}")
+    for name in steps:
         print(f"\n=== {m.name}: {name} ===", flush=True)
         STEPS[name](m)
 
