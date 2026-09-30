@@ -101,18 +101,26 @@ def load_wav(path: Path, target_sr: int = 16000, _retries: int = 4) -> np.ndarra
     return wave
 
 
-def check_condition(dataset, condition, native):
+def check_condition(dataset, condition, native, stressed=False):
     """`condition` is a LABEL: nothing in the scorers transforms audio. Dataset
     mode reads the clean protocol audio (DF21 writes its native per-row codec),
-    so any other label would describe audio that was never scored. Stressed
-    audio (deploybench/stress.py) is not wired into the scorers yet."""
+    so any other label would describe audio that was never scored. With
+    --stress-manifest the audio IS the stress.py output for that condition, and
+    deploybench.stress.iter_stressed validates condition, source and files."""
+    if stressed:
+        if not dataset:
+            raise SystemExit("--stress-manifest needs --dataset (the source protocol, for labels)")
+        if native is not None:
+            raise SystemExit(f"--dataset {dataset} carries native per-trial conditions; "
+                             "it is not a stress source")
+        return
     if dataset and condition != "clean":
         raise SystemExit(
             f"refusing --condition {condition!r}: --dataset {dataset} reads the "
             "clean protocol audio"
             + (" and writes its native per-utterance condition"
                if native is not None else "")
-            + ". Stressed audio is not wired into the scorers, so this label "
+            + ". Stressed audio is scored only through --stress-manifest; this label "
             "would describe audio that was never scored.")
 
 
@@ -129,6 +137,10 @@ def read_manifest(path):
 
 
 def iter_utts(args):
+    if getattr(args, "stress_manifest", None):
+        from deploybench.stress import iter_stressed
+        yield from iter_stressed(args.stress_manifest, args.dataset, args.condition)
+        return
     if args.wav_dir:
         for p in sorted(Path(args.wav_dir).glob("**/*")):
             if p.suffix.lower() in (".wav", ".flac"):
@@ -164,6 +176,9 @@ def main():
     ap.add_argument("--precision", default="fp32")
     ap.add_argument("--runtime", default="pytorch")
     ap.add_argument("--condition", default="clean")
+    ap.add_argument("--stress-manifest", default=None,
+                    help="stress.py manifest: score the --condition rows of it, labels "
+                         "joined from --dataset (H5 path)")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--limit", type=int, default=None,
                     help="score only the first N utterances (smoke tests only "
@@ -181,7 +196,9 @@ def main():
             "Converted models are scored by score_onnx.py.")
     from deploybench.data import native_conditions
     native = native_conditions(args.dataset) if args.dataset else None
-    check_condition(args.dataset, args.condition, native)
+    if args.stress_manifest and (args.manifest or args.wav_dir):
+        raise SystemExit("--stress-manifest excludes --manifest and --wav-dir")
+    check_condition(args.dataset, args.condition, native, bool(args.stress_manifest))
 
     from models.base import load_model, SPECS
     model = load_model(args.model, args.checkpoint, args.device)

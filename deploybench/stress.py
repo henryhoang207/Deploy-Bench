@@ -1,7 +1,12 @@
 """Channel stress suite: deterministic transcode/noise/IR condition generator.
 
     python -m deploybench.stress --in wavs/ --out stressed/ --conditions opus6k mp3_32
+    python -m deploybench.stress --dataset asvspoof19_eval --ids ids.txt --out st/         --conditions clean encodec6k          # H5 path: labelled, scorable manifest
     python -m deploybench.stress --list
+
+Scoring a stress set: score.py / score_onnx.py --dataset <source> --stress-manifest
+<out>/manifest.csv --condition <cond>. Labels come from the source protocol
+(iter_stressed); a folder-mode manifest has no source and is refused.
 
 Design rules (protocol §5 + methodology):
 - TRAIN_CONDITIONS (any head-retraining augmentation) and EVAL_CONDITIONS are
@@ -31,11 +36,28 @@ CODEC_CONDITIONS = {k for k, v in EVAL_CONDITIONS.items() if v is not None}
 
 
 import functools
+import os
+
+
+@functools.lru_cache(maxsize=None)
+def ffmpeg_exe() -> str:
+    """$FFMPEG, else ffmpeg on PATH, else imageio-ffmpeg's bundled binary (sol1 has
+    no system ffmpeg). Refuses if none exists."""
+    exe = os.environ.get("FFMPEG") or shutil.which("ffmpeg")
+    if not exe:
+        try:
+            import imageio_ffmpeg
+            exe = imageio_ffmpeg.get_ffmpeg_exe()
+        except Exception:                                       # noqa: BLE001
+            exe = None
+    if not exe:
+        raise RuntimeError("no ffmpeg: set $FFMPEG, put ffmpeg on PATH, or install imageio-ffmpeg")
+    return exe
 
 
 @functools.lru_cache(maxsize=None)
 def has_encoder(name: str) -> bool:
-    out = subprocess.run(["ffmpeg", "-encoders"], capture_output=True,
+    out = subprocess.run([ffmpeg_exe(), "-hide_banner", "-encoders"], capture_output=True,
                          text=True).stdout
     return name in out
 
@@ -44,9 +66,9 @@ def _ffmpeg_roundtrip(src: Path, dst: Path, codec_args: list[str],
                       ext: str = ".ogg") -> None:
     """src -> codec (native container) -> back to 16 kHz mono PCM wav."""
     tmp = dst.with_suffix(".codec" + ext)
-    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(src),
+    subprocess.run([ffmpeg_exe(), "-y", "-loglevel", "error", "-i", str(src),
                     *codec_args, str(tmp)], check=True)
-    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(tmp),
+    subprocess.run([ffmpeg_exe(), "-y", "-loglevel", "error", "-i", str(tmp),
                     "-ar", "16000", "-ac", "1", "-c:a", "pcm_s16le", str(dst)],
                    check=True)
     tmp.unlink()
@@ -158,9 +180,80 @@ def apply_condition(src: Path, dst: Path, condition: str,
                          f"(train-only conditions {TRAIN_CONDITIONS} are barred here)")
 
 
+MANIFEST_COLS = ("utt_id", "condition", "path", "source_dataset")
+# Stressing audio that already carries a native per-trial condition (DF21's codecs) would
+# stack two channels under one label; stress sources must be clean protocol audio.
+NO_STRESS_SOURCES = {"asvspoof21_df_eval", "asvspoof21_df_eval_clean"}
+
+
+def iter_stressed(manifest, dataset: str, condition: str, root=None):
+    """Yield (utt_id, stressed_path, label) for the `condition` rows of a stress.py
+    manifest, in manifest order, with labels joined from `dataset`'s protocol (the
+    manifest carries no labels, so there is one source of truth). Refuses anything
+    it cannot honour: a train-only or unknown condition, a manifest from another
+    source, no rows for the condition, a duplicate or unknown utt_id, a missing file."""
+    import csv
+    from deploybench.data import protocol_iter
+    if condition in TRAIN_CONDITIONS:
+        raise ValueError(f"{condition!r} is a train-only augmentation condition; "
+                         "it is barred from evaluation")
+    if condition != "clean" and condition not in EVAL_CONDITIONS:
+        raise ValueError(f"unknown stress condition {condition!r}")
+    if dataset in NO_STRESS_SOURCES:
+        raise ValueError(f"{dataset} carries native per-trial codecs; it is not a stress source")
+    with open(manifest, newline="", encoding="utf-8") as f:
+        rd = csv.DictReader(f)
+        if tuple(rd.fieldnames or ()) != MANIFEST_COLS:
+            raise ValueError(f"{manifest}: columns {rd.fieldnames}, expected {MANIFEST_COLS} "
+                             "(regenerate with `stress.py --dataset`; folder-mode manifests "
+                             "have no source dataset and cannot be labelled)")
+        rows = [r for r in rd if r["condition"] == condition]
+    if not rows:
+        raise ValueError(f"{manifest}: no rows for condition {condition!r}")
+    src = {r["source_dataset"] for r in rows}
+    if src != {dataset}:
+        raise ValueError(f"{manifest}: rows come from {sorted(src)}, not {dataset!r}")
+    labels = {u: lab for u, _p, lab in protocol_iter(dataset, root)}
+    seen = set()
+    for r in rows:
+        u = r["utt_id"]
+        if u in seen:
+            raise ValueError(f"{manifest}: duplicate {u} under {condition!r}")
+        seen.add(u)
+        if u not in labels:
+            raise ValueError(f"{manifest}: {u} is not in the {dataset} protocol")
+        p = Path(r["path"])
+        if not p.is_file():
+            raise FileNotFoundError(f"{manifest}: stressed file missing: {p}")
+        yield u, p, labels[u]
+
+
+def _provenance(args, conditions, ids) -> dict:
+    import datetime
+    import hashlib as _h
+    prov = {"created": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
+            "source_dataset": args.dataset, "n_utts": len(ids),
+            "ids_sha256": _h.sha256("\n".join(ids).encode()).hexdigest(),
+            "conditions": list(conditions), "musan": args.musan, "ir": args.ir}
+    try:
+        prov["ffmpeg"] = subprocess.run([ffmpeg_exe(), "-version"], capture_output=True,
+                                        text=True).stdout.splitlines()[0]
+    except Exception as e:                                      # noqa: BLE001
+        prov["ffmpeg"] = f"unavailable: {e}"
+    if "encodec6k" in conditions:
+        import importlib.metadata as md
+        prov["encodec"] = md.version("encodec")
+    return prov
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--in", dest="src", help="input wav folder")
+    ap.add_argument("--in", dest="src", help="input wav folder (unlabelled; cannot be scored)")
+    ap.add_argument("--dataset", default=None,
+                    help="stress this protocol's audio instead of a folder; the manifest "
+                         "records it so the scorers can join labels (H5 path)")
+    ap.add_argument("--ids", default=None,
+                    help="with --dataset: utt_id list (one per line) selecting the subset")
     ap.add_argument("--out", dest="out", help="output root (per-condition subdirs)")
     ap.add_argument("--conditions", nargs="+", default=list(EVAL_CONDITIONS))
     ap.add_argument("--musan", default=None)
@@ -171,22 +264,53 @@ def main():
         print("eval:", ", ".join(EVAL_CONDITIONS))
         print("train-only (aug):", ", ".join(TRAIN_CONDITIONS))
         return
-    src_files = sorted(Path(args.src).glob("**/*.wav")) + \
-        sorted(Path(args.src).glob("**/*.flac"))
+    bad = [c for c in args.conditions if c != "clean" and c not in EVAL_CONDITIONS]
+    if bad:
+        raise SystemExit(f"not evaluation conditions: {bad} (train-only: {sorted(TRAIN_CONDITIONS)})")
+    out = Path(args.out)
+    mpath = out / "manifest.csv"
+    if mpath.exists():
+        raise SystemExit(f"{mpath} exists: a stress set is generated once; use a new --out")
+    if bool(args.src) == bool(args.dataset):
+        raise SystemExit("give exactly one of --in (folder) or --dataset (protocol)")
+    if args.dataset:
+        if args.dataset in NO_STRESS_SOURCES:
+            raise SystemExit(f"{args.dataset} carries native per-trial codecs; not a stress source")
+        from deploybench.data import protocol_iter
+        index = {u: p for u, p, _lab in protocol_iter(args.dataset)}
+        if args.ids:
+            from deploybench.manifests import read_ids
+            ids = read_ids(Path(args.ids))
+            miss = [u for u in ids if u not in index]
+            if miss:
+                raise SystemExit(f"{len(miss)} ids not in {args.dataset} (first {miss[:3]})")
+        else:
+            ids = list(index)
+        sources = [(u, Path(index[u])) for u in ids]
+    else:
+        sources = [(f.stem, f) for f in sorted(Path(args.src).glob("**/*.wav")) +
+                   sorted(Path(args.src).glob("**/*.flac"))]
     manifest = []
     for cond in args.conditions:
-        for f in src_files:
-            dst = Path(args.out) / cond / (f.stem + ".wav")
+        for u, f in sources:
+            # "clean" is a byte copy, so it keeps the source container (a FLAC renamed
+            # .wav would misdescribe the file); every other condition writes 16 kHz wav.
+            dst = out / cond / (u + (f.suffix if cond == "clean" else ".wav"))
             apply_condition(f, dst, cond,
                             musan_dir=Path(args.musan) if args.musan else None,
                             ir_dir=Path(args.ir) if args.ir else None)
-            manifest.append((f.stem, cond, str(dst)))
-        print(f"[{cond}] {len(src_files)} files")
-    mpath = Path(args.out) / "manifest.csv"
-    with open(mpath, "w") as f:
-        f.write("utt_id,condition,path\n")
-        for row in manifest:
-            f.write(",".join(row) + "\n")
+            manifest.append((u, cond, str(dst), args.dataset or ""))
+        print(f"[{cond}] {len(sources)} files")
+    import csv
+    out.mkdir(parents=True, exist_ok=True)
+    with open(mpath, "w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        w.writerow(MANIFEST_COLS)
+        w.writerows(manifest)
+    if args.dataset:
+        import json
+        (out / "manifest.json").write_text(json.dumps(
+            _provenance(args, args.conditions, [u for u, _ in sources]), indent=2) + "\n")
     print(f"manifest -> {mpath}")
 
 

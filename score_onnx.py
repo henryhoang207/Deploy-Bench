@@ -57,6 +57,9 @@ def main():
     ap.add_argument("--precision", default="fp32")
     ap.add_argument("--runtime", default="onnx")
     ap.add_argument("--condition", default="clean")
+    ap.add_argument("--stress-manifest", default=None,
+                    help="stress.py manifest: score the --condition rows of it, labels "
+                         "joined from --dataset (H5 path)")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--progress", type=int, default=0)
     ap.add_argument("--intra-threads", type=int, default=0,
@@ -72,7 +75,9 @@ def main():
                          f"scores precision={a.precision!r}")
     from deploybench.data import native_conditions
     native = native_conditions(a.dataset) if a.dataset else None
-    check_condition(a.dataset, a.condition, native)
+    if a.stress_manifest and (a.manifest or a.wav_dir):
+        raise SystemExit("--stress-manifest excludes --manifest and --wav-dir")
+    check_condition(a.dataset, a.condition, native, bool(a.stress_manifest))
 
     import onnxruntime as ort
     from models.base import SPECS
@@ -102,6 +107,10 @@ def main():
         a.batch = inp.shape[0]
 
     def utts():
+        if a.stress_manifest:
+            from deploybench.stress import iter_stressed
+            yield from iter_stressed(a.stress_manifest, a.dataset, a.condition)
+            return
         if a.wav_dir:
             for p in sorted(Path(a.wav_dir).glob("**/*")):
                 if p.suffix.lower() in (".wav", ".flac"):

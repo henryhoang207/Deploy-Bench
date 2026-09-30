@@ -7,8 +7,8 @@ cell would have been PyTorch fp32 scores in disguise.
   pytorch     -> score.py       (fp32 only)
   ort | onnx  -> score_onnx.py  on cfg['onnx'] or exports/<model>_<precision>.onnx
   executorch  -> refused: no .pte scorer exists (OD-4)
-Non-clean conditions are refused as well: stressed audio is not wired into the
-scorers, so forwarding the label would score clean audio as stressed.
+A non-clean condition needs `stress_manifest` (deploybench/stress.py output); without
+it the label would describe clean audio, so the cell is refused.
 """
 import argparse
 import subprocess
@@ -30,13 +30,18 @@ def build_cmd(cfg: dict) -> list:
     missing = [k for k in REQUIRED if k not in cfg]
     if missing:
         raise Refused(f"config lacks required keys {missing}")
-    if cfg["condition"] != "clean":
-        raise Refused(f"condition {cfg['condition']!r}: stressed audio is not wired "
-                      "into the scorers (deploybench/stress.py output is unused)")
+    stress = cfg.get("stress_manifest")
+    if cfg["condition"] != "clean" and not stress:
+        raise Refused(f"condition {cfg['condition']!r} needs a stress_manifest (the "
+                      "deploybench/stress.py output); without one the scorer would read "
+                      "clean audio under a stress label")
+    if stress and not Path(stress).is_file():
+        raise Refused(f"stress_manifest {stress} does not exist; generate it with "
+                      "deploybench/stress.py --dataset")
     common = ["--model", cfg["model"], "--dataset", cfg["dataset"],
               "--out", cfg["out"], "--precision", cfg["precision"],
               "--runtime", cfg["runtime"], "--condition", cfg["condition"],
-              "--seed", str(cfg["seed"])]
+              "--seed", str(cfg["seed"])] + (["--stress-manifest", str(stress)] if stress else [])
     rt = cfg["runtime"]
     if rt == "pytorch":
         if cfg["precision"] != "fp32":
