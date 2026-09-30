@@ -61,3 +61,26 @@ Res-TSSDNet.
 - The already-derived `search_plan_<model>_percentile.json` files are unchanged: the chunk
   is not a plan field. The arm now runs **one model at a time**, under a watchdog that
   stops the job if sol1's available memory falls below 15 GB.
+
+## DEV-2 (2026-09-30): H5 source set and test details, specified before any stressed audio exists
+
+**Status:** fills details PREREGISTRATION.md leaves open for the confirmatory H5 ("EnCodec-6k
+stress increases FRR more than FAR relative to clean, for a majority of the 4 ranked
+models"). Decided by the user on 2026-09-30 ("use the parity manifest for H5"). Fixed and
+committed **before** any EnCodec audio was generated or scored, so no H5 result informed it.
+
+- **Source set:** the frozen 1,000-clip 19LA-eval parity manifest
+  (`configs/parity_manifest_tssdnet.txt`, 500 bona fide + 500 spoof, seed 20260725, ids sha256
+  `2a3c8964...`). Conditions: `clean` (a byte copy through the same stress path) and
+  `encodec6k` (EnCodec 24 kHz model at 6 kbps, resampled to 16 kHz;
+  `deploybench/stress.py`). The versions are recorded in the stress set's `manifest.json`.
+- **Scoring:** fp32 PyTorch on CPU, each model's reproduction checkpoint, through
+  `score.py --stress-manifest` for both conditions. The precision axis is not part of H5.
+- **Test (per ranked model):** at the frozen tau_eer, dFRR = FRR(encodec6k) - FRR(clean) and
+  dFAR = FAR(encodec6k) - FAR(clean). The statistic is dFRR - dFAR. Clips are resampled with a
+  class-stratified paired bootstrap: the same resampled clip ids feed both conditions.
+  B = 1,000, numpy default_rng(0). One-sided p = fraction of resamples with
+  dFRR - dFAR <= 0. Holm-Bonferroni within the H5 family (4 models), alpha 0.05. H5 is
+  supported if >= 3 of the 4 ranked models reject. Script: `analysis/h5_test.py`.
+- **Scale caveat, to be stated with the result:** 500 clips per class give coarse FRR/FAR
+  steps (0.2 pp), so small effects will not reach significance at this size.

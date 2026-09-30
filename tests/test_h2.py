@@ -37,3 +37,23 @@ def test_bootstrap_is_deterministic():
     s, y = _planted(0.3, 0.3)
     assert np.array_equal(h2_test.frr_far_bootstrap(s, y, 0.0),
                           h2_test.frr_far_bootstrap(s, y, 0.0))
+
+
+# ---- H5 (analysis/h5_test.py), planted data ----------------------------------
+import h5_test  # noqa: E402
+
+
+def test_h5_statistic_and_direction():
+    rng = np.random.default_rng(2)
+    y = np.array([1] * 500 + [0] * 500)
+    clean = np.where(y == 1, 1.0, -1.0)
+    enc = clean.copy()
+    enc[:150] = -1.0                      # 150 bona fide now rejected: dFRR = +0.30
+    enc[500:520] = 1.0                    # 20 spoof now accepted:     dFAR = +0.04
+    ib, isp = np.where(y == 1)[0], np.where(y == 0)[0]
+    dfrr, dfar = h5_test.delta_stat(y, clean, enc, 0.0, ib, isp)
+    assert (round(dfrr, 3), round(dfar, 3)) == (0.3, 0.04)
+    d = h5_test.paired_bootstrap(y, clean, enc, 0.0)
+    assert np.mean(d <= 0) < 0.01
+    d = h5_test.paired_bootstrap(y, enc, clean, 0.0)      # reversed: FAR-side
+    assert np.mean(d <= 0) > 0.99
