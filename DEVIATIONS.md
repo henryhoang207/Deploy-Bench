@@ -84,3 +84,24 @@ committed **before** any EnCodec audio was generated or scored, so no H5 result 
   supported if >= 3 of the 4 ranked models reject. Script: `analysis/h5_test.py`.
 - **Scale caveat, to be stated with the result:** 500 clips per class give coarse FRR/FAR
   steps (0.2 pp), so small effects will not reach significance at this size.
+
+## DEV-3 (2026-09-30): H3 when a ranked model has no int8 artifact
+
+**Status:** a counting rule PREREGISTRATION.md does not state. Decided by the user on
+2026-09-30 ("count models without int8 as not meeting QTS").
+
+- H3: "QTS > 0.01 (1 HTER point) for at least half of (ranked model x int8) cells in-domain;
+  per-cell bootstrap CI excludes 0." In-domain = 19LA eval at 19LA-dev taus (D37).
+- **Rule:** the denominator is all 4 ranked models. A model with no int8 artifact under the
+  registered D39 procedure (AASIST, AASIST-L, Res-TSSDNet) counts as a cell that does **not**
+  meet the criterion. The percentile arm (DEV-1) supplies no H3 cells.
+- **Disclosed consequence:** the rule was chosen after the conversion results were known.
+  With 3 of 4 cells fixed as not meeting it, H3 **cannot be supported** ("at least half" needs
+  2 of 4), whatever RawNet2 shows. It is the conservative reading. The alternative (excluding
+  missing cells) would have let H3 rest on one model.
+- **RawNet2's cell is still computed and reported.** Artifact: the D39 canonical int8-mixed
+  (K=16), r09 seed 2. tau_q = the EER tau of that artifact's scores on the full 19LA dev set
+  (24,844 trials, scored for this purpose). QTS = HTER(eval, tau_fp32 eer) - HTER(eval, tau_q).
+  CI: class-stratified bootstrap of the 71,237 eval trials, taus held fixed, B = 1000, seed 0,
+  2.5/97.5 percentiles. The cell meets the criterion if QTS > 0.01 and the CI lower bound
+  is > 0. Script: `analysis/h3_test.py`, committed before the int8 dev scores existed.
