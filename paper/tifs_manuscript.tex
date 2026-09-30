@@ -108,8 +108,8 @@ benchmarking, mobile.
         \(\{\text{fp32},\text{fp16},\text{int8}\}\) precisions, two runtimes,
         four evaluation sets, and 3 physical phones, with pre-registered
         hypotheses and bootstrap confidence intervals.
-  \item \textbf{Two metrics}: the \emph{threshold transfer gap} (\ttg{}) and the
-        \emph{quantization-induced threshold shift} (\qts{}), the latter not
+  \item \textbf{Two metrics}: the \emph{threshold transfer gap} (\(\ttg\)) and the
+        \emph{quantization-induced threshold shift} (\(\qts\)), the latter not
         previously reported.
   \item \textbf{Deployability guidance}: a per-device-tier decision table and a
         released Android application.
@@ -282,7 +282,7 @@ quantity --- word error rate --- so the effect of quantization on a decision
 \emph{threshold} has never been reported; because recognition has no threshold to
 move, this absence is categorical rather than a matter of coverage. We port the
 measurement discipline of the former and open the metric gap of the latter
-with \qts{}.
+with \(\qts\).
 
 % ============================ 3. PROTOCOL ==================================
 \section{The \bench{} Protocol}
@@ -312,7 +312,7 @@ For a transferred threshold \(\taustar\) on a target set we report
 \(\frr/\far\) decomposition mandatory, alongside the oracle \(\eer\) as
 reference.
 
-\subsection{Threshold transfer gap (\ttg{})}
+\subsection{Threshold transfer gap (\(\ttg\))}
 % D19 candidate: reference term = min-HTER, NOT EER, so TTG is well-defined at
 % all three operating points and is not a renaming of an EER-point identity.
 \begin{equation}
@@ -323,7 +323,7 @@ the excess deployment error from transferring \(\taustar\) rather than an
 oracle-optimal threshold on the target.% At the EER point the reference reduces
 % to EER; we use min-HTER so TTG is defined at frr1/frr5 too. (see D19)
 
-\subsection{Quantization-induced threshold shift (\qts{})}
+\subsection{Quantization-induced threshold shift (\(\qts\))}
 % experiment_protocol.md sec.3.5. Needs BOTH the fp32 tau and the
 % precision-matched tau -> recalibrate tau per precision on dev.
 \begin{equation}
@@ -436,10 +436,10 @@ size + CI only); C = confirmatory (Holm--Bonferroni family).}
 \toprule
 H & Statement & Type \\
 \midrule
-H1 & Oracle EER anti-correlates with \ttg{} (target fixed) & E \\
+H1 & Oracle EER anti-correlates with \(\ttg\) (target fixed) & E \\
 H2 & \(\frr/\far\) asymmetry under transfer & C \\
-H3 & \qts{}: quantization moves the operating point & C \\
-H4 & \ttg{} vs parameter count (85\,K--315\,M) & E \\
+H3 & \(\qts\): quantization moves the operating point & C \\
+H4 & \(\ttg\) vs parameter count (85\,K--315\,M) & E \\
 H5 & Neural-codec (EnCodec) corrupts bona fide & C \\
 H6 & int8 coverage is non-uniform across op classes & C \\
 \bottomrule
@@ -475,46 +475,199 @@ cells are therefore not blind.
 
 \subsection{Deployability (RQ1)}
 \label{sec:res-deploy}
-% Conversion/parity matrix; op-level failure analysis (H6). "N/A -- does not
-% fit" rows for the 315M SSL reference (inference graph 315.4M). This is where
-% the H6 op inventory from the Tier-2 notes lands (ScatterND/topk in AASIST; GRU
-% in RawNet2; SincConv constant-folds; TSSDNet clean control; XLS-R = transformer
-% + grouped weight-normed Conv1d positional embedding + the AASIST back-end. It
-% has NO relative-position-bias gather: that was WavLM's, and WavLM left the
-% roster at D30. Verified in fairseq wav2vec2.py @a5402130, 2026-09-22).
-\placeholder{conversion/parity matrix + op-level failure analysis}
+% Sources: conversion_sensitivity/<m>/parity_report_fp32_conversion.json;
+% main_matrix/README.md (fp16, XLS-R export); conversion_sensitivity/REPORT.md
+% (int8, registered minmax arm); results/analysis/h6.{json,md}.
+Table~\ref{tab:res-conv} summarises what survives conversion. Every ranked
+model exports to fp32 ONNX without behavioural change: on the frozen
+1,000-clip parity manifest the ONNX Runtime scores flip no decision at any of
+the three operating points (maximum absolute score difference
+\(4.3{\times}10^{-6}\) to \(1.7{\times}10^{-4}\)). The unranked SSL reference
+does not export at all: fairseq's padding helper calls a Python-level
+\texttt{is\_integer()} on a value that becomes a tensor under the tracer, so
+with the pinned toolchain (PyTorch~2.5.1, opset~17) XLS-R\,+\,AASIST has no
+ONNX artifact in either precision. We report this as a missing row, not a
+harness error, and did not attempt a workaround. Graph-level fp16 conversion
+succeeds for three models. For RawNet2 it yields a graph that passes the ONNX
+checker but that ONNX Runtime refuses to load: a \texttt{Cast} in the SincConv
+layer keeps a float32 target while its output is declared float16. Our
+exporter originally logged that graph as converted; it now requires the
+runtime to load and execute an artifact before calling it converted.
+
+\begin{table}[!t]
+\caption{Conversion outcomes. fp32: decision flips at
+\(\taustar_{\eer}/\taustar_{\frr1}/\taustar_{\frr5}\) against PyTorch on the
+1,000-clip parity manifest. int8: registered PTQ search (minmax, at most 12
+attempts, D39); \(K\) = layers kept in fp32; budget = +1.0\,pp diagnostic EER.}
+\label{tab:res-conv}
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{llll}
+\toprule
+Model & fp32 ONNX & fp16 & int8 (registered) \\
+\midrule
+AASIST       & 0/0/0 & 0/0/0 & none within budget (best \(K{=}48\): +1.40\,pp) \\
+AASIST-L     & 0/0/0 & 0/0/1 & none within budget (best \(K{=}48\): +1.70\,pp) \\
+RawNet2      & 0/0/0 & unloadable & \(K{=}16\): +0.90\,pp \\
+Res-TSSDNet  & 0/0/0 & 0/0/1 & none within budget (best \(K{=}32\): +2.90\,pp) \\
+XLS-R\,+\,AASIST\textsuperscript{ref} & export fails & export fails & --- \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+Integer quantization is where the roster breaks. Under the registered search
+(ORT static PTQ, per-channel S8S8, minmax calibration on 500 balanced dev
+clips; candidate fp32 exclusions ranked by the fp32-vs-int8 activation damage
+of the default artifact), only RawNet2 reaches the +1.0\,pp budget on the
+held-out 2,000-clip dev subset, by keeping 16 of its 82 quantized nodes in
+fp32. The default recipe costs +5.9, +12.1 and +12.0\,pp of diagnostic EER for
+AASIST, AASIST-L and Res-TSSDNet, and no tested exclusion set recovers it.
+Every Res-TSSDNet attempt flips about 996 of the 2,000 diagnostic decisions
+at \(\taustar_{\eer}\), which indicates a systematic score shift rather than
+lost ranking. \todo{percentile-calibration arm (DEVIATIONS.md DEV-1,
+exploratory): RawNet2 locks at \(K{=}8\), Res-TSSDNet still has no recipe,
+AASIST-L locks p05; AASIST pending. Report beside, never instead of, the
+registered arm.}
+
+\emph{Calibration sensitivity.} For RawNet2 we repeated the locked recipe on
+five independently seeded calibration subsets. All five convert, and an
+identical-manifest rebuild is bit-identical, so conversion itself is
+deterministic. The calibration subset alone moves the 19LA-eval cost from
++0.62 to +2.32\,pp EER, and only two of the five seeds meet the budget on the
+diagnostic subset. The device artifact is the lowest qualifying seed, fixed
+by rule before evaluation. It costs +0.98\,pp on 19LA eval.
+
+\emph{H6 (confirmatory) is not supported.} Its registered primary outcome
+(the smallest tested exclusion set that meets the budget; D36) exists only for
+RawNet2, and that set contains no recurrent node. Its sixteen nodes are the
+SincConv front end, the convolutional blocks, the first batch-norm, the
+batch-norm feeding the GRU and the pooling layers. The GRU cannot appear in any
+exclusion set, because ONNX Runtime leaves it in fp32 by default. The
+prediction's wording therefore could not have been met; we disclose this as a
+defect of the amended hypothesis, not as evidence against a mechanism. The
+converter-coverage view (the secondary outcome) fails where it was most
+specific: ScatterND, TopK, Gather and GatherElements \emph{are} quantized in
+both graph-attention models. It holds for the GRU and for Res-TSSDNet's plain
+convolutions, but full coverage did not make Res-TSSDNet deployable. Within
+these five artifacts, int8 damage tracks the shared raw-waveform front end at
+least as closely as it tracks op class.
 
 \subsection{Operating behavior (RQ2)}
 \label{sec:res-opbehav}
-% TTG headline figure; FRR/FAR heatmap (H2); sensitivity curves; H1 scatter
-% (oracle EER vs TTG); post-hoc calibration failure rows.
-% INTEGRITY GATE (D20): any monotone transform (temperature scaling, z-norm)
-% row reporting non-zero delta-EER is a bug/leak, not a finding (zhou26 Prop 1).
-\placeholder{TTG figure, FRR/FAR heatmap, sensitivity, H1 scatter}
+% Sources: phase_1_reproduction/repro_report_<m>.md (19LA dev->eval);
+% analysis/h1_h4.txt; analysis/h2_test.txt; main_matrix/transfer_matrix.txt.
+Table~\ref{tab:res-ttg} reports, for every model at its frozen
+\(\taustar_{\eer}\), the oracle EER and the threshold transfer gap
+(Eq.~\ref{eq:ttg}) on the source corpus and on both transfer targets.
+Three patterns stand out. First, even the source corpus is not a safe
+harbour: moving from 19LA dev to 19LA eval (seen corpus, unseen attacks) costs
+the graph-attention models more than four HTER points (AASIST +4.18, AASIST-L
++4.64), almost all of it as false acceptance (AASIST eval FAR
+\SI{9.8}{\percent}). Second, the ranking inverts across targets:
+Res-TSSDNet, the weakest ranked model in-domain, separates In-the-Wild best
+(EER \SI{34.2}{\percent}) and DF21 worst (\SI{28.1}{\percent}). The released
+RawNet2 checkpoint is at chance on In-the-Wild (EER \SI{49.0}{\percent},
+AUC 0.51). Third, separability and transferability part ways at the top: the
+SSL reference has the best EER on every set yet the largest TTG on both
+targets (+14.96 and +5.40 points).
+
+\begin{table}[!t]
+\caption{Oracle EER and \(\ttg\) at the frozen \(\taustar_{\eer}\) (fp32,
+percentage points). In-domain = 19LA dev\(\to\)eval. ref = unranked SSL
+reference.}
+\label{tab:res-ttg}
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrrrrrr}
+\toprule
+ & \multicolumn{2}{c}{19LA eval} & \multicolumn{2}{c}{In-the-Wild} & \multicolumn{2}{c}{DF21 verified} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+Model & EER & \(\ttg\) & EER & \(\ttg\) & EER & \(\ttg\) \\
+\midrule
+AASIST      & 0.83 & 4.18 & 43.02 & 2.94 & 14.97 & 0.29 \\
+AASIST-L    & 0.99 & 4.64 & 44.46 & 1.55 & 14.94 & 0.03 \\
+RawNet2     & 4.60 & 1.74 & 49.00 & 5.44 & 19.65 & 0.58 \\
+Res-TSSDNet & 1.62 & 1.58 & 34.17 & 0.73 & 28.09 & 1.82 \\
+XLS-R\,+\,AASIST\textsuperscript{ref} & 0.15 & 0.13 & 10.46 & 14.96 & 1.98 & 5.40 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\emph{H2 (confirmatory) is supported.} On In-the-Wild at
+\(\taustar_{\eer}\), false rejection exceeds false acceptance for three of the
+four ranked models (class-stratified paired bootstrap, \(B{=}1000\),
+Holm--Bonferroni): Res-TSSDNet \(\frr{-}\far = +31.3\)\,pp, AASIST-L +14.1,
+AASIST +1.9 (95\% CI [+0.7, +3.0]); all \(p<0.001\). RawNet2 fails in the
+opposite direction (\(-35.3\)\,pp), consistent with a model that has no
+discrimination on this corpus. The majority rests on AASIST's small margin,
+which is robust to the bootstrap seed and to unstratified resampling
+(\(p\le0.002\)). The registration left the resampling details open; we fixed
+them to the harness's existing paired-bootstrap conventions after seeing the
+descriptive rates, and report that order explicitly.
+
+\emph{H1 (exploratory).} Source-oracle EER does not predict transfer:
+Spearman \(\rho=0.00\) [\(-0.62\), \(+0.58\)] over the twelve In-the-Wild
+model\(\times\)policy points, and \(+0.10\) [\(-0.32\), \(+0.53\)] with DF21
+added. Only four distinct EER values underlie these points, so they cluster
+by model. \placeholder{TTG figure, FRR/FAR heatmap, sensitivity curves}
 
 \subsection{Quantization (H3)}
 \label{sec:res-quant}
-% QTS table; decision flips; per-architecture sensitivity (SincConv vs conv vs
-% attention). Watch int8 score-tie collapse coarsening the dev grid.
-\placeholder{QTS table + decision flips}
+% Sources: main_matrix/transfer_matrix.txt; analysis/h3_test.txt.
+fp16 is behaviourally lossless for the three models that convert: \(\Delta\)EER
+stays within \(\pm0.03\)\,pp on both transfer targets, and at most 232 of
+455,508 DF21 decisions (16 of 31,779 on In-the-Wild) flip at
+\(\taustar_{\eer}\). int8 is not. RawNet2's device artifact costs +0.98\,pp EER
+on 19LA eval, +1.24 on DF21 and +2.11 on In-the-Wild, and flips 12,022 DF21
+decisions. Its dev-set EER threshold moves by 6.4 score units. Deploying it with
+the fp32 threshold costs \(\qts=+1.42\) HTER points [+1.28, +1.54] on 19LA eval
+(7.02\% vs 5.60\%), which re-calibration on source dev would recover.
+
+\emph{H3 (confirmatory) is not supported.} The registration requires
+\(\qts>0.01\) in at least half of the ranked-model int8 cells. Under the
+counting rule fixed before RawNet2's dev scores existed (DEVIATIONS.md DEV-3),
+models without a registered int8 artifact count as not meeting it. That leaves
+at most one qualifying cell of four. H3 therefore fails on coverage, not on
+effect size: the one int8 cell that exists shows a material threshold shift.
 
 \subsection{Cost (RQ3)}
 \label{sec:res-cost}
-% Pareto bubbles (HTER@tau* vs latency vs energy, size=params) per device tier;
-% thermal throttling curves; scale-vs-calibration bars (H4).
-\placeholder{Pareto bubbles, thermal curves}
+% Sources: analysis/h1_h4.txt, param_counts.json. Device measurements: none yet.
+\emph{H4 (exploratory).} Across the four ranked models (85\,K to 17.6\,M
+parameters), Spearman \(\rho\) between \(\log_{10}\) parameter count and
+\(\ttg\) at \(\taustar_{\eer}\) is \(+0.40\) on In-the-Wild and \(+0.80\) on
+DF21. With \(n{=}4\) both bootstrap intervals span \([-1,1]\), so we show the
+points (Table~\ref{tab:res-ttg}) rather than interpret \(\rho\). The
+315\,M-parameter SSL reference, reported as an annotated point outside
+\(\rho\), has the highest separability and the largest transfer gap on both
+targets. \todo{device latency / energy / thermal results: no phone
+measurements yet (Phase~3).} \placeholder{Pareto bubbles, thermal curves}
 
 \subsection{Channel stress}
 \label{sec:res-stress}
-% Codec curves incl. EnCodec bona-fide corruption (H5); noise/IR; MLAAD
-% multilingual slice. Report WORST-CASE over conditions, not just means (D21).
-\placeholder{codec/noise/IR curves}
+% Sources: analysis/h5_test.txt; phase_3_stress/h5/. Spec: DEVIATIONS.md DEV-2.
+\emph{H5 (confirmatory) is supported for all four ranked models.} We
+resynthesised the 1,000-clip parity manifest with EnCodec at 6\,kbps and
+scored it against a clean copy that passed through the same stress path. The
+clean copy's scores equal the reference scores to within \(10^{-6}\). At
+\(\taustar_{\eer}\), the increase in false rejection exceeds the change in
+false acceptance for every model (paired bootstrap, Holm--Bonferroni, all
+\(p<0.001\)): Res-TSSDNet +71.6\,pp, AASIST-L +17.6, AASIST +12.6, RawNet2
++2.8. The mechanism is broader than the hypothesis states. False acceptance
+\emph{falls} for all four models (e.g.\ AASIST
+\SI{10.2}{\percent}\(\to\)\SI{3.8}{\percent}) while false rejection rises
+(AASIST \SI{0.2}{\percent}\(\to\)\SI{6.4}{\percent}; Res-TSSDNet
+\SI{0.4}{\percent}\(\to\)\SI{68.4}{\percent}). Neural resynthesis pushes
+\emph{both} classes toward ``spoof'', and at a fixed threshold that surfaces
+as rejected genuine speech. With 500 clips per class, rates move in 0.2\,pp
+steps. \todo{conventional codec, noise and IR conditions: stress path wired,
+not yet generated.}
 
 \subsection{Synthesis: the deployability decision table}
 \label{sec:res-synth}
 % The practitioner artifact: which model to ship per device tier and use case,
-% and what breaks.
-\placeholder{deployability decision table}
+% and what breaks. Needs the device campaign.
+\placeholder{deployability decision table (needs device results)}
 
 % ============================ 7. DISCUSSION ===============================
 \section{Discussion and Limitations}
