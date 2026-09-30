@@ -1,0 +1,13 @@
+aasist    no registered int8 artifact (D39); counts as not meeting (DEV-3)
+aasist_l  no registered int8 artifact (D39); counts as not meeting (DEV-3)
+rawnet2   int8-mixed (K=16): QTS +1.420 HTER pts  CI [+1.281, +1.542]  (HTER 7.023% at tau_fp32 vs 5.603% at tau_q; tau shift +6.3736)  meets: True
+tssdnet   no registered int8 artifact (D39); counts as not meeting (DEV-3)
+
+1 of 4 cells meet QTS > 0.01 with CI > 0; at least half (2) required -> H3 NOT SUPPORTED
+
+Checks: the 24,844 full-dev int8 scores equal the canonical artifact's existing diagnostic
+scores on their 2,000 shared clips (max |d| 0.0); artifact sha256 3fd6523a... verified against
+the ledger before scoring. Reading: RawNet2's int8 artifact shifts its EER threshold by
++6.37 score units. Deploying it with the fp32 tau costs 1.42 HTER points on 19LA eval (7.02%
+vs 5.60%) that re-calibration on dev would recover. The QTS effect H3 predicts is real and
+material in the one cell that exists; H3 fails on coverage (DEV-3), not on effect size.

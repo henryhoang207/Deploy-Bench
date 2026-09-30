@@ -1,0 +1,42 @@
+{
+  "hypothesis": "H3",
+  "spec": "DEVIATIONS.md DEV-3",
+  "B": 1000,
+  "seed": 0,
+  "threshold": 0.01,
+  "cells": {
+    "aasist": {
+      "artifact": null,
+      "meets": false,
+      "reason": "no registered int8 artifact (D39); counts as not meeting (DEV-3)"
+    },
+    "aasist_l": {
+      "artifact": null,
+      "meets": false,
+      "reason": "no registered int8 artifact (D39); counts as not meeting (DEV-3)"
+    },
+    "rawnet2": {
+      "artifact": "results\\phase_2_conversion_app\\conversion_sensitivity\\rawnet2\\r09_seed2",
+      "label": "int8-mixed (K=16)",
+      "tau_fp32": -7.067737815144296,
+      "tau_q": -0.694157050669702,
+      "hter_tau_fp32": 0.07023390189734383,
+      "hter_tau_quant": 0.056034414743822265,
+      "qts": 0.01419948715352156,
+      "tau_shift": 6.373580764474594,
+      "ci95": [
+        0.012813190729312682,
+        0.015417347386180735
+      ],
+      "meets": true
+    },
+    "tssdnet": {
+      "artifact": null,
+      "meets": false,
+      "reason": "no registered int8 artifact (D39); counts as not meeting (DEV-3)"
+    }
+  },
+  "n_meeting": 1,
+  "required": 2,
+  "h3_supported": false
+}
