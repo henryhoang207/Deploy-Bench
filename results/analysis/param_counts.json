@@ -1,0 +1,22 @@
+{
+  "aasist": {
+    "params": 297866,
+    "checkpoint_sha256_16": "51d2d9cf0738172f"
+  },
+  "aasist_l": {
+    "params": 85306,
+    "checkpoint_sha256_16": "814331d088032bb4"
+  },
+  "rawnet2": {
+    "params": 17621410,
+    "checkpoint_sha256_16": "52d8ad5f524a0f60"
+  },
+  "tssdnet": {
+    "params": 348530,
+    "checkpoint_sha256_16": "056a65fc241a94b4"
+  },
+  "xlsr_aasist": {
+    "params": 317837834,
+    "checkpoint_sha256_16": "1cf904f1d84c867c"
+  }
+}

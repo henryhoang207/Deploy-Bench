@@ -1,0 +1,30 @@
+EXPLORATORY (effect size + CI only)
+
+per model at tau_eer: 19LA-eval oracle EER | params | TTG on target [95% CI]
+  aasist      itw           EER  0.83% |     297,866 | TTG  +2.94 pp [+2.54, +3.46]
+  aasist      df21_verified EER  0.83% |     297,866 | TTG  +0.29 pp [+0.16, +0.52]
+  aasist_l    itw           EER  0.99% |      85,306 | TTG  +1.55 pp [+1.23, +2.05]
+  aasist_l    df21_verified EER  0.99% |      85,306 | TTG  +0.03 pp [+0.02, +0.13]
+  rawnet2     itw           EER  4.60% |  17,621,410 | TTG  +5.44 pp [+4.98, +6.08]
+  rawnet2     df21_verified EER  4.60% |  17,621,410 | TTG  +0.58 pp [+0.35, +0.86]
+  tssdnet     itw           EER  1.62% |     348,530 | TTG  +0.73 pp [+0.44, +1.21]
+  tssdnet     df21_verified EER  1.62% |     348,530 | TTG  +1.82 pp [+1.56, +2.12]
+  xlsr_aasist itw           EER  0.15% | 317,837,834 | TTG +14.96 pp [+14.58, +15.39]   (unranked, annotated only)
+  xlsr_aasist df21_verified EER  0.15% | 317,837,834 | TTG  +5.40 pp [+5.10, +5.68]   (unranked, annotated only)
+
+H1 primary (ITW, 4 models x 3 policies): rho +0.00 [-0.62, +0.58], n=12
+H1 secondary (ITW + DF21):               rho +0.10 [-0.32, +0.53], n=24
+   caveat: only 4 distinct oracle-EER values; points cluster by model.
+H4 itw           (4 ranked, log10 params vs TTG@eer): rho +0.40 [-1.00, +1.00], n=4   caveat: n=4
+H4 df21_verified (4 ranked, log10 params vs TTG@eer): rho +0.80 [-1.00, +1.00], n=4   caveat: n=4
+
+Notes.
+- Parameter counts (results/analysis/param_counts.json) are sum(p.numel()) over each loaded
+  export module, with checkpoint hashes matching the reproduction runs. XLS-R's 317,837,834
+  includes wav2vec 2.0 pretraining-only parameters (quantizer / projection heads) that
+  inference does not use. The manuscript's "315M" is the inference-graph count (315.4M). On
+  H4's log10 scale the difference is negligible, and XLS-R never enters rho.
+- XLS-R+AASIST fp32 (unranked, annotated only): EER 10.46% on ITW and 1.98% on the DF21
+  verified surface, the best separation on both targets, with the largest TTG (+14.96 /
+  +5.40 pp). One annotated point. Descriptive, not a claim (D16/D30).
+- No confirm/refute language applies to H1/H4 (exploratory, methodology C5).
