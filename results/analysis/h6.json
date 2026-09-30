@@ -1,0 +1,754 @@
+{
+  "aasist": {
+    "primary": {
+      "minimal_set": null,
+      "evaluable": false,
+      "best_attempt": {
+        "recipe_id": "r12",
+        "calib_seed": 100,
+        "outcome": "ok",
+        "n_fp32_excluded": 48,
+        "precision_label": "int8-mixed (K=48)",
+        "eer": 0.017,
+        "delta_eer_pp": 1.4,
+        "qualifies": false,
+        "artifact_sha256": {
+          "aasist_int8.onnx": "79d7000eb6c288017d4602e26a41f9839792223eb77fa43da4c39edca6f63352"
+        }
+      }
+    },
+    "prediction_primary": "not evaluable: no tested configuration meets the budget",
+    "r01_fallback_ops": [
+      "Abs",
+      "Div",
+      "Expand",
+      "MaxPool",
+      "ReduceMax",
+      "ReduceMean",
+      "Slice",
+      "Squeeze",
+      "Transpose",
+      "Unsqueeze"
+    ],
+    "r01_quantized_ops": [
+      "Abs",
+      "Add",
+      "BatchNormalization",
+      "Concat",
+      "Conv",
+      "Div",
+      "Expand",
+      "Gather",
+      "GatherElements",
+      "Gemm",
+      "MatMul",
+      "Max",
+      "MaxPool",
+      "Mul",
+      "Reshape",
+      "ScatterND",
+      "Selu",
+      "Sigmoid",
+      "Softmax",
+      "Squeeze",
+      "Tanh",
+      "TopK",
+      "Transpose",
+      "Unsqueeze"
+    ],
+    "predicted_fallback": "graph attention",
+    "prediction_secondary": "NOT met: Gather, GatherElements, ScatterND, TopK were quantized",
+    "diag_cells": [
+      {
+        "recipe_id": "r01",
+        "K": 0,
+        "delta_eer_pp": 5.889,
+        "flips": {
+          "eer": 632,
+          "frr1": 569,
+          "frr5": 266
+        }
+      },
+      {
+        "recipe_id": "r02",
+        "K": 1,
+        "delta_eer_pp": 6.0,
+        "flips": {
+          "eer": 632,
+          "frr1": 568,
+          "frr5": 265
+        }
+      },
+      {
+        "recipe_id": "r03",
+        "K": 2,
+        "delta_eer_pp": 5.971,
+        "flips": {
+          "eer": 631,
+          "frr1": 568,
+          "frr5": 265
+        }
+      },
+      {
+        "recipe_id": "r04",
+        "K": 3,
+        "delta_eer_pp": 6.078,
+        "flips": {
+          "eer": 632,
+          "frr1": 570,
+          "frr5": 266
+        }
+      },
+      {
+        "recipe_id": "r05",
+        "K": 4,
+        "delta_eer_pp": 6.078,
+        "flips": {
+          "eer": 632,
+          "frr1": 570,
+          "frr5": 266
+        }
+      },
+      {
+        "recipe_id": "r06",
+        "K": 6,
+        "delta_eer_pp": 4.954,
+        "flips": {
+          "eer": 423,
+          "frr1": 370,
+          "frr5": 75
+        }
+      },
+      {
+        "recipe_id": "r07",
+        "K": 8,
+        "delta_eer_pp": 4.954,
+        "flips": {
+          "eer": 423,
+          "frr1": 370,
+          "frr5": 75
+        }
+      },
+      {
+        "recipe_id": "r08",
+        "K": 12,
+        "delta_eer_pp": 5.067,
+        "flips": {
+          "eer": 424,
+          "frr1": 365,
+          "frr5": 78
+        }
+      },
+      {
+        "recipe_id": "r09",
+        "K": 16,
+        "delta_eer_pp": 4.85,
+        "flips": {
+          "eer": 328,
+          "frr1": 246,
+          "frr5": 88
+        }
+      },
+      {
+        "recipe_id": "r10",
+        "K": 24,
+        "delta_eer_pp": 3.6,
+        "flips": {
+          "eer": 325,
+          "frr1": 257,
+          "frr5": 56
+        }
+      },
+      {
+        "recipe_id": "r11",
+        "K": 32,
+        "delta_eer_pp": 3.6,
+        "flips": {
+          "eer": 310,
+          "frr1": 222,
+          "frr5": 47
+        }
+      },
+      {
+        "recipe_id": "r12",
+        "K": 48,
+        "delta_eer_pp": 1.4,
+        "flips": {
+          "eer": 41,
+          "frr1": 25,
+          "frr5": 113
+        }
+      }
+    ]
+  },
+  "aasist_l": {
+    "primary": {
+      "minimal_set": null,
+      "evaluable": false,
+      "best_attempt": {
+        "recipe_id": "r12",
+        "calib_seed": 100,
+        "outcome": "ok",
+        "n_fp32_excluded": 48,
+        "precision_label": "int8-mixed (K=48)",
+        "eer": 0.021,
+        "delta_eer_pp": 1.7,
+        "qualifies": false,
+        "artifact_sha256": {
+          "aasist_l_int8.onnx": "fa974a6957e5477917dd4a87006ac9f1e106c15a54300112411499a2ccf3be31"
+        }
+      }
+    },
+    "prediction_primary": "not evaluable: no tested configuration meets the budget",
+    "r01_fallback_ops": [
+      "Abs",
+      "Div",
+      "Expand",
+      "MaxPool",
+      "ReduceMax",
+      "ReduceMean",
+      "Slice",
+      "Squeeze",
+      "Transpose",
+      "Unsqueeze"
+    ],
+    "r01_quantized_ops": [
+      "Abs",
+      "Add",
+      "BatchNormalization",
+      "Concat",
+      "Conv",
+      "Div",
+      "Expand",
+      "Gather",
+      "GatherElements",
+      "Gemm",
+      "MatMul",
+      "Max",
+      "MaxPool",
+      "Mul",
+      "Reshape",
+      "ScatterND",
+      "Selu",
+      "Sigmoid",
+      "Softmax",
+      "Squeeze",
+      "Tanh",
+      "TopK",
+      "Transpose",
+      "Unsqueeze"
+    ],
+    "predicted_fallback": "graph attention",
+    "prediction_secondary": "NOT met: Gather, GatherElements, ScatterND, TopK were quantized",
+    "diag_cells": [
+      {
+        "recipe_id": "r01",
+        "K": 0,
+        "delta_eer_pp": 12.108,
+        "flips": {
+          "eer": 454,
+          "frr1": 375,
+          "frr5": 330
+        }
+      },
+      {
+        "recipe_id": "r02",
+        "K": 1,
+        "delta_eer_pp": 12.05,
+        "flips": {
+          "eer": 455,
+          "frr1": 374,
+          "frr5": 327
+        }
+      },
+      {
+        "recipe_id": "r03",
+        "K": 2,
+        "delta_eer_pp": 12.093,
+        "flips": {
+          "eer": 457,
+          "frr1": 373,
+          "frr5": 323
+        }
+      },
+      {
+        "recipe_id": "r04",
+        "K": 3,
+        "delta_eer_pp": 7.8,
+        "flips": {
+          "eer": 261,
+          "frr1": 175,
+          "frr5": 313
+        }
+      },
+      {
+        "recipe_id": "r05",
+        "K": 4,
+        "delta_eer_pp": 2.3,
+        "flips": {
+          "eer": 51,
+          "frr1": 51,
+          "frr5": 390
+        }
+      },
+      {
+        "recipe_id": "r06",
+        "K": 6,
+        "delta_eer_pp": 2.3,
+        "flips": {
+          "eer": 51,
+          "frr1": 51,
+          "frr5": 391
+        }
+      },
+      {
+        "recipe_id": "r07",
+        "K": 8,
+        "delta_eer_pp": 2.3,
+        "flips": {
+          "eer": 51,
+          "frr1": 51,
+          "frr5": 391
+        }
+      },
+      {
+        "recipe_id": "r08",
+        "K": 12,
+        "delta_eer_pp": 2.1,
+        "flips": {
+          "eer": 48,
+          "frr1": 51,
+          "frr5": 398
+        }
+      },
+      {
+        "recipe_id": "r09",
+        "K": 16,
+        "delta_eer_pp": 2.1,
+        "flips": {
+          "eer": 48,
+          "frr1": 51,
+          "frr5": 398
+        }
+      },
+      {
+        "recipe_id": "r10",
+        "K": 24,
+        "delta_eer_pp": 2.64,
+        "flips": {
+          "eer": 61,
+          "frr1": 93,
+          "frr5": 537
+        }
+      },
+      {
+        "recipe_id": "r11",
+        "K": 32,
+        "delta_eer_pp": 3.2,
+        "flips": {
+          "eer": 78,
+          "frr1": 65,
+          "frr5": 265
+        }
+      },
+      {
+        "recipe_id": "r12",
+        "K": 48,
+        "delta_eer_pp": 1.7,
+        "flips": {
+          "eer": 43,
+          "frr1": 44,
+          "frr5": 411
+        }
+      }
+    ]
+  },
+  "rawnet2": {
+    "primary": {
+      "minimal_set": [
+        {
+          "node": "/m/bn_before_gru/BatchNormalization",
+          "op_type": "BatchNormalization",
+          "module": "other"
+        },
+        {
+          "node": "/m/first_bn/BatchNormalization",
+          "op_type": "BatchNormalization",
+          "module": "other"
+        },
+        {
+          "node": "/m/avgpool/GlobalAveragePool",
+          "op_type": "GlobalAveragePool",
+          "module": "other"
+        },
+        {
+          "node": "/m/block2/block2.0/conv1/Conv",
+          "op_type": "Conv",
+          "module": "other"
+        },
+        {
+          "node": "/m/block5/block5.0/conv1/Conv",
+          "op_type": "Conv",
+          "module": "other"
+        },
+        {
+          "node": "/m/block4/block4.0/conv1/Conv",
+          "op_type": "Conv",
+          "module": "other"
+        },
+        {
+          "node": "/m/block3/block3.0/conv1/Conv",
+          "op_type": "Conv",
+          "module": "other"
+        },
+        {
+          "node": "/m/Sinc_conv/Conv",
+          "op_type": "Conv",
+          "module": "other"
+        },
+        {
+          "node": "/m/avgpool_1/GlobalAveragePool",
+          "op_type": "GlobalAveragePool",
+          "module": "other"
+        },
+        {
+          "node": "/m/block1/block1.0/conv1/Conv",
+          "op_type": "Conv",
+          "module": "other"
+        },
+        {
+          "node": "/m/block0/block0.0/lrelu/LeakyRelu",
+          "op_type": "LeakyRelu",
+          "module": "other"
+        },
+        {
+          "node": "/m/selu/Selu",
+          "op_type": "Selu",
+          "module": "other"
+        },
+        {
+          "node": "/m/block1/block1.0/conv2/Conv",
+          "op_type": "Conv",
+          "module": "other"
+        },
+        {
+          "node": "/m/block1/block1.0/lrelu/LeakyRelu",
+          "op_type": "LeakyRelu",
+          "module": "other"
+        },
+        {
+          "node": "/m/Mul_2",
+          "op_type": "Mul",
+          "module": "other"
+        },
+        {
+          "node": "/m/Mul_3",
+          "op_type": "Mul",
+          "module": "other"
+        }
+      ],
+      "K": 16,
+      "recipe": "r09",
+      "evaluable": true
+    },
+    "prediction_primary": "NOT met: the set contains no GRU node; ORT never quantized the GRU, so no exclusion set could contain one",
+    "r01_fallback_ops": [
+      "GRU",
+      "Gather",
+      "MaxPool",
+      "Reshape",
+      "Squeeze",
+      "Transpose"
+    ],
+    "r01_quantized_ops": [
+      "Abs",
+      "Add",
+      "BatchNormalization",
+      "Conv",
+      "Gemm",
+      "GlobalAveragePool",
+      "LeakyRelu",
+      "LogSoftmax",
+      "MaxPool",
+      "Mul",
+      "Reshape",
+      "Selu",
+      "Sigmoid"
+    ],
+    "predicted_fallback": "recurrence (GRU)",
+    "prediction_secondary": "met",
+    "diag_cells": [
+      {
+        "recipe_id": "r01",
+        "K": 0,
+        "delta_eer_pp": 3.167,
+        "flips": {
+          "eer": 89,
+          "frr1": 124,
+          "frr5": 343
+        }
+      },
+      {
+        "recipe_id": "r02",
+        "K": 1,
+        "delta_eer_pp": 3.2,
+        "flips": {
+          "eer": 89,
+          "frr1": 126,
+          "frr5": 345
+        }
+      },
+      {
+        "recipe_id": "r03",
+        "K": 2,
+        "delta_eer_pp": 2.2,
+        "flips": {
+          "eer": 45,
+          "frr1": 67,
+          "frr5": 232
+        }
+      },
+      {
+        "recipe_id": "r04",
+        "K": 3,
+        "delta_eer_pp": 2.2,
+        "flips": {
+          "eer": 45,
+          "frr1": 67,
+          "frr5": 232
+        }
+      },
+      {
+        "recipe_id": "r05",
+        "K": 4,
+        "delta_eer_pp": 2.25,
+        "flips": {
+          "eer": 49,
+          "frr1": 74,
+          "frr5": 229
+        }
+      },
+      {
+        "recipe_id": "r06",
+        "K": 6,
+        "delta_eer_pp": 2.2,
+        "flips": {
+          "eer": 49,
+          "frr1": 73,
+          "frr5": 225
+        }
+      },
+      {
+        "recipe_id": "r07",
+        "K": 8,
+        "delta_eer_pp": 1.3,
+        "flips": {
+          "eer": 32,
+          "frr1": 26,
+          "frr5": 87
+        }
+      },
+      {
+        "recipe_id": "r08",
+        "K": 12,
+        "delta_eer_pp": 1.2,
+        "flips": {
+          "eer": 29,
+          "frr1": 26,
+          "frr5": 98
+        }
+      },
+      {
+        "recipe_id": "r09",
+        "K": 16,
+        "delta_eer_pp": 0.9,
+        "flips": {
+          "eer": 24,
+          "frr1": 23,
+          "frr5": 87
+        }
+      },
+      {
+        "recipe_id": "r10",
+        "K": 24,
+        "delta_eer_pp": 1.0,
+        "flips": {
+          "eer": 28,
+          "frr1": 36,
+          "frr5": 142
+        }
+      },
+      {
+        "recipe_id": "r11",
+        "K": 32,
+        "delta_eer_pp": 1.0,
+        "flips": {
+          "eer": 28,
+          "frr1": 36,
+          "frr5": 142
+        }
+      },
+      {
+        "recipe_id": "r12",
+        "K": 48,
+        "delta_eer_pp": 1.0,
+        "flips": {
+          "eer": 37,
+          "frr1": 41,
+          "frr5": 171
+        }
+      }
+    ]
+  },
+  "tssdnet": {
+    "primary": {
+      "minimal_set": null,
+      "evaluable": false,
+      "best_attempt": {
+        "recipe_id": "r11",
+        "calib_seed": 100,
+        "outcome": "ok",
+        "n_fp32_excluded": 32,
+        "precision_label": "int8-mixed (K=32)",
+        "eer": 0.036,
+        "delta_eer_pp": 2.9,
+        "qualifies": false,
+        "artifact_sha256": {
+          "tssdnet_int8.onnx": "ed457a58b19ae1c0c58e7fce0f13e9f361a18e4361f19d189178d21073a34fda"
+        }
+      }
+    },
+    "prediction_primary": "not evaluable: no tested configuration meets the budget",
+    "r01_fallback_ops": [
+      "Unsqueeze"
+    ],
+    "r01_quantized_ops": [
+      "Add",
+      "BatchNormalization",
+      "Conv",
+      "Flatten",
+      "Gather",
+      "Gemm",
+      "MaxPool",
+      "Sub"
+    ],
+    "predicted_fallback": "none",
+    "prediction_secondary": "met",
+    "diag_cells": [
+      {
+        "recipe_id": "r01",
+        "K": 0,
+        "delta_eer_pp": 12.025,
+        "flips": {
+          "eer": 996,
+          "frr1": 995,
+          "frr5": 949
+        }
+      },
+      {
+        "recipe_id": "r02",
+        "K": 1,
+        "delta_eer_pp": 7.54,
+        "flips": {
+          "eer": 996,
+          "frr1": 995,
+          "frr5": 949
+        }
+      },
+      {
+        "recipe_id": "r03",
+        "K": 2,
+        "delta_eer_pp": 7.733,
+        "flips": {
+          "eer": 996,
+          "frr1": 995,
+          "frr5": 949
+        }
+      },
+      {
+        "recipe_id": "r04",
+        "K": 3,
+        "delta_eer_pp": 7.4,
+        "flips": {
+          "eer": 996,
+          "frr1": 995,
+          "frr5": 949
+        }
+      },
+      {
+        "recipe_id": "r05",
+        "K": 4,
+        "delta_eer_pp": 7.25,
+        "flips": {
+          "eer": 996,
+          "frr1": 995,
+          "frr5": 949
+        }
+      },
+      {
+        "recipe_id": "r06",
+        "K": 6,
+        "delta_eer_pp": 7.069,
+        "flips": {
+          "eer": 996,
+          "frr1": 995,
+          "frr5": 949
+        }
+      },
+      {
+        "recipe_id": "r07",
+        "K": 8,
+        "delta_eer_pp": 7.333,
+        "flips": {
+          "eer": 996,
+          "frr1": 995,
+          "frr5": 949
+        }
+      },
+      {
+        "recipe_id": "r08",
+        "K": 12,
+        "delta_eer_pp": 5.924,
+        "flips": {
+          "eer": 996,
+          "frr1": 995,
+          "frr5": 949
+        }
+      },
+      {
+        "recipe_id": "r09",
+        "K": 16,
+        "delta_eer_pp": 6.513,
+        "flips": {
+          "eer": 996,
+          "frr1": 995,
+          "frr5": 949
+        }
+      },
+      {
+        "recipe_id": "r10",
+        "K": 24,
+        "delta_eer_pp": 6.5,
+        "flips": {
+          "eer": 996,
+          "frr1": 995,
+          "frr5": 949
+        }
+      },
+      {
+        "recipe_id": "r11",
+        "K": 32,
+        "delta_eer_pp": 2.9,
+        "flips": {
+          "eer": 112,
+          "frr1": 130,
+          "frr5": 310
+        }
+      },
+      {
+        "recipe_id": "r12",
+        "outcome": "no_int8_ops"
+      }
+    ]
+  }
+}
