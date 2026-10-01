@@ -72,7 +72,28 @@ An End-to-End On-Device Benchmark of Speech\\ Anti-Spoofing Countermeasures}
 % numbers, once known. (5) The released harness + deployability guidance.
 % Do NOT claim "nobody runs detection on phones" (D2) -- claim no OPEN,
 % reproducible, systematic on-device evaluation exists.
-\placeholder{One-paragraph abstract, \(\sim\)200 words. Fill after Results freeze.}
+% PROVISIONAL (2026-10-01): written before the device campaign. Replace the
+% bracketed device clause with measured numbers; re-check every figure against
+% results/analysis/*.txt before submission.
+Speech deepfake countermeasures are evaluated at an oracle threshold chosen on
+labelled test data, in full precision, on server hardware. A deployed detector
+has none of these: its threshold is fixed in advance, its weights are
+quantized, and its audio arrives through lossy channels. We take five published
+countermeasures through reproduction, conversion, quantization and
+fixed-threshold evaluation on three corpora, under hypotheses registered
+before the conversions ran. Two metrics make the gap measurable: the threshold
+transfer gap (\(\ttg\)) and the quantization-induced threshold shift (\(\qts\)).
+Transferred thresholds fail asymmetrically: on In-the-Wild, three of four
+ranked models reject genuine speech more often than they accept fakes, and
+neural-codec resynthesis raises genuine-speech rejection by up to 68 points at
+a fixed threshold. Source-set equal error rate shows no detectable
+association with transfer, and the strongest model (an SSL detector) has the
+largest transfer gap. Under
+standard minmax post-training quantization, only one of four ranked models
+yields a usable int8 artifact; percentile calibration changes that, which
+makes the calibration method part of what must be reported. \todo{device
+latency/energy clause}. We release the harness and an Android application.
+
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -84,7 +105,31 @@ benchmarking, mobile.
 % ============================ 1. INTRODUCTION ==============================
 \section{Introduction}
 \label{sec:intro}
-\IEEEPARstart{S}{peech} deepfake countermeasures\todo{open the regime gap}.
+\IEEEPARstart{S}{peech} deepfake countermeasures are judged by equal error
+rate at a threshold chosen with the test labels in hand, in fp32, on server
+GPUs. A detector on a phone gets none of that. Its threshold is fixed before it
+hears any traffic, its weights are compressed to fit, and its input has crossed
+a codec. Each step can move the operating point, and the published number
+measures none of them. The closest precedent shows how large the gap can be: a
+detector with 0.21\% EER rejects 78.7\% of genuine In-the-Wild speech once its
+source threshold is transferred \cite{zhou26_eer_hides}. Generalization
+failure itself is well documented \cite{muller22_in_the_wild,berisha25_coverage_debt};
+what is not measured anywhere is the deployment path end to end.
+
+We measure it for five published countermeasures. Four findings frame the paper.
+Fixed thresholds fail \emph{asymmetrically}: on In-the-Wild, three of four ranked
+models reject genuine speech more often than they accept fakes, and neural-codec
+resynthesis pushes every model toward rejecting genuine speech. Accuracy at the
+source does not predict transfer: across our roster, source-set EER and
+transfer gap show no detectable association (\(\rho\approx0\), with a wide
+interval at four models), and the most accurate model, an SSL detector, has the
+largest gap. Quantization is fragile in ways a single EER hides: under
+minmax post-training quantization only one ranked model survives int8, the
+calibration method alone changes that verdict, and the calibration subset alone
+spreads one model's int8 cost from +0.9 to +8.8 points. And a model's fp32 threshold does
+not carry over to its int8 artifact (\(\qts=+1.42\) HTER points for the one int8
+artifact the registered procedure admits).
+% TODO add the device headline once Phase 3 exists.
 % ~1.5 pp. Argument spine (paper_outline sec.1):
 %  - Published CMs are evaluated at an ORACLE threshold on the labeled test set,
 %    in fp32, on server GPUs. Deployment shares none of it: tau fixed in advance,
@@ -105,8 +150,9 @@ benchmarking, mobile.
   % OPEN [U] (OD-4): the device grid is ORT-only until OD-4 is decided (decision.md
   % 2026-08-28); "two runtimes" stands only if an ExecuTorch leg lands.
   \item \textbf{An audit} of five countermeasures across
-        \(\{\text{fp32},\text{fp16},\text{int8}\}\) precisions, two runtimes,
-        four evaluation sets, and 3 physical phones, with pre-registered
+        \(\{\text{fp32},\text{fp16},\text{int8}\}\) precisions,
+        \todo{``two runtimes'' only if OD-4 adds ExecuTorch; currently ONNX Runtime only},
+        \todo{four evaluation sets: MLAAD not yet scored}, and 3 physical phones, with pre-registered
         hypotheses and bootstrap confidence intervals.
   \item \textbf{Two metrics}: the \emph{threshold transfer gap} (\(\ttg\)) and the
         \emph{quantization-induced threshold shift} (\(\qts\)), the latter not
@@ -340,7 +386,20 @@ precision \(q\in\{\text{fp16},\text{int8}\}\).
 % stress (applied to bona fide AND spoof); device protocol (thermal gate; MLPerf
 % single-stream run rules adopted in D23: >=1,024 queries and >=60 s per cell,
 % p50/p90/p95 reported; "warmup" is not an MLPerf concept, so do not claim it).
-\placeholder{sensitivity / stress / device methodology}
+\emph{Channel stress.} Stressed audio is generated from a labelled source
+subset by \texttt{deploybench/stress.py}. Each condition is applied
+identically to bona fide and spoof clips. The manifest records the source
+corpus, the clip-list hash and the codec versions, and labels are joined from
+the source protocol at scoring time. Conditions: Opus (6, 24\,kbps), AMR-NB
+(4.75\,kbps), MP3 (32\,kbps), EnCodec (neural, 6\,kbps), MUSAN additive noise
+at 20/10/5\,dB SNR, and phone-microphone impulse responses. Codecs used for any
+training-time augmentation are barred from evaluation. A clean copy passes
+through the same path as a control.
+\emph{Device measurement.} Each (model, precision, device) cell follows the
+MLPerf mobile single-stream rules \cite{reddi22_mlperf_mobile}: at least 1,024
+queries and at least 60\,s per cell, latency reported as p50/p90/p95, a thermal
+gate before each cell, and three sessions per device.
+\todo{sensitivity-curve definition and safe-band width; energy method.}
 
 % ============================ 4. PIPELINE & ROSTER ========================
 \section{End-to-End Pipeline and Model Roster}
@@ -382,13 +441,40 @@ input, frontend, and predicted int8 outcome per
 % PTQ config as methodology, not defaults (D17): S8S8, per-channel weights, QDQ,
 % 500-clip calibration. Every int8 row ships its fp32-fallback op list (=H6).
 % fp16 via graph conversion, not net.half() (D18). Preview conversion failures.
-\placeholder{conversion pipeline; PTQ config; fp16 policy}
+Each wrapper exposes a single-score module (higher = bona fide). We export it
+with PyTorch~2.5.1's TorchScript exporter at opset~17 with a fixed input shape.
+fp16 is produced by graph conversion with float32 inputs and outputs, never by
+casting the network. An artifact counts as converted only if ONNX Runtime loads
+it and returns a finite score. The ONNX checker accepts graphs that the runtime
+rejects (Sec.~\ref{sec:res-deploy}).
+int8 uses ONNX Runtime static post-training quantization in QDQ format:
+per-channel int8 weights, int8 activations (S8S8), and batch-norm folding
+before quantization. Calibration uses 500 class-balanced 19LA-dev clips drawn
+by a recorded seed. Recipes that keep layers in fp32 are labelled
+``int8-mixed (\(K\))'' and are never reported as plain int8. Because default
+PTQ fails for most of the roster, each model gets a bounded, pre-declared
+search: at most 12 configurations. Candidate fp32 exclusions are ranked by the
+fp32-vs-int8 activation damage of the default artifact. The locked recipe is
+the smallest tested exclusion set within +1.0\,pp EER on a frozen 2,000-clip dev
+subset that is disjoint from calibration. That recipe is then rebuilt on five
+calibration seeds, and the device artifact is the lowest-numbered qualifying
+seed, a rule fixed before any evaluation.
 
 \subsection{Preprocessing-parity methodology}
 % P3 PRIMARY GATE: zero decision flips at all three operating points between
 % on-device feature extraction and the Python reference. Feature drift (1e-3)
 % is diagnostic, not a gate.
-\placeholder{parity methodology + Android app figure}
+Conversion is gated before any quantized number is reported. On a frozen
+1,000-clip 19LA-eval manifest (500 bona fide, 500 spoof), the ONNX fp32 export
+must reproduce the PyTorch decisions exactly: zero flips at all three operating
+points. Score differences below that (here up to \(1.7{\times}10^{-4}\)) are
+diagnostic, not a gate. Precision comparisons (fp16 or int8 against fp32) are
+reported as decision flips and \(\Delta\)EER and never gate. Preprocessing
+follows each author's evaluation code: 16\,kHz audio, fixed-length windows,
+truncated from the start or repeat-tiled, never centre-cropped. The device
+leg reuses the same manifest and the same zero-flip gate between the desktop
+and on-device runtime.
+\placeholder{Android app figure}
 
 % ============================ 5. EXPERIMENTAL SETUP =======================
 \section{Experimental Setup}
@@ -406,7 +492,25 @@ input, frontend, and predicted int8 outcome per
 % Published DF21 numbers (B04 22.38%, Tak et al. 2.85%) are NOT comparable: the
 % organisers scored different audio for 43% of trials (df21_flac_integrity.md).
 % OPEN [U]: make this a named data note?
-\placeholder{datasets + splits table}
+\emph{Source.} ASVspoof\,2019 LA \cite{yamagishi21_asvspoof2021}: every
+threshold is calibrated on its dev set (24,844 trials, 2,548 bona fide) and
+frozen; its eval set (71,237 trials, 7,355 bona fide) is the in-domain test
+(seen corpus, unseen attacks A07--A19).
+\emph{Targets.} In-the-Wild \cite{muller22_in_the_wild} (31,779 clips, 19,963 bona
+fide; social-media provenance, so already transcoded). ASVspoof\,2021 DF eval
+\cite{yamagishi21_asvspoof2021} on a \emph{verified-audio} surface. In the public
+release, 43\% of the 533,928 eval trials are rejected by the current reference
+FLAC decoder. Older decoders read them, but 78,420 then decode to audio that
+fails the file's own STREAMINFO MD5. We exclude those and keep 455,508 trials
+(12,067 bona fide). The 305,525 trials that decode without issue form a
+sensitivity surface. Published DF21 numbers are not comparable with ours: the
+organisers' scores for the affected trials match no decoding of the public
+files, and the published RawNet2 baseline EER of 22.38\% mixes 15.06\% on clean
+trials with about 30\% on affected ones. On the clean trials, our scoring of the
+released RawNet2 checkpoint matches the organisers' per-trial scores to
+\(3.7{\times}10^{-5}\).
+\todo{MLAAD: loader exists, not yet scored. Either score it or drop
+``four evaluation sets'' from the contributions.}
 
 \begin{table}[!t]
 \caption{Devices. \todo{fill from phones.md}}
@@ -706,14 +810,55 @@ not yet generated.}
 %  Defence, stated plainly: the contribution is the REGIME and the PROTOCOL,
 %  which are roster-independent, plus a released harness that makes adding a
 %  model cheap. Breadth is explicitly not the claim.
-\placeholder{discussion + limitations}
+\emph{What the fixed threshold changes.} Each finding is invisible at an oracle
+operating point. On In-the-Wild the transferred threshold mostly rejects real
+speakers. Neural resynthesis does the same, because it moves every clip toward
+``spoof''. The ethical weight falls on false rejection: a phone-side detector
+that silently flags genuine callers fails the people it is meant to protect.
+\emph{Quantization is a methodological choice, not a fixed cost.} Whether a
+model ``survives int8'' depended here on the calibration method and on which
+500 clips were drawn. A paper that reports one int8 number without both has
+reported an anecdote. The registered H6 framed survival as a matter of op class;
+our data instead implicate the shared raw-waveform front end, which the design
+cannot separate from op class.
+\emph{Deviations and their status.} Three details were fixed after the
+registration tag and are logged in the repository. The percentile arm (DEV-1)
+is exploratory and was declared after the minmax results. H5's source set and
+test (DEV-2) were fixed before any stressed audio existed. H3's counting rule
+(DEV-3) was chosen after the conversion outcomes were known, and it guarantees
+that H3 fails. We also disclose a defect in the amended H6: its RawNet2 clause
+predicted a GRU node in an exclusion set, which the runtime's quantizer can
+never produce. For H2, the bootstrap details were fixed after the descriptive
+rates were seen.
+\emph{Limitations.} (a) There is no handcrafted-feature model, so on-device
+feature parity is shown only for raw-waveform preprocessing. (b) There is one
+graph-attention lineage: AASIST/AASIST-L is the only within-class replication,
+and family-level claims about graph attention are not supported. (c) The ranked
+roster is pre-SSL (2021--22), and the single SSL model is an unranked reference
+that does not export with the pinned toolchain. This is the same criticism we
+make of earlier rosters with no SSL model. (d) ASVspoof\,5 is deferred, so the
+shift claims rest on In-the-Wild, DF21 and the stress suite. (e) Every
+checkpoint is used as released, with one training seed each. The released
+RawNet2 is at chance on In-the-Wild. (f) Quantization is post-training only;
+QAT is out of scope. (g) H1 and H4 rest on four ranked models, so their
+intervals are wide by construction.
+The contribution is the regime and the protocol, which do not depend on the
+roster, plus a released harness that makes adding a model cheap. Breadth is not
+the claim. \todo{device-specific limitations once Phase~3 exists.}
 
 % ============================ 8. CONCLUSION ===============================
 \section{Conclusion}
 \label{sec:conclusion}
 % ~0.5 p. Restate the two findings; the harness as the durable contribution;
 % the recommendation (report HTER at a transferred threshold alongside EER).
-\placeholder{conclusion}
+Evaluating speech countermeasures at their deployed operating point changes
+what the numbers say. Thresholds transferred from the source set fail
+asymmetrically and against genuine speakers. Source accuracy does not predict
+transfer. Integer quantization is decided as much by calibration choices as by
+architecture. We recommend that countermeasure papers report HTER with its
+FRR/FAR decomposition at a threshold fixed on source data, alongside EER, and
+that any quantized result state its calibration method and data. The harness
+that produced every number here is released. \todo{device conclusion.}
 
 % ============================ ACK / BIB ===================================
 \section*{Acknowledgment}
