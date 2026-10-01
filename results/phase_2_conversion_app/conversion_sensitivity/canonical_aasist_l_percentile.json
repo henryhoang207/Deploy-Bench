@@ -1,0 +1,79 @@
+{
+  "mode": "canonical",
+  "locked_recipe": "p05",
+  "canonical_seed": 1,
+  "model": "aasist_l",
+  "fp32_diag_eer": 0.004,
+  "budget_pp": 1.0,
+  "fp32_reference": "/mnt/data8tb/henry/deploybench/results/phase_1_reproduction/scores_dev_aasist_l.csv",
+  "n_diag": 2000,
+  "n_attempts": 5,
+  "n_failed": 0,
+  "attempts": [
+    {
+      "recipe_id": "p05",
+      "calib_seed": 1,
+      "outcome": "ok",
+      "n_fp32_excluded": 4,
+      "precision_label": "int8-mixed (K=4)",
+      "eer": 0.008,
+      "delta_eer_pp": 0.4,
+      "qualifies": true,
+      "artifact_sha256": {
+        "aasist_l_int8.onnx": "14124aab601e5d2976f2ba1ce1fcdc85afb0a0132a9a248d82e8e8e0ed1a3f81"
+      }
+    },
+    {
+      "recipe_id": "p05",
+      "calib_seed": 2,
+      "outcome": "ok",
+      "n_fp32_excluded": 4,
+      "precision_label": "int8-mixed (K=4)",
+      "eer": 0.013000000000000008,
+      "delta_eer_pp": 0.9,
+      "qualifies": true,
+      "artifact_sha256": {
+        "aasist_l_int8.onnx": "890b73fb2ea178c31825d9f51fbdbf78ba473b64564d33d3fb0cb41b712634b5"
+      }
+    },
+    {
+      "recipe_id": "p05",
+      "calib_seed": 3,
+      "outcome": "ok",
+      "n_fp32_excluded": 4,
+      "precision_label": "int8-mixed (K=4)",
+      "eer": 0.07946153846153846,
+      "delta_eer_pp": 7.5462,
+      "qualifies": false,
+      "artifact_sha256": {
+        "aasist_l_int8.onnx": "b5abf4e3bcd3d9b145b01a08c5aab97ee879765c8728ad45a270b39866f90ea5"
+      }
+    },
+    {
+      "recipe_id": "p05",
+      "calib_seed": 4,
+      "outcome": "ok",
+      "n_fp32_excluded": 4,
+      "precision_label": "int8-mixed (K=4)",
+      "eer": 0.01200000000000001,
+      "delta_eer_pp": 0.8,
+      "qualifies": true,
+      "artifact_sha256": {
+        "aasist_l_int8.onnx": "99367f33a90dfb375a34bc5e25001f392fd920b4a6c97d86765a5b073c8d5315"
+      }
+    },
+    {
+      "recipe_id": "p05",
+      "calib_seed": 5,
+      "outcome": "ok",
+      "n_fp32_excluded": 4,
+      "precision_label": "int8-mixed (K=4)",
+      "eer": 0.010333333333333338,
+      "delta_eer_pp": 0.6333,
+      "qualifies": true,
+      "artifact_sha256": {
+        "aasist_l_int8.onnx": "39bc5a3fc1e49ebe1cf327152c00ab92ded7602eae0d824fe7fbb8a7504c0ca2"
+      }
+    }
+  ]
+}

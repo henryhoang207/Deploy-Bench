@@ -1,0 +1,170 @@
+{
+  "mode": "search",
+  "locked_recipe": "p06",
+  "locked_k": 6,
+  "model": "aasist",
+  "fp32_diag_eer": 0.0030000000000000027,
+  "budget_pp": 1.0,
+  "fp32_reference": "/mnt/data8tb/henry/deploybench/results/phase_1_reproduction/scores_dev_aasist.csv",
+  "n_diag": 2000,
+  "n_attempts": 12,
+  "n_failed": 0,
+  "attempts": [
+    {
+      "recipe_id": "p01",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 0,
+      "precision_label": "int8",
+      "eer": 0.033666666666666685,
+      "delta_eer_pp": 3.0667,
+      "qualifies": false,
+      "artifact_sha256": {
+        "aasist_int8.onnx": "98d4e3f676d3747845e9578f8e6ca53d0e3b6483271d4bd3c66126b413ae3c3b"
+      }
+    },
+    {
+      "recipe_id": "p02",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 1,
+      "precision_label": "int8-mixed (K=1)",
+      "eer": 0.033500000000000016,
+      "delta_eer_pp": 3.05,
+      "qualifies": false,
+      "artifact_sha256": {
+        "aasist_int8.onnx": "fed3148133922f908ebcfaa4c23f63e02a149a6b7dbbe05be3c57e94dce27231"
+      }
+    },
+    {
+      "recipe_id": "p03",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 2,
+      "precision_label": "int8-mixed (K=2)",
+      "eer": 0.033250000000000016,
+      "delta_eer_pp": 3.025,
+      "qualifies": false,
+      "artifact_sha256": {
+        "aasist_int8.onnx": "af0e62984e9a241afacdded5449c7e0406d25ab5651fe02138af948a3a8331fa"
+      }
+    },
+    {
+      "recipe_id": "p04",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 3,
+      "precision_label": "int8-mixed (K=3)",
+      "eer": 0.034250000000000023,
+      "delta_eer_pp": 3.125,
+      "qualifies": false,
+      "artifact_sha256": {
+        "aasist_int8.onnx": "4566730788edf66c260107acfb3e7ad9a6472195863703eb9fe180c29f8add77"
+      }
+    },
+    {
+      "recipe_id": "p05",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 4,
+      "precision_label": "int8-mixed (K=4)",
+      "eer": 0.034250000000000023,
+      "delta_eer_pp": 3.125,
+      "qualifies": false,
+      "artifact_sha256": {
+        "aasist_int8.onnx": "87b233a6ec9d91ee9f2b93a5292e6fcc066448c32a8a6f4b06d8f2941f0cd8d1"
+      }
+    },
+    {
+      "recipe_id": "p06",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 6,
+      "precision_label": "int8-mixed (K=6)",
+      "eer": 0.006,
+      "delta_eer_pp": 0.3,
+      "qualifies": true,
+      "artifact_sha256": {
+        "aasist_int8.onnx": "bf41e72e8bf87001da82f2b49d95c9860281214d75efe60c9f7d32d21792bbe9"
+      }
+    },
+    {
+      "recipe_id": "p07",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 8,
+      "precision_label": "int8-mixed (K=8)",
+      "eer": 0.006,
+      "delta_eer_pp": 0.3,
+      "qualifies": true,
+      "artifact_sha256": {
+        "aasist_int8.onnx": "084e57032bf0fdfbc6e4298ae1f15903048faab6868b0b5118d2294e28b05504"
+      }
+    },
+    {
+      "recipe_id": "p08",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 12,
+      "precision_label": "int8-mixed (K=12)",
+      "eer": 0.006,
+      "delta_eer_pp": 0.3,
+      "qualifies": true,
+      "artifact_sha256": {
+        "aasist_int8.onnx": "c911b52673062ad11e8f069cb3a2c9c3f840b541371b68e10434a4f839c8a608"
+      }
+    },
+    {
+      "recipe_id": "p09",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 16,
+      "precision_label": "int8-mixed (K=16)",
+      "eer": 0.004,
+      "delta_eer_pp": 0.1,
+      "qualifies": true,
+      "artifact_sha256": {
+        "aasist_int8.onnx": "28e3f5799e66a051618ad878d5d745d38371675cb14368ee97036a6963b290f7"
+      }
+    },
+    {
+      "recipe_id": "p10",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 24,
+      "precision_label": "int8-mixed (K=24)",
+      "eer": 0.0040000000000000036,
+      "delta_eer_pp": 0.1,
+      "qualifies": true,
+      "artifact_sha256": {
+        "aasist_int8.onnx": "116832926e564b11cbf2b612796c05c54af9448dd7302956309bc5525c7b98b2"
+      }
+    },
+    {
+      "recipe_id": "p11",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 32,
+      "precision_label": "int8-mixed (K=32)",
+      "eer": 0.005,
+      "delta_eer_pp": 0.2,
+      "qualifies": true,
+      "artifact_sha256": {
+        "aasist_int8.onnx": "00103c3e1520854e135b6b0c6e527c7a4ff1831076546fdb376884eaed73bd1a"
+      }
+    },
+    {
+      "recipe_id": "p12",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 48,
+      "precision_label": "int8-mixed (K=48)",
+      "eer": 0.004,
+      "delta_eer_pp": 0.1,
+      "qualifies": true,
+      "artifact_sha256": {
+        "aasist_int8.onnx": "201f9f047958f775c926cb34fab891a6c047ff42a010b1e139c7c1ff64574780"
+      }
+    }
+  ]
+}

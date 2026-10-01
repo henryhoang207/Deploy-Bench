@@ -1,0 +1,170 @@
+{
+  "mode": "search",
+  "locked_recipe": "p07",
+  "locked_k": 8,
+  "model": "rawnet2",
+  "fp32_diag_eer": 0.006,
+  "budget_pp": 1.0,
+  "fp32_reference": "/mnt/data8tb/henry/deploybench/results/phase_1_reproduction/scores_dev_rawnet2.csv",
+  "n_diag": 2000,
+  "n_attempts": 12,
+  "n_failed": 0,
+  "attempts": [
+    {
+      "recipe_id": "p01",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 0,
+      "precision_label": "int8",
+      "eer": 0.01950000000000001,
+      "delta_eer_pp": 1.35,
+      "qualifies": false,
+      "artifact_sha256": {
+        "rawnet2_int8.onnx": "5e180c8922dc8719d9a2169c27e871660353998529f22434f051fc53a44afc14"
+      }
+    },
+    {
+      "recipe_id": "p02",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 1,
+      "precision_label": "int8-mixed (K=1)",
+      "eer": 0.020000000000000007,
+      "delta_eer_pp": 1.4,
+      "qualifies": false,
+      "artifact_sha256": {
+        "rawnet2_int8.onnx": "1d1fd0d19d0f2795dc211eec7fb3a789401bb28668c4be20dacb55e47a6be0aa"
+      }
+    },
+    {
+      "recipe_id": "p03",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 2,
+      "precision_label": "int8-mixed (K=2)",
+      "eer": 0.019,
+      "delta_eer_pp": 1.3,
+      "qualifies": false,
+      "artifact_sha256": {
+        "rawnet2_int8.onnx": "c9cb33b61b0c20d5a28605c698389d92f74455da2b726251853433f69d1f1481"
+      }
+    },
+    {
+      "recipe_id": "p04",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 3,
+      "precision_label": "int8-mixed (K=3)",
+      "eer": 0.019,
+      "delta_eer_pp": 1.3,
+      "qualifies": false,
+      "artifact_sha256": {
+        "rawnet2_int8.onnx": "f45fbb1c18eb32ccbee67bb787706cf9036948238f29aab8bd23ba9a247a414c"
+      }
+    },
+    {
+      "recipe_id": "p05",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 4,
+      "precision_label": "int8-mixed (K=4)",
+      "eer": 0.018,
+      "delta_eer_pp": 1.2,
+      "qualifies": false,
+      "artifact_sha256": {
+        "rawnet2_int8.onnx": "9e6efbd7489e62c911a6e9462bd265907324f88f08a396730889999f7afd5fd9"
+      }
+    },
+    {
+      "recipe_id": "p06",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 6,
+      "precision_label": "int8-mixed (K=6)",
+      "eer": 0.017,
+      "delta_eer_pp": 1.1,
+      "qualifies": false,
+      "artifact_sha256": {
+        "rawnet2_int8.onnx": "9c552d723ae632ce9dd5a94233f30d337c04c370846a8fce3a8ef6c60fccec01"
+      }
+    },
+    {
+      "recipe_id": "p07",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 8,
+      "precision_label": "int8-mixed (K=8)",
+      "eer": 0.009,
+      "delta_eer_pp": 0.3,
+      "qualifies": true,
+      "artifact_sha256": {
+        "rawnet2_int8.onnx": "cced712b128668e68fb647ad7a9de7b5229dfdb63cf4459931851c8b37293c08"
+      }
+    },
+    {
+      "recipe_id": "p08",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 12,
+      "precision_label": "int8-mixed (K=12)",
+      "eer": 0.010000000000000002,
+      "delta_eer_pp": 0.4,
+      "qualifies": true,
+      "artifact_sha256": {
+        "rawnet2_int8.onnx": "e5c0e46336b0aa7e5274a3a2971f63e370fab2768c1d72f5979b743cce0aa634"
+      }
+    },
+    {
+      "recipe_id": "p09",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 16,
+      "precision_label": "int8-mixed (K=16)",
+      "eer": 0.009,
+      "delta_eer_pp": 0.3,
+      "qualifies": true,
+      "artifact_sha256": {
+        "rawnet2_int8.onnx": "0801fd2d2d3177bf606c7caf2207adb55df7c36d41bc6fa9ac2c9e4e82168273"
+      }
+    },
+    {
+      "recipe_id": "p10",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 24,
+      "precision_label": "int8-mixed (K=24)",
+      "eer": 0.009,
+      "delta_eer_pp": 0.3,
+      "qualifies": true,
+      "artifact_sha256": {
+        "rawnet2_int8.onnx": "42a4219c96aaf86187146d26b9743b1417fc06cd4edb4fbbd3712f257807ab00"
+      }
+    },
+    {
+      "recipe_id": "p11",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 32,
+      "precision_label": "int8-mixed (K=32)",
+      "eer": 0.009,
+      "delta_eer_pp": 0.3,
+      "qualifies": true,
+      "artifact_sha256": {
+        "rawnet2_int8.onnx": "9afbea22e4969108e3562aa13400bbd1f3dec176db5ca4f824f115d8f1d8ba28"
+      }
+    },
+    {
+      "recipe_id": "p12",
+      "calib_seed": 100,
+      "outcome": "ok",
+      "n_fp32_excluded": 48,
+      "precision_label": "int8-mixed (K=48)",
+      "eer": 0.009,
+      "delta_eer_pp": 0.3,
+      "qualifies": true,
+      "artifact_sha256": {
+        "rawnet2_int8.onnx": "9e7363d4668a1b29dfe77179979166f8cf18f38c53bbb71ce522c7e6cbd3dda7"
+      }
+    }
+  ]
+}

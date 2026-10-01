@@ -1,0 +1,524 @@
+{
+  "model": "tssdnet",
+  "diag_manifest": "/mnt/data8tb/henry/deploybench/configs/conversion_sensitivity/diag_seed0.txt",
+  "diag_ids_sha256": "85b585d63830cf011446112071519d77a600a1df2602bb62e4521ca9a4e297ad",
+  "search_calibration_manifest": "/mnt/data8tb/henry/deploybench/configs/conversion_sensitivity/calib_search_seed100.txt",
+  "search_calibration_ids_sha256": "9f70ec14afe8adcb9c1bc0d884a1d00c2b3e48a334a9ca686f020d2d9731f760",
+  "budget": "int8 EER - fp32 EER <= 1.0 pp on the diagnostic subset (D36)",
+  "selection_rule": "smallest K among qualifying attempts; ties -> earlier attempt (D39)",
+  "ranking": [
+    {
+      "node": "/m/conv1/Conv",
+      "op_type": "Conv",
+      "graph_idx": 43,
+      "in_sqnr_db": 36.0891,
+      "out_sqnr_db": 0.21,
+      "damage_db": 35.879
+    },
+    {
+      "node": "/m/RSM1/conv1/Conv",
+      "op_type": "Conv",
+      "graph_idx": 49,
+      "in_sqnr_db": 22.8326,
+      "out_sqnr_db": -1.5413,
+      "damage_db": 24.3739
+    },
+    {
+      "node": "/m/RSM1/conv2/Conv",
+      "op_type": "Conv",
+      "graph_idx": 55,
+      "in_sqnr_db": 20.3823,
+      "out_sqnr_db": -1.8753,
+      "damage_db": 22.2576
+    },
+    {
+      "node": "/m/RSM2/conv1/Conv",
+      "op_type": "Conv",
+      "graph_idx": 70,
+      "in_sqnr_db": 15.9225,
+      "out_sqnr_db": -1.1888,
+      "damage_db": 17.1114
+    },
+    {
+      "node": "/m/RSM1/bn3/BatchNormalization",
+      "op_type": "BatchNormalization",
+      "graph_idx": 64,
+      "in_sqnr_db": 14.8893,
+      "out_sqnr_db": -0.301,
+      "damage_db": 15.1903
+    },
+    {
+      "node": "/m/RSM2/conv2/Conv",
+      "op_type": "Conv",
+      "graph_idx": 76,
+      "in_sqnr_db": 8.8865,
+      "out_sqnr_db": -4.4818,
+      "damage_db": 13.3683
+    },
+    {
+      "node": "/m/RSM3/conv1/Conv",
+      "op_type": "Conv",
+      "graph_idx": 91,
+      "in_sqnr_db": 5.1213,
+      "out_sqnr_db": -4.8838,
+      "damage_db": 10.0051
+    },
+    {
+      "node": "/m/fc1/Gemm",
+      "op_type": "Gemm",
+      "graph_idx": 136,
+      "in_sqnr_db": 3.7205,
+      "out_sqnr_db": -6.1774,
+      "damage_db": 9.898
+    },
+    {
+      "node": "/m/RSM3/conv2/Conv",
+      "op_type": "Conv",
+      "graph_idx": 97,
+      "in_sqnr_db": -2.355,
+      "out_sqnr_db": -11.0171,
+      "damage_db": 8.662
+    },
+    {
+      "node": "/m/RSM2/bn3/BatchNormalization",
+      "op_type": "BatchNormalization",
+      "graph_idx": 85,
+      "in_sqnr_db": 3.0416,
+      "out_sqnr_db": -5.2005,
+      "damage_db": 8.242
+    },
+    {
+      "node": "/m/RSM4/conv1/Conv",
+      "op_type": "Conv",
+      "graph_idx": 112,
+      "in_sqnr_db": -8.9376,
+      "out_sqnr_db": -15.4623,
+      "damage_db": 6.5247
+    },
+    {
+      "node": "/m/RSM4/conv2/Conv",
+      "op_type": "Conv",
+      "graph_idx": 118,
+      "in_sqnr_db": -7.7426,
+      "out_sqnr_db": -13.8214,
+      "damage_db": 6.0788
+    },
+    {
+      "node": "/m/RSM3/bn3/BatchNormalization",
+      "op_type": "BatchNormalization",
+      "graph_idx": 106,
+      "in_sqnr_db": -8.6192,
+      "out_sqnr_db": -14.2094,
+      "damage_db": 5.5901
+    },
+    {
+      "node": "/m/RSM4/bn3/BatchNormalization",
+      "op_type": "BatchNormalization",
+      "graph_idx": 127,
+      "in_sqnr_db": -5.414,
+      "out_sqnr_db": -10.9838,
+      "damage_db": 5.5698
+    },
+    {
+      "node": "/m/fc2/Gemm",
+      "op_type": "Gemm",
+      "graph_idx": 139,
+      "in_sqnr_db": -0.0001,
+      "out_sqnr_db": -4.8565,
+      "damage_db": 4.8564
+    },
+    {
+      "node": "/m/RSM2/conv3/Conv",
+      "op_type": "Conv",
+      "graph_idx": 79,
+      "in_sqnr_db": 4.0897,
+      "out_sqnr_db": 0.7424,
+      "damage_db": 3.3473
+    },
+    {
+      "node": "/m/RSM1/conv3/Conv",
+      "op_type": "Conv",
+      "graph_idx": 58,
+      "in_sqnr_db": 16.4505,
+      "out_sqnr_db": 13.7718,
+      "damage_db": 2.6787
+    },
+    {
+      "node": "/m/RSM3/conv3/Conv",
+      "op_type": "Conv",
+      "graph_idx": 100,
+      "in_sqnr_db": -8.3883,
+      "out_sqnr_db": -10.76,
+      "damage_db": 2.3717
+    },
+    {
+      "node": "/m/out/Gemm",
+      "op_type": "Gemm",
+      "graph_idx": 142,
+      "in_sqnr_db": -0.9742,
+      "out_sqnr_db": -2.7329,
+      "damage_db": 1.7587
+    },
+    {
+      "node": "/Gather",
+      "op_type": "Gather",
+      "graph_idx": 145,
+      "in_sqnr_db": -2.6953,
+      "out_sqnr_db": -3.4419,
+      "damage_db": 0.7466
+    },
+    {
+      "node": "/m/Flatten",
+      "op_type": "Flatten",
+      "graph_idx": 133,
+      "in_sqnr_db": 3.7205,
+      "out_sqnr_db": 3.7205,
+      "damage_db": 0.0
+    },
+    {
+      "node": "/m/RSM2/nin/Conv",
+      "op_type": "Conv",
+      "graph_idx": 71,
+      "in_sqnr_db": 15.9225,
+      "out_sqnr_db": 16.2253,
+      "damage_db": -0.3028
+    },
+    {
+      "node": "/Gather_1",
+      "op_type": "Gather",
+      "graph_idx": 146,
+      "in_sqnr_db": -2.6953,
+      "out_sqnr_db": -2.1666,
+      "damage_db": -0.5287
+    },
+    {
+      "node": "/Sub",
+      "op_type": "Sub",
+      "graph_idx": 151,
+      "in_sqnr_db": -3.4419,
+      "out_sqnr_db": -2.795,
+      "damage_db": -0.6469
+    },
+    {
+      "node": "/m/RSM1/nin/Conv",
+      "op_type": "Conv",
+      "graph_idx": 50,
+      "in_sqnr_db": 22.8326,
+      "out_sqnr_db": 23.842,
+      "damage_db": -1.0094
+    },
+    {
+      "node": "/m/MaxPool",
+      "op_type": "MaxPool",
+      "graph_idx": 46,
+      "in_sqnr_db": 21.7255,
+      "out_sqnr_db": 22.8326,
+      "damage_db": -1.1071
+    },
+    {
+      "node": "/m/RSM4/conv3/Conv",
+      "op_type": "Conv",
+      "graph_idx": 121,
+      "in_sqnr_db": -5.1468,
+      "out_sqnr_db": -3.8187,
+      "damage_db": -1.3282
+    },
+    {
+      "node": "/m/MaxPool_3",
+      "op_type": "MaxPool",
+      "graph_idx": 109,
+      "in_sqnr_db": -10.4865,
+      "out_sqnr_db": -8.9376,
+      "damage_db": -1.5489
+    },
+    {
+      "node": "/m/RSM4/nin/Conv",
+      "op_type": "Conv",
+      "graph_idx": 113,
+      "in_sqnr_db": -8.9376,
+      "out_sqnr_db": -7.3706,
+      "damage_db": -1.567
+    },
+    {
+      "node": "/m/RSM3/nin/Conv",
+      "op_type": "Conv",
+      "graph_idx": 92,
+      "in_sqnr_db": 5.1213,
+      "out_sqnr_db": 6.8368,
+      "damage_db": -1.7155
+    },
+    {
+      "node": "/m/RSM4/Add",
+      "op_type": "Add",
+      "graph_idx": 124,
+      "in_sqnr_db": -7.3055,
+      "out_sqnr_db": -5.4319,
+      "damage_db": -1.8736
+    },
+    {
+      "node": "/m/RSM3/Add",
+      "op_type": "Add",
+      "graph_idx": 103,
+      "in_sqnr_db": -10.5386,
+      "out_sqnr_db": -8.6185,
+      "damage_db": -1.92
+    },
+    {
+      "node": "/m/RSM2/Add",
+      "op_type": "Add",
+      "graph_idx": 82,
+      "in_sqnr_db": 0.7355,
+      "out_sqnr_db": 3.0764,
+      "damage_db": -2.3409
+    },
+    {
+      "node": "/m/RSM1/Add",
+      "op_type": "Add",
+      "graph_idx": 61,
+      "in_sqnr_db": 13.2525,
+      "out_sqnr_db": 15.5968,
+      "damage_db": -2.3443
+    },
+    {
+      "node": "/m/MaxPool_1",
+      "op_type": "MaxPool",
+      "graph_idx": 67,
+      "in_sqnr_db": 13.0682,
+      "out_sqnr_db": 15.9225,
+      "damage_db": -2.8543
+    },
+    {
+      "node": "/m/MaxPool_2",
+      "op_type": "MaxPool",
+      "graph_idx": 88,
+      "in_sqnr_db": 1.836,
+      "out_sqnr_db": 5.1213,
+      "damage_db": -3.2853
+    },
+    {
+      "node": "/m/MaxPool_4",
+      "op_type": "MaxPool",
+      "graph_idx": 130,
+      "in_sqnr_db": -7.1336,
+      "out_sqnr_db": 3.7205,
+      "damage_db": -10.8542
+    }
+  ],
+  "design": "DEVIATIONS.md DEV-1: post-hoc exploratory percentile-calibration arm",
+  "derived_from": "2026-09-28T16:42:03Z",
+  "base_r01_sha256": {
+    "tssdnet_int8.onnx": "927a7d4375f5a93aed91989828338ba5e889942a52b6eed054aef3ad19a7b371"
+  },
+  "dropped_attempts": [
+    "r12"
+  ],
+  "attempts": [
+    {
+      "recipe_id": "p01",
+      "role": "percentile, default recipe (already run)",
+      "base_recipe_id": "r01",
+      "calib_method": "percentile",
+      "exclude_nodes": [],
+      "n_fp32_excluded": 0
+    },
+    {
+      "recipe_id": "p02",
+      "role": "percentile, top-1 exclusion",
+      "base_recipe_id": "r02",
+      "calib_method": "percentile",
+      "exclude_nodes": [
+        "/m/conv1/Conv"
+      ],
+      "n_fp32_excluded": 1
+    },
+    {
+      "recipe_id": "p03",
+      "role": "percentile, top-2 exclusion",
+      "base_recipe_id": "r03",
+      "calib_method": "percentile",
+      "exclude_nodes": [
+        "/m/conv1/Conv",
+        "/m/RSM1/conv1/Conv"
+      ],
+      "n_fp32_excluded": 2
+    },
+    {
+      "recipe_id": "p04",
+      "role": "percentile, top-3 exclusion",
+      "base_recipe_id": "r04",
+      "calib_method": "percentile",
+      "exclude_nodes": [
+        "/m/conv1/Conv",
+        "/m/RSM1/conv1/Conv",
+        "/m/RSM1/conv2/Conv"
+      ],
+      "n_fp32_excluded": 3
+    },
+    {
+      "recipe_id": "p05",
+      "role": "percentile, top-4 exclusion",
+      "base_recipe_id": "r05",
+      "calib_method": "percentile",
+      "exclude_nodes": [
+        "/m/conv1/Conv",
+        "/m/RSM1/conv1/Conv",
+        "/m/RSM1/conv2/Conv",
+        "/m/RSM2/conv1/Conv"
+      ],
+      "n_fp32_excluded": 4
+    },
+    {
+      "recipe_id": "p06",
+      "role": "percentile, top-6 exclusion",
+      "base_recipe_id": "r06",
+      "calib_method": "percentile",
+      "exclude_nodes": [
+        "/m/conv1/Conv",
+        "/m/RSM1/conv1/Conv",
+        "/m/RSM1/conv2/Conv",
+        "/m/RSM2/conv1/Conv",
+        "/m/RSM1/bn3/BatchNormalization",
+        "/m/RSM2/conv2/Conv"
+      ],
+      "n_fp32_excluded": 6
+    },
+    {
+      "recipe_id": "p07",
+      "role": "percentile, top-8 exclusion",
+      "base_recipe_id": "r07",
+      "calib_method": "percentile",
+      "exclude_nodes": [
+        "/m/conv1/Conv",
+        "/m/RSM1/conv1/Conv",
+        "/m/RSM1/conv2/Conv",
+        "/m/RSM2/conv1/Conv",
+        "/m/RSM1/bn3/BatchNormalization",
+        "/m/RSM2/conv2/Conv",
+        "/m/RSM3/conv1/Conv",
+        "/m/fc1/Gemm"
+      ],
+      "n_fp32_excluded": 8
+    },
+    {
+      "recipe_id": "p08",
+      "role": "percentile, top-12 exclusion",
+      "base_recipe_id": "r08",
+      "calib_method": "percentile",
+      "exclude_nodes": [
+        "/m/conv1/Conv",
+        "/m/RSM1/conv1/Conv",
+        "/m/RSM1/conv2/Conv",
+        "/m/RSM2/conv1/Conv",
+        "/m/RSM1/bn3/BatchNormalization",
+        "/m/RSM2/conv2/Conv",
+        "/m/RSM3/conv1/Conv",
+        "/m/fc1/Gemm",
+        "/m/RSM3/conv2/Conv",
+        "/m/RSM2/bn3/BatchNormalization",
+        "/m/RSM4/conv1/Conv",
+        "/m/RSM4/conv2/Conv"
+      ],
+      "n_fp32_excluded": 12
+    },
+    {
+      "recipe_id": "p09",
+      "role": "percentile, top-16 exclusion",
+      "base_recipe_id": "r09",
+      "calib_method": "percentile",
+      "exclude_nodes": [
+        "/m/conv1/Conv",
+        "/m/RSM1/conv1/Conv",
+        "/m/RSM1/conv2/Conv",
+        "/m/RSM2/conv1/Conv",
+        "/m/RSM1/bn3/BatchNormalization",
+        "/m/RSM2/conv2/Conv",
+        "/m/RSM3/conv1/Conv",
+        "/m/fc1/Gemm",
+        "/m/RSM3/conv2/Conv",
+        "/m/RSM2/bn3/BatchNormalization",
+        "/m/RSM4/conv1/Conv",
+        "/m/RSM4/conv2/Conv",
+        "/m/RSM3/bn3/BatchNormalization",
+        "/m/RSM4/bn3/BatchNormalization",
+        "/m/fc2/Gemm",
+        "/m/RSM2/conv3/Conv"
+      ],
+      "n_fp32_excluded": 16
+    },
+    {
+      "recipe_id": "p10",
+      "role": "percentile, top-24 exclusion",
+      "base_recipe_id": "r10",
+      "calib_method": "percentile",
+      "exclude_nodes": [
+        "/m/conv1/Conv",
+        "/m/RSM1/conv1/Conv",
+        "/m/RSM1/conv2/Conv",
+        "/m/RSM2/conv1/Conv",
+        "/m/RSM1/bn3/BatchNormalization",
+        "/m/RSM2/conv2/Conv",
+        "/m/RSM3/conv1/Conv",
+        "/m/fc1/Gemm",
+        "/m/RSM3/conv2/Conv",
+        "/m/RSM2/bn3/BatchNormalization",
+        "/m/RSM4/conv1/Conv",
+        "/m/RSM4/conv2/Conv",
+        "/m/RSM3/bn3/BatchNormalization",
+        "/m/RSM4/bn3/BatchNormalization",
+        "/m/fc2/Gemm",
+        "/m/RSM2/conv3/Conv",
+        "/m/RSM1/conv3/Conv",
+        "/m/RSM3/conv3/Conv",
+        "/m/out/Gemm",
+        "/Gather",
+        "/m/Flatten",
+        "/m/RSM2/nin/Conv",
+        "/Gather_1",
+        "/Sub"
+      ],
+      "n_fp32_excluded": 24
+    },
+    {
+      "recipe_id": "p11",
+      "role": "percentile, top-32 exclusion",
+      "base_recipe_id": "r11",
+      "calib_method": "percentile",
+      "exclude_nodes": [
+        "/m/conv1/Conv",
+        "/m/RSM1/conv1/Conv",
+        "/m/RSM1/conv2/Conv",
+        "/m/RSM2/conv1/Conv",
+        "/m/RSM1/bn3/BatchNormalization",
+        "/m/RSM2/conv2/Conv",
+        "/m/RSM3/conv1/Conv",
+        "/m/fc1/Gemm",
+        "/m/RSM3/conv2/Conv",
+        "/m/RSM2/bn3/BatchNormalization",
+        "/m/RSM4/conv1/Conv",
+        "/m/RSM4/conv2/Conv",
+        "/m/RSM3/bn3/BatchNormalization",
+        "/m/RSM4/bn3/BatchNormalization",
+        "/m/fc2/Gemm",
+        "/m/RSM2/conv3/Conv",
+        "/m/RSM1/conv3/Conv",
+        "/m/RSM3/conv3/Conv",
+        "/m/out/Gemm",
+        "/Gather",
+        "/m/Flatten",
+        "/m/RSM2/nin/Conv",
+        "/Gather_1",
+        "/Sub",
+        "/m/RSM1/nin/Conv",
+        "/m/MaxPool",
+        "/m/RSM4/conv3/Conv",
+        "/m/MaxPool_3",
+        "/m/RSM4/nin/Conv",
+        "/m/RSM3/nin/Conv",
+        "/m/RSM4/Add",
+        "/m/RSM3/Add"
+      ],
+      "n_fp32_excluded": 32
+    }
+  ],
+  "frozen": "2026-09-29T01:29:52Z"
+}

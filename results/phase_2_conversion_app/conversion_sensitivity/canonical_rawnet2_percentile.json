@@ -1,0 +1,79 @@
+{
+  "mode": "canonical",
+  "locked_recipe": "p07",
+  "canonical_seed": 1,
+  "model": "rawnet2",
+  "fp32_diag_eer": 0.006,
+  "budget_pp": 1.0,
+  "fp32_reference": "/mnt/data8tb/henry/deploybench/results/phase_1_reproduction/scores_dev_rawnet2.csv",
+  "n_diag": 2000,
+  "n_attempts": 5,
+  "n_failed": 0,
+  "attempts": [
+    {
+      "recipe_id": "p07",
+      "calib_seed": 1,
+      "outcome": "ok",
+      "n_fp32_excluded": 8,
+      "precision_label": "int8-mixed (K=8)",
+      "eer": 0.009,
+      "delta_eer_pp": 0.3,
+      "qualifies": true,
+      "artifact_sha256": {
+        "rawnet2_int8.onnx": "f3e85d59c2991712254b7fedd8e615b01397f5a388697e8b73d8ce57072db657"
+      }
+    },
+    {
+      "recipe_id": "p07",
+      "calib_seed": 2,
+      "outcome": "ok",
+      "n_fp32_excluded": 8,
+      "precision_label": "int8-mixed (K=8)",
+      "eer": 0.010000000000000002,
+      "delta_eer_pp": 0.4,
+      "qualifies": true,
+      "artifact_sha256": {
+        "rawnet2_int8.onnx": "9603d611cf4668ef17bc611117901f03bafe57d28673933bfb6f4444afd1f298"
+      }
+    },
+    {
+      "recipe_id": "p07",
+      "calib_seed": 3,
+      "outcome": "ok",
+      "n_fp32_excluded": 8,
+      "precision_label": "int8-mixed (K=8)",
+      "eer": 0.009000000000000001,
+      "delta_eer_pp": 0.3,
+      "qualifies": true,
+      "artifact_sha256": {
+        "rawnet2_int8.onnx": "ec0e23fe8be12cc78e24b3babd6741bc05cd84b36aba6fec0cab16b4d14ee51d"
+      }
+    },
+    {
+      "recipe_id": "p07",
+      "calib_seed": 4,
+      "outcome": "ok",
+      "n_fp32_excluded": 8,
+      "precision_label": "int8-mixed (K=8)",
+      "eer": 0.009,
+      "delta_eer_pp": 0.3,
+      "qualifies": true,
+      "artifact_sha256": {
+        "rawnet2_int8.onnx": "c3bd212a01e74467396e0f160504fa96c28309f17765225b8e79096a7c26e007"
+      }
+    },
+    {
+      "recipe_id": "p07",
+      "calib_seed": 5,
+      "outcome": "ok",
+      "n_fp32_excluded": 8,
+      "precision_label": "int8-mixed (K=8)",
+      "eer": 0.007,
+      "delta_eer_pp": 0.1,
+      "qualifies": true,
+      "artifact_sha256": {
+        "rawnet2_int8.onnx": "c885b484afa6038c443cecab2d3394409b783b57d7ba83aee45ab818e5828bc1"
+      }
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "mode": "canonical",
+  "locked_recipe": "p06",
+  "canonical_seed": null,
+  "model": "aasist",
+  "fp32_diag_eer": 0.0030000000000000027,
+  "budget_pp": 1.0,
+  "fp32_reference": "/mnt/data8tb/henry/deploybench/results/phase_1_reproduction/scores_dev_aasist.csv",
+  "n_diag": 2000,
+  "n_attempts": 5,
+  "n_failed": 5,
+  "attempts": [
+    {
+      "recipe_id": "p06",
+      "calib_seed": 1,
+      "outcome": "failed",
+      "n_fp32_excluded": 6,
+      "precision_label": "int8-mixed (K=6)",
+      "error": "ValueError: Maximum allowed size exceeded",
+      "qualifies": false
+    },
+    {
+      "recipe_id": "p06",
+      "calib_seed": 2,
+      "outcome": "failed",
+      "n_fp32_excluded": 6,
+      "precision_label": "int8-mixed (K=6)",
+      "error": "ValueError: Maximum allowed size exceeded",
+      "qualifies": false
+    },
+    {
+      "recipe_id": "p06",
+      "calib_seed": 3,
+      "outcome": "failed",
+      "n_fp32_excluded": 6,
+      "precision_label": "int8-mixed (K=6)",
+      "error": "ValueError: Maximum allowed size exceeded",
+      "qualifies": false
+    },
+    {
+      "recipe_id": "p06",
+      "calib_seed": 4,
+      "outcome": "failed",
+      "n_fp32_excluded": 6,
+      "precision_label": "int8-mixed (K=6)",
+      "error": "ValueError: Maximum allowed size exceeded",
+      "qualifies": false
+    },
+    {
+      "recipe_id": "p06",
+      "calib_seed": 5,
+      "outcome": "failed",
+      "n_fp32_excluded": 6,
+      "precision_label": "int8-mixed (K=6)",
+      "error": "ValueError: Maximum allowed size exceeded",
+      "qualifies": false
+    }
+  ],
+  "note": "no attempt meets the D36 budget: this model has no qualifying int8 artifact under the frozen design (report it; do not substitute)"
+}
