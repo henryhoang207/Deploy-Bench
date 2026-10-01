@@ -524,10 +524,22 @@ fp32. The default recipe costs +5.9, +12.1 and +12.0\,pp of diagnostic EER for
 AASIST, AASIST-L and Res-TSSDNet, and no tested exclusion set recovers it.
 Every Res-TSSDNet attempt flips about 996 of the 2,000 diagnostic decisions
 at \(\taustar_{\eer}\), which indicates a systematic score shift rather than
-lost ranking. \todo{percentile-calibration arm (DEVIATIONS.md DEV-1,
-exploratory): RawNet2 locks at \(K{=}8\), Res-TSSDNet still has no recipe,
-AASIST-L locks p05; AASIST pending. Report beside, never instead of, the
-registered arm.}
+lost ranking. \emph{A calibration-method arm (exploratory; DEVIATIONS.md DEV-1).} The
+registered search held calibration at minmax. Re-running the same frozen
+exclusion lists with percentile calibration changes the outcome for every
+model. AASIST and AASIST-L reach the budget with 6 and 4 layers in fp32, against
+none at 48 under minmax. RawNet2 needs 8 layers, not 16, and its 19LA-eval cost
+across five calibration seeds narrows to \(-0.12\) to \(+0.37\)\,pp, against
+\(+0.62\) to \(+2.32\). Res-TSSDNet gets closer (+1.50\,pp at \(K{=}4\)) but still
+misses. The registered conclusion that three of four models have no usable int8
+artifact is therefore a property of minmax post-training quantization, not of
+the architectures. The arm also shows where calibration remains fragile: one
+of AASIST-L's five seeds costs +8.8\,pp on 19LA eval under a recipe whose other
+seeds cost +0.9 to +2.5. Its AASIST calibration repeats all failed inside ONNX
+Runtime's histogram calibrator, an artefact of the chunked calibration we used
+to bound memory, so that model has no percentile device artifact. This arm was
+declared after the registered results were known. It is reported beside them,
+never in their place.
 
 \emph{Calibration sensitivity.} For RawNet2 we repeated the locked recipe on
 five independently seeded calibration subsets. All five convert, and an
