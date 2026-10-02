@@ -105,3 +105,51 @@ committed **before** any EnCodec audio was generated or scored, so no H5 result 
   CI: class-stratified bootstrap of the 71,237 eval trials, taus held fixed, B = 1000, seed 0,
   2.5/97.5 percentiles. The cell meets the criterion if QTS > 0.01 and the CI lower bound
   is > 0. Script: `analysis/h3_test.py`, committed before the int8 dev scores existed.
+
+## DEV-4 (2026-10-02): percentile-arm artifacts on the devices
+
+**Status:** post-hoc, **exploratory**. This is the logged decision DEV-1 requires before a
+percentile artifact can become a device artifact (D45). Decided by the user on 2026-10-02 ("go",
+on Claude's recommendation). **What was known:** all registered and percentile desktop results
+(REPORT.md and its addendum), including AASIST-L seed 3 at +8.8 pp on 19LA eval. **No device
+data exist** (no handset has been attached), so no device result informed it.
+
+- **Registered device int8, unchanged:** RawNet2 r09 seed 2, int8-mixed (K=16) (D39). It stays
+  the only int8 artifact in any registered device analysis.
+- **Added, exploratory, labelled "percentile" everywhere:** the percentile-arm canonical
+  artifacts, chosen by the D39 rule applied inside DEV-1 (lowest qualifying seed):
+  RawNet2 p07 seed 1, int8-mixed (K=8); AASIST-L p05 seed 1, int8-mixed (K=4).
+  They are checked against the ledger sha256 before any device run, like the registered one.
+- **Not added:** AASIST (its percentile arm has no canonical artifact; see DEV-5) and
+  Res-TSSDNet (no qualifying percentile recipe).
+- Each enters the device campaign under the same per-artifact procedure as the registered
+  artifact. Results are reported beside the registered ones, never instead of them.
+- **Caveat stated with any AASIST-L result:** the device build is one calibration draw. Its
+  seeds span +0.9 to +8.8 pp on 19LA eval.
+
+## DEV-5 (2026-10-02): repair effort after the conversion failures
+
+**Status:** post-hoc. Decided by the user on 2026-10-02 (D46). **What was known:** every fp16
+result (aasist, aasist_l, tssdnet lossless on the parity manifest; rawnet2 unloadable;
+xlsr_aasist export fails), and the AASIST percentile repeat failures.
+
+- **RawNet2 fp16: one repair attempt.** The fp16 pass rewrites `/m/Sinc_conv/Cast`'s declared
+  output to float16 but leaves its `to` attribute at float, so ORT refuses the graph
+  (`main_matrix/README.md`). The repair keeps that one node in fp32
+  (`to_onnx.py --fp16-node-block /m/Sinc_conv/Cast`; the converter wraps it in Casts). The
+  mechanism is reproduced on a toy graph in `tests/test_conversion_tooling.py`.
+  - Exactly **one attempt**, on the pinned sol1 toolchain. If it does not load, or fails, that
+    is reported and nothing else is tried.
+  - If it loads, it is evaluated exactly like the other fp16 rows: the 1,000-clip parity
+    manifest (diagnostic, never gates), then DF21 verified and ITW at the frozen taus.
+  - **Reporting:** the registered outcome stays "fp16 converts for 3 of 4 ranked models out of
+    the box". The repaired artifact is labelled "fp16 (repaired: 1 node in fp32)" and reported
+    beside it, with the repair effort (1 attempt, 1 node).
+- **AASIST percentile repeats: not repaired.** A fix (a first pass that fixes each tensor's
+  range before binning) changes the calibrator. The repeats would then not be comparable with
+  the locked p06 attempt, so the whole chain would need a re-run as a separate sub-arm. The
+  six failures stay as logged tooling failures, and the AASIST percentile arm has no canonical
+  artifact.
+- **XLS-R export: not repaired.** XLS-R is an unranked server reference and enters no ranking
+  claim or hypothesis count. The failure in fairseq's `pad_to_multiple` under the tracer is
+  reported as a toolchain finding.

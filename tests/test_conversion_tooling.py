@@ -523,3 +523,37 @@ def test_ptq_labels_an_all_excluded_run_as_fp32(calib):
     side = json.loads((tmp / "all_ex" / "tiny_int8_ptq_log.json").read_text())
     assert side["n_quantize_linear"] == side["n_dequantize_linear"] == 0
     assert side["precision_label"] == "none: fp32 graph (no Q/DQ ops)"
+
+
+# ---- fp16 node-block repair (D46) -------------------------------------------
+def _cast_model():
+    """The rawnet2 pattern: a weight Cast(to=FLOAT) feeding a Conv."""
+    from onnx import TensorProto, helper, numpy_helper
+    w = numpy_helper.from_array(np.ones((2, 1, 3), np.float32), "w")
+    nodes = [helper.make_node("Cast", ["w"], ["wc"], name="/m/Sinc_conv/Cast", to=TensorProto.FLOAT),
+             helper.make_node("Conv", ["waveform3d", "wc"], ["score"], name="conv")]
+    g = helper.make_graph(nodes, "cast",
+                          [helper.make_tensor_value_info("waveform3d", TensorProto.FLOAT, [1, 1, 8])],
+                          [helper.make_tensor_value_info("score", TensorProto.FLOAT, [1, 2, 6])], [w])
+    m = helper.make_model(g, opset_imports=[helper.make_opsetid("", 17)])
+    m.ir_version = 8
+    return m
+
+
+def test_fp16_cast_bug_and_node_block_repair():
+    pytest.importorskip("onnxconverter_common")
+    import onnxruntime as ort
+    from to_onnx import to_fp16
+
+    def loads(m):
+        try:
+            s = ort.InferenceSession(m.SerializeToString(), providers=["CPUExecutionProvider"])
+        except Exception:                                       # noqa: BLE001
+            return False
+        out = s.run(None, {"waveform3d": np.ones((1, 1, 8), np.float32)})[0]
+        return bool(np.allclose(out, 3.0))
+
+    assert not loads(to_fp16(_cast_model()))                    # the 2026-09-29 failure
+    assert loads(to_fp16(_cast_model(), ["/m/Sinc_conv/Cast"]))  # the repair
+    with pytest.raises(ValueError, match="not in the graph"):
+        to_fp16(_cast_model(), ["/m/Sinc_conv/Cast_typo"])

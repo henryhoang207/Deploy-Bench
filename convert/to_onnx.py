@@ -23,7 +23,24 @@ def ort_smoke(path: Path, input_samples: int) -> None:
         raise ValueError(f"ORT loads {Path(path).name} but its output is not finite")
 
 
-def export(model_name: str, precision: str, out_dir: Path, checkpoint=None):
+def to_fp16(m, node_block=()):
+    """onnxconverter-common fp16 pass. `node_block` names nodes kept in fp32
+    (the converter wraps them in Casts). It exists for one logged repair (D46):
+    the pass rewrites a Cast's declared output to float16 but leaves its `to`
+    attribute at float, so ORT refuses the graph (rawnet2 `/m/Sinc_conv/Cast`).
+    A name that is not in the graph is refused: a typo would otherwise block
+    nothing and the repair would look applied."""
+    from onnxconverter_common import float16
+    names = {n.name for n in m.graph.node}
+    missing = [n for n in node_block if n not in names]
+    if missing:
+        raise ValueError(f"--fp16-node-block names not in the graph: {missing}")
+    return float16.convert_float_to_float16(
+        m, keep_io_types=True, node_block_list=list(node_block) or None)
+
+
+def export(model_name: str, precision: str, out_dir: Path, checkpoint=None,
+           fp16_node_block=()):
     import torch
     import sys
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -42,6 +59,10 @@ def export(model_name: str, precision: str, out_dir: Path, checkpoint=None):
            "input_samples": spec.input_samples, "opset": 17,
            "started": time.time(), "converts": None, "fallback_ops": [],
            "error": None}
+    if fp16_node_block:
+        if precision != "fp16":
+            raise SystemExit("--fp16-node-block only applies to --precision fp16")
+        log["fp16_node_block"] = list(fp16_node_block)       # the repair, on record
     out = out_dir / f"{model_name}_{precision}.onnx"
     out_dir.mkdir(parents=True, exist_ok=True)
     try:
@@ -56,8 +77,7 @@ def export(model_name: str, precision: str, out_dir: Path, checkpoint=None):
         import onnx
         m = onnx.load(str(out))
         if _to_fp16:
-            from onnxconverter_common import float16
-            m = float16.convert_float_to_float16(m, keep_io_types=True)
+            m = to_fp16(m, fp16_node_block)
             onnx.save(m, str(out))
             # convert_float_to_float16 INLINES every initializer as fp16, so any
             # external-data sidecar torch.onnx.export wrote for the fp32 pass is
@@ -103,5 +123,8 @@ if __name__ == "__main__":
     ap.add_argument("--precision", default="fp32", choices=["fp32", "fp16"])
     ap.add_argument("--checkpoint", default=None)
     ap.add_argument("--out", default="exports")
+    ap.add_argument("--fp16-node-block", default="",
+                    help="comma-separated node names kept in fp32 (logged repair, D46)")
     a = ap.parse_args()
-    export(a.model, a.precision, Path(a.out), a.checkpoint)
+    block = [s for s in a.fp16_node_block.split(",") if s]
+    export(a.model, a.precision, Path(a.out), a.checkpoint, block)
