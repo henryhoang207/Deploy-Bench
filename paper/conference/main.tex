@@ -61,26 +61,29 @@ Threshold Transfer in Speech Deepfake Detection}
 % 42.78-81.78; screening C > 1 for 5/5 models on ITW and DF21 at all policies; XLS-R ITW
 % FRR 49.90); h2_test.txt (3/4); h5_test.txt (4/4, FAR falls for all four); h1_h4.txt
 % (rho 0.00 [-0.62, 0.58]); paper/figures/figures_data.json (XLS-R ITW safe band 0.034 SD).
+% H3/H6 sentence (D50, no numbers): results/analysis/h3_test.txt, h6.md (3 of 4 models without a
+% qualifying int8 artifact: H3 fails on coverage, H6 not evaluable for them).
 \begin{abstract}
-Speech deepfake countermeasures are compared by equal error rate (EER), a
-threshold-free measure, but a deployed detector must fix its threshold in
-advance. We measure what that commitment costs for five published
-countermeasures: four ranked models (AASIST, AASIST-L, RawNet2, Res-TSSDNet)
-and an XLS-R self-supervised reference. Thresholds frozen on ASVspoof~2019 LA
-development data at three operating points are transferred unchanged to the
-2019 LA evaluation set, In-the-Wild, ASVspoof~2021 DF and neural-codec
-resynthesis, under hypotheses registered before any In-the-Wild score existed.
-We report the threshold transfer gap with its error decomposition and a
-threshold-sensitivity safe band. A 1\% false-rejection budget set on source
-data becomes 43--82\% on In-the-Wild. There, false rejection exceeds false
-acceptance for three of four ranked models, and EnCodec resynthesis raises
-false rejection for all four while false acceptance falls (both pre-registered
-tests). Source EER shows no detectable association with the transfer gap
+Speech deepfake countermeasures are compared by a threshold-free equal error
+rate (EER), but a deployed detector must fix its threshold in advance. We
+measure what that costs for five published countermeasures: four ranked models
+(AASIST, AASIST-L, RawNet2, Res-TSSDNet) and an XLS-R self-supervised
+reference. Thresholds frozen on ASVspoof~2019 LA development data at three
+operating points are transferred unchanged to the 2019 LA evaluation set,
+In-the-Wild, ASVspoof~2021 DF and neural-codec resynthesis, under hypotheses
+registered before any In-the-Wild score existed. We report the threshold
+transfer gap, its error decomposition and a threshold-sensitivity safe band. A
+1\% false-rejection budget set on source data becomes 43--82\% on In-the-Wild.
+There, false rejection exceeds false acceptance for three of four ranked models;
+EnCodec resynthesis raises false rejection for all four while false acceptance
+falls (both pre-registered tests). Neither registered hypothesis on int8
+quantization, reported separately, was supported, largely for lack of usable
+int8 models. Source EER shows no detectable association with the gap
 (\(\rho=0.00\), 95\% CI \([-0.62,0.58]\)). At its transferred threshold, the
-most accurate model rejects half of all genuine In-the-Wild speech; its
-saturated scores leave a safe band only 0.03 standard deviations wide. Under a
-screening cost model, every transferred detector costs more than no detector on
-both shifted corpora. We release the harness.
+most accurate model rejects half of genuine In-the-Wild speech: its saturated
+scores leave a safe band 0.03 standard deviations wide. Under a screening cost
+model, every transferred detector costs more than no detector on both shifted
+corpora. We release the harness.
 \end{abstract}
 
 \begin{IEEEkeywords}

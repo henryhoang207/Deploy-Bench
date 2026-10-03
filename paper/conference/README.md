@@ -7,7 +7,8 @@ split rationale: `02_protocol/publication_split.md`.
 **Out of scope, by decision (D49):** conversion, fp16/int8, QTS (H3), H6, calibration-seed spread, the
 percentile arm, repairs, ExecuTorch, any device number, the full stress suite, the decision table. They are
 the journal paper's new content. One sentence says they are reported separately. **Sole exception (D50):**
-the pre-registration statement (Sec. III-E) says H3 and H6 were not supported, with one clause of reason each
+the abstract (one sentence) and the pre-registration statement (Sec. III-E) say H3 and H6 were not supported. The
+statement gives one clause of reason each
 (H3: coverage, not effect size, under the post-hoc DEV-3 counting rule; H6: evaluable for one model, failing on an
 unmeetable clause). It gives no QTS values, int8 numbers or conversion details.
 
@@ -40,14 +41,14 @@ FRR and FAR equal `figures_data.json` and `h1_h4.json` to 1e-12 and its clean-on
 
 ## Open before submission ([U] unless marked)
 - Venue (Interspeech 2027 recommended in D49 notes; this draft is IEEE-format at the user's request). Port to
-  the venue template and its page/abstract rules once chosen. Abstract is 197 words.
+  the venue template and its page/abstract rules once chosen. Abstract is 199 words.
 - Title (D30): working title "Calibrated Once, Deployed Elsewhere: A Pre-Registered Audit of Threshold Transfer
   in Speech Deepfake Detection".
 - Author block: affiliation, e-mail, co-authors (red placeholders).
 - **The harness must be public (or an anonymised mirror) at submission:** the abstract and conclusion say it is
   released; the GitHub repo is private. Repository URL placeholder in `\repo`.
-- Resolved (D50): the H3/H6 outcomes are disclosed in Sec. III-E, and the contributions list points to them.
-  Optional: add them to the abstract too (~10 words; the abstract is 197 words, so check the venue's limit).
+- Resolved (D50): the H3/H6 outcomes are disclosed in the abstract and Sec. III-E, and the contributions list
+  points to them. The abstract is 199 words: check it against the venue's limit.
 - MLAAD-5: if it lands in time (Track A), add it as a language-shift paragraph with the DEV-6 sample-rate
   confound; the current text lists language shift as a limitation.
 - [C] Before submission: re-run `analysis/operating_points.py` and `analysis/figures/conference_figures.py`
