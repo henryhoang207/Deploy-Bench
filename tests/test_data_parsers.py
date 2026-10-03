@@ -191,6 +191,8 @@ def test_build_mlaad_protocol(tmp_path):
     _mk(tmp_path, "mlaad/fake/pl/sysA/z.wav", "")         # pl: 2 spoof, 1 bona fide
     _mk(tmp_path, "mlaad/fake/pl/sysA/z2.wav", "")
     _mk(tmp_path, "mailabs/pl_PL/wavs/p0.wav", "")
+    _mk(tmp_path, "mailabs/pl_PL/wavs/._p0.wav", "")       # AppleDouble metadata, never audio
+    _mk(tmp_path, "mlaad/fake/pl/sysA/._z.wav", "")
     rows, summ = B.build(tmp_path, tmp_path / "mlaad", tmp_path / "mailabs", langs=("de", "pl"))
     ids = [r[0] for r in rows]
     assert len(ids) == len(set(ids)) == 3 + 3 + 2 + 1      # same stem in two systems stays distinct
@@ -202,3 +204,4 @@ def test_build_mlaad_protocol(tmp_path):
     de_only, _ = B.build(tmp_path, tmp_path / "mlaad", tmp_path / "mailabs", langs=("pl", "de"))
     assert [r for r in rows if r[3] == "de"] == [r for r in de_only if r[3] == "de"]  # order-free draw
     assert all(" " not in u and "#" not in u for u in ids)
+    assert not any("._" in r[1] for r in rows)

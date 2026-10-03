@@ -38,14 +38,21 @@ def utt_id(prefix: str, rel: Path) -> str:
     return re.sub(r"[^A-Za-z0-9_.-]", "_", f"{prefix}__{rel.with_suffix('').as_posix()}")
 
 
+def is_audio(p: Path) -> bool:
+    """M-AILABS archives were packed on macOS and carry AppleDouble '._name' files
+    beside real ones; a '._x.wav' is metadata, not audio, and must never be drawn."""
+    return not p.name.startswith("._")
+
+
 def build(root: Path, mlaad: Path, mailabs: Path, seed: int = SEED, langs=LANGS):
     rows, summary = [], {"seed": seed, "languages": {}}
     for lang in langs:
         li = LANGS.index(lang)          # fixed per language, whatever subset runs
-        fake = sorted((mlaad / "fake" / lang).glob("*/*.wav"))
+        fake = sorted(p for p in (mlaad / "fake" / lang).glob("*/*.wav") if is_audio(p))
         if not fake:
             raise SystemExit(f"no MLAAD spoof clips under {mlaad / 'fake' / lang}")
-        pool = sorted(p for loc in LOCALES[lang] for p in (mailabs / loc).rglob("*.wav"))
+        pool = sorted(p for loc in LOCALES[lang] for p in (mailabs / loc).rglob("*.wav")
+                      if is_audio(p))
         if not pool:
             raise SystemExit(f"no M-AILABS wavs for {lang} under {mailabs} {LOCALES[lang]}")
         n = min(len(fake), len(pool))
