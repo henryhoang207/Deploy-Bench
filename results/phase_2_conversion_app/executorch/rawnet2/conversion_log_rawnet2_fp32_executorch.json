@@ -1,0 +1,19 @@
+{
+  "model": "rawnet2",
+  "runtime": "executorch",
+  "precision": "fp32",
+  "backend": "xnnpack",
+  "input_samples": 64600,
+  "versions": {
+    "python": "3.12.3",
+    "torch": "2.14.0+cpu",
+    "executorch": "1.5.1",
+    "torchao": "0.18.0",
+    "numpy": "2.5.3"
+  },
+  "converts": false,
+  "error": "RuntimeError: .numpy() is not supported for tensor subclasses.",
+  "calib_manifest": null,
+  "calib_seed": null,
+  "wall_s": 3.7
+}

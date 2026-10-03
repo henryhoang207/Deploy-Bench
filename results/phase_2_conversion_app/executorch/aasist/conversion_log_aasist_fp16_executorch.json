@@ -1,0 +1,19 @@
+{
+  "model": "aasist",
+  "runtime": "executorch",
+  "precision": "fp16",
+  "backend": "xnnpack",
+  "input_samples": 64600,
+  "versions": {
+    "python": "3.12.3",
+    "torch": "2.14.0+cpu",
+    "executorch": "1.5.1",
+    "torchao": "0.18.0",
+    "numpy": "2.5.3"
+  },
+  "converts": false,
+  "error": "SpecViolationError: These operators are taking Tensor inputs with mismatched dtypes:\n\nOperator: <EdgeOpOverload: aten.convolution.default>: schema = aten::convolution(Tensor input, Tensor weight, Tensor? bias, SymInt[] stride, SymInt[] padding, SymInt[] dilation, bool transposed, SymInt[] output_padding, SymInt groups) -> Tensor with args: {'input': torch.float16, 'weight': torch.float32, '__ret_0': torch.float16}\nstack trace: File \"/mnt/data8tb/henry/deploybench/convert/to_executorch.py\", line 93, in forward\n    return self.inner(x.half()).float()\n  File \"/mnt/data8tb/henry/deploybench/models/wrap_aasist.py\", line 40, in forward\n    _, out = self.m(x)\n  File \"/mnt/data8tb/henry/deploybench/vendor/aasist/models/AASIST.py\", line 531, in forward\n    x = self.conv_time(x, mask=Freq_aug)\n  File \"/mnt/data8tb/henry/deploybench/vendor/aasist/models/AASIST.py\", line 404, in forward\n    return F.conv1d(x,\nPlease make sure the dtypes of the Tensor inputs are the same as the dtypes of the corresponding outputs.",
+  "calib_manifest": null,
+  "calib_seed": null,
+  "wall_s": 20.1
+}

@@ -1,0 +1,21 @@
+{
+  "model": "tssdnet",
+  "runtime": "executorch",
+  "precision": "int8",
+  "backend": "xnnpack",
+  "input_samples": 96000,
+  "versions": {
+    "python": "3.12.3",
+    "torch": "2.14.0+cpu",
+    "executorch": "1.5.1",
+    "torchao": "0.18.0",
+    "numpy": "2.5.3"
+  },
+  "converts": false,
+  "error": "RuntimeError: Weight and Input should both be quantized",
+  "calib_manifest": "/mnt/data8tb/henry/deploybench/configs/conversion_sensitivity/calib_seed3.txt",
+  "calib_seed": 3,
+  "calib_manifest_sha256": "ec31b8bc13aeb7f6a1a1614ce0407408c14ac11791159b6866c2e30d47cbe66d",
+  "calib_clips": 500,
+  "wall_s": 195.1
+}

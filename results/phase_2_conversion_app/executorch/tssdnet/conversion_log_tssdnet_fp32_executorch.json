@@ -1,0 +1,22 @@
+{
+  "model": "tssdnet",
+  "runtime": "executorch",
+  "precision": "fp32",
+  "backend": "xnnpack",
+  "input_samples": 96000,
+  "versions": {
+    "python": "3.12.3",
+    "torch": "2.14.0+cpu",
+    "executorch": "1.5.1",
+    "torchao": "0.18.0",
+    "numpy": "2.5.3"
+  },
+  "converts": true,
+  "error": null,
+  "calib_manifest": null,
+  "calib_seed": null,
+  "smoke_score": -5.762040138244629,
+  "bytes": 1428872,
+  "sha256": "31c098ccb8f92999a60d6bbc6441adeeafb436217b45a1d303df89a6c124eba7",
+  "wall_s": 13.3
+}

@@ -1,0 +1,21 @@
+{
+  "model": "aasist",
+  "runtime": "executorch",
+  "precision": "int8",
+  "backend": "xnnpack",
+  "input_samples": 64600,
+  "versions": {
+    "python": "3.12.3",
+    "torch": "2.14.0+cpu",
+    "executorch": "1.5.1",
+    "torchao": "0.18.0",
+    "numpy": "2.5.3"
+  },
+  "converts": false,
+  "error": "RuntimeError: amax.default only supports keep_dim == True",
+  "calib_manifest": "/mnt/data8tb/henry/deploybench/configs/conversion_sensitivity/calib_seed1.txt",
+  "calib_seed": 1,
+  "calib_manifest_sha256": "839db87d3e542fbff1e4109838e34dd3307b2b0b25c86a033b35c306618b4a9c",
+  "calib_clips": 500,
+  "wall_s": 760.7
+}

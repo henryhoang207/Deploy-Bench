@@ -1,0 +1,14 @@
+{
+  "mode": "conversion",
+  "gates": true,
+  "n": 1000,
+  "max_abs_delta": 0.00030231475830078125,
+  "mean_abs_delta": 1.3792157173091873e-05,
+  "pearson_r": 0.9999999999990102,
+  "decision_flips": {
+    "eer": 0,
+    "frr1": 0,
+    "frr5": 0
+  },
+  "pass": true
+}
