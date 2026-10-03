@@ -10,9 +10,11 @@ the journal paper's new content. One sentence says they are reported separately;
 
 ## Build
 ```
+python analysis/figures/conference_figures.py      # from the repo root: writes figures/*.pdf
 pdflatex main && bibtex main && pdflatex main && pdflatex main
 ```
-MiKTeX now has `ieeetran` (installed since the TIFS notes were written). Build products are gitignored.
+Figure PDFs and LaTeX outputs are build products (`paper/.gitignore` ignores `*.pdf`, as for the TIFS
+figures); only `figures/conference_figures_data.json` is tracked. MiKTeX now has `ieeetran`.
 `\blindtrue` (line ~22) switches to an anonymous author block and placeholder links for double-blind review.
 
 ## Where every number comes from
