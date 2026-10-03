@@ -1,0 +1,8 @@
+# LaTeX build products: compile in place or in a scratch directory; never commit them.
+*.aux
+*.log
+*.bbl
+*.blg
+*.out
+*.synctex.gz
+main.pdf
