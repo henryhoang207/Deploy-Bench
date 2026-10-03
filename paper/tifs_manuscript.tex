@@ -392,9 +392,9 @@ subset by \texttt{deploybench/stress.py}. Each condition is applied
 identically to bona fide and spoof clips. The manifest records the source
 corpus, the clip-list hash and the codec versions, and labels are joined from
 the source protocol at scoring time. Conditions: Opus (6, 24\,kbps), AMR-NB
-(4.75\,kbps), MP3 (32\,kbps), EnCodec (neural, 6\,kbps), MUSAN additive noise
+(4.75\,kbps), MP3 (32\,kbps), EnCodec \cite{defossez23_encodec} (neural, 6\,kbps), MUSAN additive noise
 at 20/10/5\,dB SNR, and phone-microphone impulse responses. Codecs used for any
-training-time augmentation are barred from evaluation. A clean copy passes
+training-time augmentation (e.g., RawBoost \cite{tak22_rawboost}) are barred from evaluation. A clean copy passes
 through the same path as a control.
 \emph{Device measurement.} Each (model, precision, device) cell follows the
 MLPerf mobile single-stream rules \cite{reddi22_mlperf_mobile}: at least 1,024
@@ -453,7 +453,7 @@ fp16 is produced by graph conversion with float32 inputs and outputs, never by
 casting the network. An artifact counts as converted only if ONNX Runtime loads
 it and returns a finite score. The ONNX checker accepts graphs that the runtime
 rejects (Sec.~\ref{sec:res-deploy}).
-int8 uses ONNX Runtime static post-training quantization in QDQ format:
+int8 uses ONNX Runtime static post-training quantization \cite{jacob18_int8} in QDQ format:
 per-channel int8 weights, int8 activations (S8S8), and batch-norm folding
 before quantization. Calibration uses 500 class-balanced 19LA-dev clips drawn
 by a recorded seed. Recipes that keep layers in fp32 are labelled
@@ -755,7 +755,7 @@ XLS-R\,+\,AASIST\textsuperscript{ref} & 0.15 & 0.13 & 10.46 & 14.96 & 1.98 & 5.4
 
 \emph{H2 (confirmatory) is supported.} On In-the-Wild at
 \(\taustar_{\eer}\), false rejection exceeds false acceptance for three of the
-four ranked models (class-stratified paired bootstrap, \(B{=}1000\),
+four ranked models (class-stratified paired bootstrap \cite{koehn04_bootstrap}, \(B{=}1000\),
 Holm--Bonferroni): Res-TSSDNet \(\frr{-}\far = +31.3\)\,pp, AASIST-L +14.1,
 AASIST +1.9 (95\% CI [+0.7, +3.0]); all \(p<0.001\). RawNet2 fails in the
 opposite direction (\(-35.3\)\,pp), consistent with a model that has no

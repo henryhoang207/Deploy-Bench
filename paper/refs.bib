@@ -190,8 +190,8 @@
 
 % ---- TODO (wave 2/3, not yet noted): t-DCF, Guo temp-scaling, Hendrycks
 %      max-softmax, Liu energy-OOD, Jacob int8, MLPerf Tiny, TinyML pitfalls,
-%      Edge energy, WhisperKit, Quantizing Whisper, MLAAD, RADAR, EnCodec,
-%      RawBoost, real-world comms, Koehn paired bootstrap, Kwok et al. 2025.
+%      Edge energy, WhisperKit, Quantizing Whisper, MLAAD, RADAR,
+%      real-world comms, Kwok et al. 2025.  (EnCodec, RawBoost, Jacob int8, Koehn: added below.)
 
 % ---- ADDED for Related Work (sec.2). Verify all before .bib freeze. --------
 @article{li25_survey,
@@ -296,4 +296,41 @@
   booktitle = {Proc. IEEE ICASSP},
   year      = {2025},
   note      = {arXiv:2501.03643}
+}
+
+% ---- Added 2026-10-03: titles/authors verified against the arXiv API (export.arxiv.org)
+%      and the ACL Anthology record; venues as published (re-check before the .bib freeze).
+@article{defossez23_encodec,
+  author  = {D\'{e}fossez, Alexandre and Copet, Jade and Synnaeve, Gabriel and Adi, Yossi},
+  title   = {High Fidelity Neural Audio Compression},
+  journal = {Transactions on Machine Learning Research},
+  year    = {2023},
+  note    = {arXiv:2210.13438}
+}
+
+@inproceedings{tak22_rawboost,
+  author    = {Tak, Hemlata and Kamble, Madhu and Patino, Jose and Todisco, Massimiliano and Evans, Nicholas},
+  title     = {{RawBoost}: A Raw Data Boosting and Augmentation Method Applied to Automatic
+               Speaker Verification Anti-Spoofing},
+  booktitle = {Proc. IEEE ICASSP},
+  year      = {2022},
+  note      = {arXiv:2111.04433}
+}
+
+@inproceedings{jacob18_int8,
+  author    = {Jacob, Benoit and Kligys, Skirmantas and Chen, Bo and Zhu, Menglong and Tang, Matthew
+               and Howard, Andrew and Adam, Hartwig and Kalenichenko, Dmitry},
+  title     = {Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference},
+  booktitle = {Proc. IEEE/CVF CVPR},
+  year      = {2018},
+  note      = {arXiv:1712.05877}
+}
+
+@inproceedings{koehn04_bootstrap,
+  author    = {Koehn, Philipp},
+  title     = {Statistical Significance Tests for Machine Translation Evaluation},
+  booktitle = {Proc. EMNLP},
+  pages     = {388--395},
+  year      = {2004},
+  url       = {https://aclanthology.org/W04-3250/}
 }
