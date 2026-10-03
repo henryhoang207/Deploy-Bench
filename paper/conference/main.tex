@@ -129,7 +129,9 @@ registered, and frozen, before any ITW score existed. Our contributions:
 \item \emph{A pre-registered five-model audit} with two confirmatory tests under
   Holm correction (H2: FRR exceeds FAR on ITW; H5: neural-codec resynthesis
   raises FRR more than FAR) and two exploratory estimates (H1: source EER
-  against TTG; H4: model size against TTG).
+  against TTG; H4: model size against TTG). The registration's two other
+  confirmatory hypotheses, on int8 quantization, were not supported;
+  Sec.~\ref{sec:prereg} states their outcomes.
 \item \emph{Four findings.} Unseen attacks raise false acceptance, but under
   corpus shift the larger error is genuine speech rejected, and a
   false-rejection budget fixed on source data does not survive transfer.
@@ -319,6 +321,7 @@ a committed one.
 % src (refusal): analysis/operating_points.py, analysis/figures/conference_figures.py.
 
 \subsection{Hypotheses, statistics and pre-registration}
+\label{sec:prereg}
 % src: PREREGISTRATION.md (H1, H2, H4, H5 statements; frozen decisions); DEVIATIONS.md DEV-2;
 % analysis/h2_test.py, h5_test.py, h1_h4.py (B = 1000, seed 0, stratification, Holm).
 \emph{H2} (confirmatory): on ITW at \(\tauE\), FRR exceeds FAR for a majority
@@ -335,16 +338,33 @@ class-stratified bootstrap, and correlation intervals from a bootstrap over
 points. Exploratory results carry effect sizes and intervals only.
 
 \emph{Pre-registration statement.} The hypotheses were registered on 19~July
-2026, amended in August and September, and frozen on 28~September 2026
+2026, amended in August (after a Res-TSSDNet conversion pilot) and in September
+(after the fp32 reproduction runs), and frozen on 28~September 2026
 (\preregref). Every ITW score and all EnCodec audio postdate the freeze. Of the
 DF21 scores, only RawNet2's, computed for its reproduction gate, predate it.
-This paper reports H1, H2, H4 and H5. The other two registered hypotheses, H3
-and H6, concern quantized models. They are reported in a separate paper,
-together with the conversion and on-device measurements. One logged deviation applies: the H5 source set and test details
-were fixed after the freeze but before any EnCodec audio existed. The H2
-resampling details, which the registration leaves open, were fixed after the
-descriptive ITW rates had been seen. The cost-weighted check is registered, and
-this paper is its first computation.
+This paper reports H1, H2, H4 and H5 in full. The registration's two other
+confirmatory hypotheses concern int8 quantization, and \emph{neither was
+supported}. Their analysis appears in a separate paper, with the conversion and
+on-device measurements. H3 predicted that keeping the fp32 threshold after int8
+quantization, instead of re-calibrating it, costs more than one HTER point for
+at least half of the ranked models. It failed on coverage, not on effect size:
+three of the four models yielded no usable int8 model under the registered
+procedure, and the one cell that could be computed met the criterion. The rule
+that counts a missing model as a failure is a logged deviation, fixed after the
+conversion outcomes were known, and it made H3 impossible to support. H6
+predicted which operator classes must stay in floating point for int8 to stay
+within its accuracy budget. It could be evaluated for one model only, and there
+it failed on a clause that the quantizer used could never satisfy. Res-TSSDNet's
+cells in both tests were not blind. Two further details were fixed after the
+freeze: the H5 source set and test (a logged deviation), before any EnCodec
+audio existed, and the H2 resampling procedure, which the registration leaves
+open, after the descriptive ITW rates had been seen. The cost-weighted check is
+registered, and this paper is its first computation.
+% src (H3/H6 outcomes; D50 discloses outcomes and reasons only, no QTS or int8 numbers):
+% results/analysis/h3_test.txt (1 of 4 cells meet, 2 required; "fails on coverage (DEV-3), not
+% on effect size"); results/analysis/h6.md (not supported; 3 of 4 not evaluable; RawNet2 GRU
+% clause unmeetable, disclosure 1; Res-TSSDNet non-blind, disclosure 2); DEVIATIONS.md DEV-2,
+% DEV-3; decision.md D36, D40 (amendment timing); D50 (this disclosure).
 
 % ============================ 4. RESULTS ======================================
 \section{Results}
@@ -458,7 +478,10 @@ which holds under five other bootstrap seeds and under unstratified resampling
 released checkpoint does not separate ITW at all (EER 49.0\%, AUC 0.51), and its
 source threshold accepts most clips of either class. Outside the registered test,
 the asymmetry grows at the stricter policies: at \(\tauF{5}\), FRR exceeds FAR
-for all five models on ITW, RawNet2 included (83.5\% against 10.2\%).
+for all five models on ITW, RawNet2 included (83.5\% against 10.2\%). In
+deployment terms, Res-TSSDNet at \(\tauE\) rejects half of all genuine ITW
+speech while accepting a fifth of the fakes.
+% src (deployment terms): results/analysis/h2_test.txt (tssdnet FRR 50.28 / FAR 18.97).
 % src (frr5 ITW): results/analysis/operating_points.txt, "== itw" block, frr5 rows.
 % src (AUC 0.510): results/phase_2_conversion_app/main_matrix/itw_fp32_descriptives.txt.
 
