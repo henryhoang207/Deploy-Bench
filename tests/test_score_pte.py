@@ -44,3 +44,28 @@ def test_missing_sidecar(tmp_path):
     pte.write_bytes(b"x")
     with pytest.raises(SystemExit, match="no sidecar"):
         check_artifact(pte, "fp32")
+
+
+def test_select_et_canonical_lowest_qualifying_seed(tmp_path):
+    import csv as _csv
+    import numpy as np
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "convert"))
+    from select_et_canonical import select
+    rng = np.random.default_rng(0)
+    y = np.r_[np.ones(1000, int), np.zeros(1000, int)]
+
+    def write(p, noise):
+        p.parent.mkdir(parents=True, exist_ok=True)
+        s = y * 2.0 + rng.normal(0, noise, y.size)
+        with open(p, "w", newline="") as f:
+            w = _csv.writer(f)
+            w.writerow(["utt_id", "label", "score"])
+            w.writerows((f"u{i}", int(l), float(v)) for i, (l, v) in enumerate(zip(y, s)))
+    write(tmp_path / "diag_fp32_executorch.csv", 0.8)
+    write(tmp_path / "int8_seed1" / "diag_int8_executorch.csv", 2.0)   # far outside budget
+    write(tmp_path / "int8_seed3" / "diag_int8_executorch.csv", 0.8)   # within budget
+    write(tmp_path / "int8_seed4" / "diag_int8_executorch.csv", 0.8)
+    r = select(tmp_path)
+    assert r["seeds"][1]["within_budget"] is False
+    assert "missing" in r["seeds"][2]["status"]                         # reported, not replaced
+    assert r["canonical_seed"] == 3
