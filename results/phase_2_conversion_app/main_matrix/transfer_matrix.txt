@@ -31,6 +31,8 @@ tssdnet/itw            fp16 executorch    n= 31779 EER  34.10% | tau_eer HTER  3
 
 tssdnet/df21_verified  fp32               n=455508 EER  28.09% | tau_eer HTER  29.00% FRR  52.83% FAR   5.17%
 tssdnet/df21_verified  fp16               n=455508 EER  28.11% | tau_eer HTER  28.95% FRR  52.68% FAR   5.22% | dEER +0.01 pp, flips 232
+tssdnet/df21_verified  fp16 executorch    n=455508 EER  28.06% | tau_eer HTER  29.16% FRR  53.21% FAR   5.11% | dEER -0.03 pp, flips 375
 tssdnet/df21_clean     fp32               n=305525 EER  23.89% | tau_eer HTER  25.98% FRR  47.59% FAR   4.37%
 tssdnet/df21_clean     fp16               n=305525 EER  23.90% | tau_eer HTER  25.91% FRR  47.40% FAR   4.41% | dEER +0.01 pp, flips 128
+tssdnet/df21_clean     fp16 executorch    n=305525 EER  23.84% | tau_eer HTER  26.19% FRR  48.06% FAR   4.32% | dEER -0.05 pp, flips 215
 

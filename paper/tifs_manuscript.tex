@@ -620,7 +620,9 @@ path changes which models can be deployed at all. Res-TSSDNet converts at fp32
 and passes the zero-flip gate (maximum score difference \(3{\times}10^{-4}\)).
 Its fp16 artifact flips no decision on the parity manifest, and on ITW its EER
 moves by \(-0.07\)\,pp (29 flips at \(\taustar_{\eer}\)).
-\todo{ExecuTorch fp16 on DF21 verified: running}
+On the DF21 verified surface its EER moves by \(-0.03\)\,pp, yet at the frozen
+\(\taustar_{\eer}\) its FRR rises by 0.38\,pp (375 flips, against 232 for the
+ONNX Runtime fp16 artifact): a small instance of an EER-invisible shift.
 The other three ranked models do not convert at any precision. RawNet2's SincConv
 layer rebuilds its filters with NumPy inside \texttt{forward}, which the
 TorchScript tracer froze as a constant but \texttt{torch.export} cannot trace.

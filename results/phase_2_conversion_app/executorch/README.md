@@ -55,7 +55,20 @@ all** before it changes any score.
 
 ## Pending
 
-- Res-TSSDNet fp16 on ITW and the DF21 verified surface (`sol1:xfer/et_surfaces.sh`, running
-  since 2026-10-03 11:19), then MLAAD-5 once its protocol exists (DEV-6).
+- MLAAD-5 for Res-TSSDNet fp16 once its protocol exists (DEV-6; `scripts/sol1/mlaad_scoring.sh`).
+
+## Res-TSSDNet fp16 .pte on the transfer surfaces (frozen 19LA-dev taus; `main_matrix/transfer_matrix.txt`)
+
+| surface | n | fp32 EER | ET fp16 EER | dEER | HTER@tau_eer fp32 -> ET | FRR fp32 -> ET | flips | ORT fp16 flips |
+|---|---|---|---|---|---|---|---|---|
+| ITW | 31,779 | 34.17% | 34.10% | -0.07 pp | 34.62 -> 34.57 | 50.28 -> 50.26 | 29 | 16 |
+| DF21 verified | 455,508 | 28.09% | 28.06% | -0.03 pp | 29.00 -> 29.16 | 52.83 -> 53.21 | 375 | 232 |
+| DF21 clean | 305,525 | 23.89% | 23.84% | -0.05 pp | 25.98 -> 26.19 | 47.59 -> 48.06 | 215 | 128 |
+
+ITW: `xfer/et_surfaces.sh` (2026-10-03 11:19-11:29). DF21: the first attempt failed in every shard
+because `envs/et` lacked imageio-ffmpeg (D34 FLAC fallback). It was installed at 0.6.0 (ffmpeg 7.0.2,
+as in db310) and the step rerun (`xfer/et_surfaces_df21.sh`, 15:25-18:06). The rerun decoded the same
+149,983 class-A files through the MD5-verified fallback as every earlier DF21 run. The EER does
+not move, but at the frozen tau_eer FRR rises 0.38 pp on DF21: a small shift that EER cannot see.
 - Device cells: `executorch` x {tssdnet fp32, tssdnet fp16} only. Every other executorch cell is
   refused by `deploybench.artifacts.et_artifact` (no gate pass or no canonical int8).
