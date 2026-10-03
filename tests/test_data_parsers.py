@@ -163,7 +163,42 @@ def test_itw_refuses_unknown_labels(tmp_path, label):
 
 
 def test_mlaad(tmp_path):
-    _mk(tmp_path, "mlaad/meta.csv",
-        "path|language|model_name\nfake/de/x1.wav|de|xtts_v2\n")
+    _mk(tmp_path, "mlaad5/protocol.csv",
+        "utt_id,path,label,lang,system\n"
+        "mlaad__fake_de_xtts_x1,mlaad/fake/de/xtts/x1.wav,0,de,xtts\n"
+        "mailabs__de_DE_b_y1,mailabs/de_DE/b/y1.wav,1,de,bonafide\n")
     rows = list(protocol_iter("mlaad", root=tmp_path))
-    assert rows[0][2] == 0 and rows[0][0] == "x1"
+    assert [r[2] for r in rows] == [0, 1] and rows[0][0] == "mlaad__fake_de_xtts_x1"
+    assert rows[1][1] == tmp_path / "mailabs/de_DE/b/y1.wav"
+
+
+@pytest.mark.parametrize("bad", ["2", "", "spoof"])
+def test_mlaad_refuses_unknown_labels(tmp_path, bad):
+    _mk(tmp_path, "mlaad5/protocol.csv",
+        f"utt_id,path,label,lang,system\nu,mlaad/x.wav,{bad},de,s\n")
+    with pytest.raises(ValueError, match="unusable row"):
+        list(protocol_iter("mlaad", root=tmp_path))
+
+
+def test_build_mlaad_protocol(tmp_path):
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+    import build_mlaad_protocol as B
+    for i in range(3):                                   # 3 de spoof clips, 2 systems
+        _mk(tmp_path, f"mlaad/fake/de/sys{i % 2}/same_name.wav" if i < 2
+            else "mlaad/fake/de/sys0/other.wav", "")
+    for i in range(5):
+        _mk(tmp_path, f"mailabs/de_DE/by_book/female/eva/book/wavs/f{i}.wav", "")
+    _mk(tmp_path, "mlaad/fake/pl/sysA/z.wav", "")         # pl: 2 spoof, 1 bona fide
+    _mk(tmp_path, "mlaad/fake/pl/sysA/z2.wav", "")
+    _mk(tmp_path, "mailabs/pl_PL/wavs/p0.wav", "")
+    rows, summ = B.build(tmp_path, tmp_path / "mlaad", tmp_path / "mailabs", langs=("de", "pl"))
+    ids = [r[0] for r in rows]
+    assert len(ids) == len(set(ids)) == 3 + 3 + 2 + 1      # same stem in two systems stays distinct
+    assert summ["languages"]["de"] == {"spoof": 3, "bonafide": 3, "bonafide_pool": 5,
+                                       "systems": 2, "imbalanced": False}
+    assert summ["languages"]["pl"]["imbalanced"] is True
+    again, _ = B.build(tmp_path, tmp_path / "mlaad", tmp_path / "mailabs", langs=("de", "pl"))
+    assert again == rows                                  # deterministic draw
+    de_only, _ = B.build(tmp_path, tmp_path / "mlaad", tmp_path / "mailabs", langs=("pl", "de"))
+    assert [r for r in rows if r[3] == "de"] == [r for r in de_only if r[3] == "de"]  # order-free draw
+    assert all(" " not in u and "#" not in u for u in ids)

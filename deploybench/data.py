@@ -20,7 +20,9 @@ REGISTRY = {
     "asvspoof5_dev":    ("ASVspoof5/dev", None, None),
     "asvspoof5_eval":   ("ASVspoof5/eval", None, None),
     "itw":              ("release_in_the_wild", "meta.csv", 31779),
-    "mlaad":            ("mlaad", "meta.csv", None),
+    # MLAAD-5 (D47/DEV-6): the frozen protocol from scripts/build_mlaad_protocol.py
+    # (MLAAD spoof + count-matched M-AILABS bona fide), not MLAAD's own meta files.
+    "mlaad":            ("mlaad5", "protocol.csv", None),
     "musan":            ("musan", None, None),
 }
 
@@ -223,20 +225,20 @@ def _iter_itw(root: Path):
 
 
 def _iter_mlaad(root: Path):
-    """MLAAD meta.csv: tolerant reader — needs a path-like column; MLAAD is
-    all-spoof (label 0) unless an explicit label column says otherwise."""
+    """The frozen MLAAD-5 protocol (D47/DEV-6): utt_id,path,label,lang,system with
+    path relative to DATA_ROOT and label 1 = bona fide. Strict: the old tolerant
+    reader defaulted every unlabeled row to spoof and skipped path-less rows, the
+    silent-default pattern this harness refuses."""
     import csv as _csv
     sub, proto, _ = REGISTRY["mlaad"]
-    base = root / sub
-    with open(base / proto, newline="") as f:
-        sniff = _csv.Sniffer().sniff(f.read(4096), delimiters=",;|\t")
-        f.seek(0)
-        for row in _csv.DictReader(f, dialect=sniff):
-            fn = row.get("path") or row.get("file") or row.get("filename")
-            if not fn:
-                continue
-            lab = (row.get("label") or row.get("key") or "spoof").strip().lower()
-            yield Path(fn).stem, base / fn, int(lab in ("bona-fide", "bonafide"))
+    with open(root / sub / proto, newline="", encoding="utf-8") as f:
+        rd = _csv.DictReader(f)
+        if rd.fieldnames != ["utt_id", "path", "label", "lang", "system"]:
+            raise ValueError(f"{root / sub / proto}: unexpected header {rd.fieldnames}")
+        for row in rd:
+            if row["label"] not in ("0", "1") or not row["path"] or not row["utt_id"]:
+                raise ValueError(f"{root / sub / proto}: unusable row {row!r}")
+            yield row["utt_id"], root / row["path"], int(row["label"])
 
 
 def protocol_iter(dataset: str, root: Path = None):
