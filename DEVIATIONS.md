@@ -153,3 +153,69 @@ xlsr_aasist export fails), and the AASIST percentile repeat failures.
 - **XLS-R export: not repaired.** XLS-R is an unranked server reference and enters no ranking
   claim or hypothesis count. The failure in fairseq's `pad_to_multiple` under the tracer is
   reported as a toolchain finding.
+
+## DEV-6 (2026-10-03): the MLAAD-5 evaluation surface
+
+**Status:** a surface the protocol planned (`02_protocol/audit_plan.md`: "MLAAD v5+, 5 languages
+(en, de, it, fr, pl)", the language shift axis) but PREREGISTRATION.md never specified. It is
+specified here before any MLAAD or M-AILABS audio has been scored. Decided by the user on
+2026-10-03 (D47: "MLAAD: score it"; bona fide = "M-AILABS, matched"). **What was known:** every
+19LA-eval, DF21 and ITW result in this study. **Exploratory:** no registered hypothesis test uses
+MLAAD. H1 stays the ITW test it was registered as. M-AILABS acquisition started on sol1 before
+this entry, which governs only scoring.
+
+- **Spoof side:** Hugging Face `mueller91/MLAAD` (gated, CC BY-NC 4.0), the snapshot current at
+  download. Its commit hash and a per-file sha256 list are committed with the protocol. Every
+  `fake/<lang>/<system>/*.wav` clip for lang in {en, de, it, fr, pl}, label 0.
+- **Bona fide side:** M-AILABS, the corpus MLAAD synthesises from, for the same languages:
+  en_US + en_UK, de_DE, it_IT, fr_FR, pl_PL (`ics.tau-ceti.space` mirror; sizes checked
+  against Content-Length; sha256 recorded). Per language, a uniform draw without replacement
+  of as many bona fide clips as that language has spoof clips, numpy default_rng(20261003),
+  label 1. Where M-AILABS has fewer clips, all of them are used and the imbalance is reported.
+- **Frozen before scoring:** `scripts/build_mlaad_protocol.py` writes the protocol
+  (utt_id, path, label, lang, system), and its sha256 is committed. The loader reads only that
+  file and refuses unknown labels.
+- **Scoring:** the same artifacts as the main matrix, at the frozen 19LA-dev taus (nothing
+  re-calibrated): fp32 PyTorch for all 5 models; ORT fp16 for the 4 ranked models (RawNet2 =
+  the D46 repaired artifact, labelled as such); ORT int8 = the D39 canonical RawNet2 artifact;
+  and the ExecuTorch artifacts of DEV-7 once they exist. Audio is resampled to 16 kHz by
+  the harness's existing `resample_poly` path.
+- **Reported:** EER; HTER, FRR and FAR at tau_eer/tau_frr1/tau_frr5; TTG; dEER and flips
+  against fp32. Pooled and per language. Descriptive; no confirm/refute language.
+- **Confound to state with every MLAAD number:** the bona fide audio is native 16 kHz; the
+  spoof audio comes from TTS systems at other rates and is resampled. A detector can separate
+  the classes partly by resampling traces, so MLAAD EER is not a clean language effect.
+
+## DEV-7 (2026-10-03): ExecuTorch as a second runtime (OD-4 resolved: report both)
+
+**Status:** post-hoc, **exploratory**. Resolves OD-4. Decided by the user on 2026-10-03 (D48:
+"OD-4: report both"; int8 = "Default recipe, 5 seeds"). **What was known:** all ORT conversion
+results (REPORT.md and its addendum, main_matrix/README.md). ExecuTorch results never enter a
+registered hypothesis test or replace an ORT result.
+
+- **Toolchain:** its own venv on sol1 (`envs/et`, Python 3.12; executorch 1.5.1 needs
+  numpy >= 2, which the fairseq-pinned db310 env cannot take). The installed torch/torchao/
+  executorch versions are recorded in every conversion log. XNNPACK partitioner.
+  `export_module()` is the exported graph (D13), as for ONNX.
+- **Models:** the 4 ranked models. XLS-R is not attempted: it is the unranked reference, it
+  enters no runtime comparison, and it failed ONNX export in fairseq code.
+- **fp32 .pte:** gated like ORT fp32. Zero decision flips at tau_eer/frr1/frr5 against PyTorch
+  fp32 on the 1,000-clip parity manifest. A failed gate is reported, not repaired.
+- **fp16 .pte:** a half-precision copy of the export module, input cast to fp16 and output to
+  fp32 inside the graph, lowered to XNNPACK. Diagnostic against fp32 on the parity manifest.
+  A failed export is a result (no repair without a further logged decision).
+- **int8 .pte:** PT2E static quantisation with XNNPACKQuantizer and its default symmetric
+  config (per-channel weights), with **no fp32 exclusions and no recipe search**. It is
+  calibrated on each of the five D39 calibration manifests (seeds 1-5, 500 clips each),
+  plus one identical-manifest rebuild as the repeatability control. Each seed is scored on the
+  2,000-clip diagnostic subset and on ASVspoof19 LA eval (as D41).
+  **Canonical device artifact:** the lowest seed within +1.0 pp diagnostic EER of the
+  model's ExecuTorch fp32 (the D36 budget and D39 rule). If none qualifies, the model has no
+  ExecuTorch int8 artifact. That is reported, and no seed or recipe is substituted.
+- **"Converts":** the executorch Python runtime loads the .pte and returns one finite score
+  (same rule as ORT, `to_onnx.ort_smoke`).
+- **Surfaces:** parity manifest (all precisions); DF21 verified, ITW and MLAAD-5 (DEV-6) for the
+  fp16 and canonical int8 artifacts, as for ORT.
+- **Devices:** an ExecuTorch runner in the app. `executorch` cells stay refused (exit 3) until
+  the runner exists and the desktop fp32 gate has passed. The device grid then becomes
+  4 models x 3 precisions x 2 runtimes per phone.
