@@ -6,6 +6,8 @@ For every ranked model and every score file that exists:
   fp32  results/phase_2_conversion_app/main_matrix/<m>/scores_fp32_pytorch_{itw,df21_verified}.csv
   fp16  results/phase_2_conversion_app/main_matrix/<m>/scores_fp16_ort_{itw,df21_verified}.csv
   int8  the D39 canonical artifact only (canonical_<m>.json -> run dir scores_{itw,df21_verified}.csv)
+  fp16r the D46 one-node repair (rawnet2 only): main_matrix/<m>/fp16_repaired_d46/
+        scores_fp16repaired_ort_*.csv, shown as "fp16-repaired(D46)", never as plain fp16
 it prints EER, HTER/FRR/FAR at tau_eer, and, for fp16/int8, dEER and decision flips against
 the fp32 file on identical trials. DF21 is also shown clean-only (D34 sensitivity surface).
 Descriptive: H3 (QTS) and H6 have their own registered analyses.
@@ -43,6 +45,7 @@ def load(p: Path, model: str, precision: str, dataset: str) -> dict:
 def files(model: str, key: str):
     yield "fp32", MM / model / f"scores_fp32_pytorch_{key}.csv", None
     yield "fp16", MM / model / f"scores_fp16_ort_{key}.csv", None
+    yield "fp16r", MM / model / "fp16_repaired_d46" / f"scores_fp16repaired_ort_{key}.csv", None
     can = CS / f"canonical_{model}.json"
     if can.is_file():
         c = json.loads(can.read_text())
@@ -69,8 +72,10 @@ def main():
             loaded = {}
             for prec, p, side in files(m, key):
                 if p.is_file():
-                    label = report_label(prec, side) if prec == "int8" else prec
-                    loaded[prec] = (load(p, m, prec, ds), label)
+                    label = (report_label(prec, side) if prec == "int8"
+                             else "fp16-repaired(D46)" if prec == "fp16r" else prec)
+                    # the repaired graph is fp16 (score_onnx checks it); only the file says repaired
+                    loaded[prec] = (load(p, m, "fp16" if prec == "fp16r" else prec, ds), label)
             if "fp32" not in loaded:
                 print(f"{m:9s} {key:14s} (no fp32 scores)")
                 continue
@@ -80,7 +85,7 @@ def main():
                 surfaces.append(("df21_clean", sorted(u for u in ref if u in clean)))
             for sname, ids in surfaces:
                 _, e32, s32 = row("", ids, ref, ref, tau, "fp32")
-                for prec in ("fp32", "fp16", "int8"):
+                for prec in ("fp32", "fp16", "fp16r", "int8"):
                     if prec not in loaded:
                         continue
                     sc, label = loaded[prec]

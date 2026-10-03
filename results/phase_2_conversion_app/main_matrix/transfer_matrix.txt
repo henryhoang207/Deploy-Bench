@@ -15,11 +15,14 @@ aasist_l/df21_clean    fp32               n=305525 EER  11.63% | tau_eer HTER  1
 aasist_l/df21_clean    fp16               n=305525 EER  11.61% | tau_eer HTER  11.54% FRR  13.49% FAR   9.59% | dEER -0.01 pp, flips 67
 
 rawnet2/itw            fp32               n= 31779 EER  49.00% | tau_eer HTER  51.41% FRR  33.75% FAR  69.07%
+rawnet2/itw            fp16-repaired(D46) n= 31779 EER  49.00% | tau_eer HTER  51.42% FRR  33.70% FAR  69.14% | dEER -0.00 pp, flips 18
 rawnet2/itw            int8-mixed (K=16)  n= 31779 EER  51.11% | tau_eer HTER  52.30% FRR  34.95% FAR  69.66% | dEER +2.11 pp, flips 5345
 
 rawnet2/df21_verified  fp32               n=455508 EER  19.65% | tau_eer HTER  19.64% FRR  33.68% FAR   5.60%
+rawnet2/df21_verified  fp16-repaired(D46) n=455508 EER  19.66% | tau_eer HTER  19.64% FRR  33.67% FAR   5.62% | dEER +0.01 pp, flips 76
 rawnet2/df21_verified  int8-mixed (K=16)  n=455508 EER  20.90% | tau_eer HTER  20.38% FRR  33.99% FAR   6.76% | dEER +1.24 pp, flips 12022
 rawnet2/df21_clean     fp32               n=305525 EER  15.06% | tau_eer HTER  15.58% FRR  26.48% FAR   4.67%
+rawnet2/df21_clean     fp16-repaired(D46) n=305525 EER  15.07% | tau_eer HTER  15.58% FRR  26.48% FAR   4.69% | dEER +0.00 pp, flips 39
 rawnet2/df21_clean     int8-mixed (K=16)  n=305525 EER  16.44% | tau_eer HTER  16.50% FRR  26.88% FAR   6.13% | dEER +1.38 pp, flips 7953
 
 tssdnet/itw            fp32               n= 31779 EER  34.17% | tau_eer HTER  34.62% FRR  50.28% FAR  18.97%

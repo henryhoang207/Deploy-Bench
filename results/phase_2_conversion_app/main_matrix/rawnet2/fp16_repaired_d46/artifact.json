@@ -1,0 +1,9 @@
+{
+  "artifact": "exports/repair_d46/rawnet2_fp16.onnx",
+  "bytes": 35641282,
+  "sha256": "41734087411872b6df45648dc574a6e0970e503dcbc3cddfa9bb006ca5bd4257",
+  "label": "fp16 (repaired: 1 node in fp32)",
+  "fp16_node_block": [
+    "/m/Sinc_conv/Cast"
+  ]
+}

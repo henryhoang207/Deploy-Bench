@@ -597,6 +597,14 @@ checker but that ONNX Runtime refuses to load: a \texttt{Cast} in the SincConv
 layer keeps a float32 target while its output is declared float16. Our
 exporter originally logged that graph as converted; it now requires the
 runtime to load and execute an artifact before calling it converted.
+One logged repair attempt (DEVIATIONS.md DEV-5), which keeps that single
+\texttt{Cast} node in fp32, gives a loadable 35.6\,MB graph with 0/0/1
+decision flips on the parity manifest. On ITW and the DF21 verified surface its
+EER moves by at most 0.01\,pp (18 and 76 flips at \(\taustar_{\eer}\)).
+We still count fp16 as converting out of the box for three of the four ranked
+models; the repair shows that the fourth failure is a converter defect, not a
+property of the model.
+% src: results/phase_2_conversion_app/main_matrix/rawnet2/fp16_repaired_d46/ + transfer_matrix.txt
 
 \begin{table}[!t]
 \caption{Conversion outcomes. fp32: decision flips at
@@ -612,11 +620,12 @@ Model & fp32 ONNX & fp16 & int8 (registered) \\
 \midrule
 AASIST       & 0/0/0 & 0/0/0 & none within budget (best \(K{=}48\): +1.40\,pp) \\
 AASIST-L     & 0/0/0 & 0/0/1 & none within budget (best \(K{=}48\): +1.70\,pp) \\
-RawNet2      & 0/0/0 & unloadable & \(K{=}16\): +0.90\,pp \\
+RawNet2      & 0/0/0 & unloadable\textsuperscript{\dag} & \(K{=}16\): +0.90\,pp \\
 Res-TSSDNet  & 0/0/0 & 0/0/1 & none within budget (best \(K{=}32\): +2.90\,pp) \\
 XLS-R\,+\,AASIST\textsuperscript{ref} & export fails & export fails & --- \\
 \bottomrule
 \end{tabular}}
+\\[2pt]{\footnotesize \textsuperscript{\dag}After one logged repair (one node kept in fp32): 0/0/1.}
 \end{table}
 
 Integer quantization is where the roster breaks. Under the registered search
