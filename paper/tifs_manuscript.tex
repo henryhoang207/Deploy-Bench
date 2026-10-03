@@ -16,6 +16,7 @@
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{algorithmic}
 \usepackage{graphicx}
+\graphicspath{{figures/}}
 \usepackage{booktabs}
 \usepackage{multirow}
 \usepackage{siunitx}          % latency/energy units
@@ -399,7 +400,12 @@ through the same path as a control.
 MLPerf mobile single-stream rules \cite{reddi22_mlperf_mobile}: at least 1,024
 queries and at least 60\,s per cell, latency reported as p50/p90/p95, a thermal
 gate before each cell, and three sessions per device.
-\todo{sensitivity-curve definition and safe-band width; energy method.}
+\emph{Threshold sensitivity.} For each model and target we trace HTER\((\tau)\)
+and express \(\tau\) in standard deviations of the target scores from the
+target-oracle threshold, so that curves with different score scales are
+comparable. The \emph{safe band} is the width of the \(\tau\) interval in which
+HTER stays within 1\,pp of its target minimum. A narrow band means a small
+calibration error is expensive. \todo{energy method.}
 
 % ============================ 4. PIPELINE & ROSTER ========================
 \section{End-to-End Pipeline and Model Roster}
@@ -763,7 +769,43 @@ descriptive rates, and report that order explicitly.
 Spearman \(\rho=0.00\) [\(-0.62\), \(+0.58\)] over the twelve In-the-Wild
 model\(\times\)policy points, and \(+0.10\) [\(-0.32\), \(+0.53\)] with DF21
 added. Only four distinct EER values underlie these points, so they cluster
-by model. \placeholder{TTG figure, FRR/FAR heatmap, sensitivity curves}
+by model.
+
+Fig.~\ref{fig:ttg} shows each gap, Fig.~\ref{fig:frr-far} its decomposition, and
+Fig.~\ref{fig:sens} why the gaps differ in size. The frozen threshold misses the
+target optimum by up to 1.6 target-score standard deviations (RawNet2 on ITW,
+\(-1.64\)). How much that costs depends on the width of the safe band. The
+strongest detector has the narrowest bands on the transfer targets:
+XLS-R\,+\,AASIST's is 0.20\,SD on DF21 and 0.03\,SD on ITW, against 0.56 to
+1.12\,SD for AASIST and AASIST-L. Its large \(\ttg\) is therefore a knife-edge
+curve met by a modest miscalibration (\(+0.63\)\,SD on ITW), not a large shift.
+On every target except 19LA eval, FRR carries more of the fixed-threshold error
+than FAR for most models (Fig.~\ref{fig:frr-far}), the asymmetry that H2 tests.
+% src: paper/figures/figures_data.json (analysis/figures/paper_figures.py)
+
+\begin{figure*}[!t]
+\centering\includegraphics[width=\textwidth]{fig_ttg.pdf}
+\caption{Threshold transfer gap. Open: target-oracle HTER; filled: HTER at the
+frozen 19LA-dev \(\taustar_{\eer}\). The horizontal distance is \(\ttg\). fp32,
+PyTorch; XLS-R\,+\,AASIST is the unranked reference.}
+\label{fig:ttg}
+\end{figure*}
+
+\begin{figure*}[!t]
+\centering\includegraphics[width=\textwidth]{fig_frr_far.pdf}
+\caption{FRR and FAR (\%) at the frozen \(\taustar_{\eer}\), per model and
+target. fp32, PyTorch.}
+\label{fig:frr-far}
+\end{figure*}
+
+\begin{figure*}[!t]
+\centering\includegraphics[width=\textwidth]{fig_sensitivity.pdf}
+\caption{Threshold sensitivity: HTER against \(\tau\), in target-score standard
+deviations from the target-oracle threshold. Triangles mark the frozen
+\(\taustar_{\eer}\). A steep, narrow valley makes a small miscalibration
+costly. fp32, PyTorch.}
+\label{fig:sens}
+\end{figure*}
 
 \subsection{Quantization (H3)}
 \label{sec:res-quant}
