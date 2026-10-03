@@ -27,6 +27,7 @@ rawnet2/df21_clean     int8-mixed (K=16)  n=305525 EER  16.44% | tau_eer HTER  1
 
 tssdnet/itw            fp32               n= 31779 EER  34.17% | tau_eer HTER  34.62% FRR  50.28% FAR  18.97%
 tssdnet/itw            fp16               n= 31779 EER  34.19% | tau_eer HTER  34.63% FRR  50.24% FAR  19.03% | dEER +0.03 pp, flips 16
+tssdnet/itw            fp16 executorch    n= 31779 EER  34.10% | tau_eer HTER  34.57% FRR  50.26% FAR  18.87% | dEER -0.07 pp, flips 29
 
 tssdnet/df21_verified  fp32               n=455508 EER  28.09% | tau_eer HTER  29.00% FRR  52.83% FAR   5.17%
 tssdnet/df21_verified  fp16               n=455508 EER  28.11% | tau_eer HTER  28.95% FRR  52.68% FAR   5.22% | dEER +0.01 pp, flips 232

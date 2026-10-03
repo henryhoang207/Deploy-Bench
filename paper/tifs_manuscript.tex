@@ -147,11 +147,11 @@ artifact the registered procedure admits).
         fixed-threshold, on-device evaluation of speech CMs --- threshold
         transfer, \(\frr/\far\) decomposition, sensitivity curves, a channel
         stress suite, and mobile latency/energy/thermal methodology.
-  % OPEN [U] (OD-4): the device grid is ORT-only until OD-4 is decided (decision.md
-  % 2026-08-28); "two runtimes" stands only if an ExecuTorch leg lands.
+  % OD-4 resolved 2026-10-03 (D48, DEVIATIONS.md DEV-7): ExecuTorch is a second,
+  % exploratory runtime leg.
   \item \textbf{An audit} of five countermeasures across
         \(\{\text{fp32},\text{fp16},\text{int8}\}\) precisions,
-        \todo{``two runtimes'' only if OD-4 adds ExecuTorch; currently ONNX Runtime only},
+        two runtimes (ONNX Runtime and ExecuTorch),
         \todo{four evaluation sets: MLAAD not yet scored}, and 3 physical phones, with pre-registered
         hypotheses and bootstrap confidence intervals.
   \item \textbf{Two metrics}: the \emph{threshold transfer gap} (\(\ttg\)) and the
@@ -459,6 +459,15 @@ the smallest tested exclusion set within +1.0\,pp EER on a frozen 2,000-clip dev
 subset that is disjoint from calibration. That recipe is then rebuilt on five
 calibration seeds, and the device artifact is the lowest-numbered qualifying
 seed, a rule fixed before any evaluation.
+\emph{Second runtime (exploratory; DEVIATIONS.md DEV-7).} The same single-score
+modules are also lowered to ExecuTorch~1.5.1 through \texttt{torch.export} and
+its XNNPACK partitioner (PyTorch~2.14, the version ExecuTorch pins). fp16 is
+a half-precision copy with float32 input and output cast inside the graph.
+int8 uses ExecuTorch's documented PT2E recipe (XNNPACK quantizer, symmetric,
+per-channel weights) with no fp32 exclusions. It is calibrated on the same five
+500-clip subsets, and the device artifact follows the same lowest-qualifying-seed
+rule. The fp32 artifact must pass the same zero-flip gate. This leg was declared
+after the ONNX results were known and enters no registered test.
 
 \subsection{Preprocessing-parity methodology}
 % P3 PRIMARY GATE: zero decision flips at all three operating points between
@@ -605,6 +614,24 @@ We still count fp16 as converting out of the box for three of the four ranked
 models; the repair shows that the fourth failure is a converter defect, not a
 property of the model.
 % src: results/phase_2_conversion_app/main_matrix/rawnet2/fp16_repaired_d46/ + transfer_matrix.txt
+
+\emph{A second runtime (exploratory; DEV-7).} ExecuTorch's \texttt{torch.export}
+path changes which models can be deployed at all. Res-TSSDNet converts at fp32
+and passes the zero-flip gate (maximum score difference \(3{\times}10^{-4}\)).
+Its fp16 artifact flips no decision on the parity manifest, and on ITW its EER
+moves by \(-0.07\)\,pp (29 flips at \(\taustar_{\eer}\)).
+\todo{ExecuTorch fp16 on DF21 verified: running}
+The other three ranked models do not convert at any precision. RawNet2's SincConv
+layer rebuilds its filters with NumPy inside \texttt{forward}, which the
+TorchScript tracer froze as a constant but \texttt{torch.export} cannot trace.
+AASIST and AASIST-L pool with \texttt{max} without \texttt{keepdim}, which
+XNNPACK claims and then fails to lower. Their fp16 copies also fail, because a
+filter built at run time stays float32. With the documented int8 recipe no
+model converts: Res-TSSDNet calibrates and then fails inside XNNPACK's lowering
+on every seed. We attempted no repairs. Where ExecuTorch converts, it is as
+faithful as ONNX Runtime, so the runtime gates deployability before it
+affects any score.
+% src: results/phase_2_conversion_app/executorch/README.md + transfer_matrix.txt
 
 \begin{table}[!t]
 \caption{Conversion outcomes. fp32: decision flips at
