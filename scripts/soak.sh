@@ -14,15 +14,15 @@ case "$MODEL" in
   *) echo "unknown model '$MODEL': refusing to guess input_samples" >&2; exit 3 ;;
 esac
 
-# Same reason as run_cell.sh: the APK has only an ORT runner (OD-4), so any
-# other runtime would produce ORT numbers under the wrong label.
+# Same artifact resolution as run_cell.sh (DEV-7 for executorch).
 case "$RUNTIME" in
-  ort) ;;
-  executorch) echo "no ExecuTorch runner exists in the APK (OD-4)" >&2; exit 3 ;;
+  ort)        MODEL_FILE=exports/${MODEL}_${PRECISION}.onnx ;;
+  # DEV-7: the .pte is resolved by deploybench.artifacts.et_artifact (passed desktop
+  # fp32 gate; int8 = the canonical seed only; sha256 = sidecar), or exit 3.
+  executorch) MODEL_FILE=$(${PYTHON:-python} -m deploybench.artifacts et "$MODEL" "$PRECISION") || exit 3 ;;
   *) echo "unknown runtime '$RUNTIME'" >&2; exit 3 ;;
 esac
 
-MODEL_FILE=exports/${MODEL}_${PRECISION}.onnx
 if [ ! -f "$MODEL_FILE" ]; then echo "missing $MODEL_FILE" >&2; exit 3; fi
 
 OUT=results/device/soak_${SERIAL}_${MODEL}_${RUNTIME}_${PRECISION}
@@ -34,7 +34,11 @@ adb -s "$SERIAL" shell rm -rf $DEV/out $DEV/in
 adb -s "$SERIAL" shell mkdir -p $DEV/in $DEV/out $DEV/models
 
 adb -s "$SERIAL" push "$WAVS"/. $DEV/in/ > /dev/null
-adb -s "$SERIAL" push "$MODEL_FILE" $DEV/models/ > /dev/null
+if [ "$RUNTIME" = executorch ]; then
+  adb -s "$SERIAL" push "$MODEL_FILE" $DEV/models/${MODEL}_${PRECISION}.pte > /dev/null
+else
+  adb -s "$SERIAL" push "$MODEL_FILE" $DEV/models/ > /dev/null
+fi
 if [ -f "${MODEL_FILE}.data" ]; then
   adb -s "$SERIAL" push "${MODEL_FILE}.data" $DEV/models/ > /dev/null
 fi

@@ -6,7 +6,7 @@ used to forward `runtime` to score.py as a bare label, so every ort/executorch
 cell would have been PyTorch fp32 scores in disguise.
   pytorch     -> score.py       (fp32 only)
   ort | onnx  -> score_onnx.py  on cfg['onnx'] or exports/<model>_<precision>.onnx
-  executorch  -> refused: no .pte scorer exists (OD-4)
+  executorch  -> score_pte.py (ET_PYTHON) on deploybench.artifacts.et_artifact (DEV-7)
 A non-clean condition needs `stress_manifest` (deploybench/stress.py output); without
 it the label would describe clean audio, so the cell is refused.
 """
@@ -54,7 +54,23 @@ def build_cmd(cfg: dict) -> list:
             raise Refused(f"{onnx} does not exist; export/quantize it first")
         return [sys.executable, str(REPO / "score_onnx.py"), "--onnx", str(onnx)] + common
     if rt == "executorch":
-        raise Refused("runtime executorch has no .pte scorer (OD-4)")
+        # DEV-7: score_pte.py runs in the executorch venv (numpy >= 2), named by
+        # ET_PYTHON; the artifact is resolved by the gate/canonical rules, never guessed.
+        import os
+        from deploybench.artifacts import NotHonourable, et_artifact
+        et_py = os.environ.get("ET_PYTHON")
+        if not et_py:
+            raise Refused("runtime executorch needs ET_PYTHON (the envs/et interpreter)")
+        if stress:
+            raise Refused("score_pte.py has no stress-manifest path; refusing a stressed executorch cell")
+        try:
+            pte = et_artifact(cfg["model"], cfg["precision"], REPO)
+        except NotHonourable as e:
+            raise Refused(str(e))
+        return [et_py, str(REPO / "score_pte.py"), "--pte", str(pte),
+                "--model", cfg["model"], "--dataset", cfg["dataset"], "--out", cfg["out"],
+                "--precision", cfg["precision"], "--condition", cfg["condition"],
+                "--seed", str(cfg["seed"])]
     raise Refused(f"unknown runtime {rt!r}")
 
 

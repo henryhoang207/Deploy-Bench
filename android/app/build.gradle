@@ -69,4 +69,7 @@ dependencies {
     // Stage P3 parity gate exists to test. But it must be reported, and the
     // RESOLVED version must be recorded in the P3 report -- not this literal.
     implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.22.0'
+    // D48 / DEV-7: the ExecuTorch runner. Same version as the exporter (executorch 1.5.1,
+    // sol1 envs/et), so the .pte format and XNNPACK kernels match the desktop gate.
+    implementation 'org.pytorch:executorch-android:1.5.1'
 }

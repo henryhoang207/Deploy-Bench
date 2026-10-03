@@ -18,16 +18,15 @@ case "$MODEL" in
   *) echo "unknown model '$MODEL': refusing to guess input_samples" >&2; exit 3 ;;
 esac
 
-# --- runtime must be one the APK can actually honour. The app builds an
-# OrtScorer unconditionally and there is no ExecuTorch runner (OD-4), so an
-# 'executorch' cell would run ORT and emit scores LABELLED executorch -- the
-# device-side twin of review defect B2. campaign.sh iterates
-# RUNTIMES=(ort executorch), so this would have fired on half of every phone's
-# cells. Fail here in seconds; the app re-checks as defence in depth, but
-# reaching that path costs the full 60-min poll timeout.
+# --- runtime must be one the APK can actually honour. The app picks its runner
+# from config.runtime (OrtScorer / EtScorer) and refuses anything else; an
+# unresolvable executorch artifact fails here in seconds instead of after the
+# 60-min poll (review B2: never run one runtime under another's label).
 case "$RUNTIME" in
-  ort) ;;
-  executorch) echo "no ExecuTorch runner exists in the APK (OD-4): refusing to run ORT and label it executorch" >&2; exit 3 ;;
+  ort)        MODEL_FILE=exports/${MODEL}_${PRECISION}.onnx ;;
+  # DEV-7: the .pte is resolved by deploybench.artifacts.et_artifact (passed desktop
+  # fp32 gate; int8 = the canonical seed only; sha256 = sidecar), or exit 3.
+  executorch) MODEL_FILE=$(${PYTHON:-python} -m deploybench.artifacts et "$MODEL" "$PRECISION") || exit 3 ;;
   *) echo "unknown runtime '$RUNTIME'" >&2; exit 3 ;;
 esac
 
@@ -37,7 +36,6 @@ MIN_QUERIES=${MIN_QUERIES:-1024}
 MIN_SECONDS=${MIN_SECONDS:-60}
 
 # --- artifacts must exist BEFORE anything is pushed
-MODEL_FILE=exports/${MODEL}_${PRECISION}.onnx
 if [ ! -f "$MODEL_FILE" ]; then
   echo "missing $MODEL_FILE (exports/ is gitignored -- copy or regenerate it)" >&2; exit 3
 fi
@@ -66,7 +64,13 @@ if [ "${TEMP_START:-0}" -gt 350 ]; then
 fi
 
 adb -s "$SERIAL" push "$WAVS"/. $DEV/in/ > /dev/null
-adb -s "$SERIAL" push "$MODEL_FILE" $DEV/models/ > /dev/null
+# The app opens models/<model>_<precision>.<onnx|pte>; an int8 .pte is named by
+# its calibration seed on the host, so it is pushed under the app's name.
+if [ "$RUNTIME" = executorch ]; then
+  adb -s "$SERIAL" push "$MODEL_FILE" $DEV/models/${MODEL}_${PRECISION}.pte > /dev/null
+else
+  adb -s "$SERIAL" push "$MODEL_FILE" $DEV/models/ > /dev/null
+fi
 # ONNX external-data sidecar. fp32 exports keep their weights in a separate
 # .onnx.data file; pushing only the .onnx lands a WEIGHTLESS model on the phone
 # and the run produces plausible garbage.

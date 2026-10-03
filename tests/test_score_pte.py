@@ -69,3 +69,39 @@ def test_select_et_canonical_lowest_qualifying_seed(tmp_path):
     assert r["seeds"][1]["within_budget"] is False
     assert "missing" in r["seeds"][2]["status"]                         # reported, not replaced
     assert r["canonical_seed"] == 3
+
+
+def _et_repo(tmp_path, gate=True, canonical=3, tamper=False):
+    import hashlib
+    res = tmp_path / "results" / "phase_2_conversion_app" / "executorch" / "tssdnet"
+    res.mkdir(parents=True)
+    (res / "parity_report_fp32_conversion.json").write_text(json.dumps({"pass": gate}))
+    (res / "canonical_int8.json").write_text(json.dumps({"canonical_seed": canonical}))
+    x = tmp_path / "exports" / "et"
+    x.mkdir(parents=True)
+    for stem, prec in (("tssdnet_fp32", "fp32"), ("tssdnet_int8_seed1", "int8"),
+                       ("tssdnet_int8_seed3", "int8")):
+        (x / f"{stem}.pte").write_bytes(stem.encode())
+        sha = hashlib.sha256(stem.encode()).hexdigest()
+        (x / f"conversion_log_{stem}_executorch.json").write_text(json.dumps(
+            {"converts": True, "precision": prec, "sha256": "0" * 64 if tamper else sha}))
+    return tmp_path
+
+
+def test_et_artifact_rules(tmp_path):
+    from deploybench.artifacts import NotHonourable, et_artifact
+    repo = _et_repo(tmp_path)
+    assert et_artifact("tssdnet", "fp32", repo).name == "tssdnet_fp32.pte"
+    assert et_artifact("tssdnet", "int8", repo).name == "tssdnet_int8_seed3.pte"   # canonical only
+    with pytest.raises(NotHonourable, match="missing"):
+        et_artifact("tssdnet", "fp16", repo)
+
+
+@pytest.mark.parametrize("kw,msg", [(dict(gate=False), "parity gate"),
+                                     (dict(canonical=None), "no canonical"),
+                                     (dict(tamper=True), "disagrees")])
+def test_et_artifact_refusals(tmp_path, kw, msg):
+    from deploybench.artifacts import NotHonourable, et_artifact
+    repo = _et_repo(tmp_path, **kw)
+    with pytest.raises(NotHonourable, match=msg):
+        et_artifact("tssdnet", "int8" if "canonical" in kw else "fp32", repo)

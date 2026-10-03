@@ -58,3 +58,54 @@ def report_label(precision: str, sidecar_path=None) -> str:
         raise MissingSidecar(f"int8 row without its conversion sidecar ({sidecar_path}); "
                              "D38 forbids printing it as plain 'int8'")
     return label_from_sidecar(json.loads(Path(sidecar_path).read_text(encoding="utf-8")))
+
+
+# ---- ExecuTorch device artifacts (D48 / DEVIATIONS.md DEV-7) ----------------
+class NotHonourable(Exception):
+    """An executorch cell this build must refuse rather than run under a wrong label."""
+
+
+def et_artifact(model: str, precision: str, repo: Path) -> Path:
+    """The .pte a device or scoring cell may use, or NotHonourable.
+
+    DEV-7 rules: the model's ExecuTorch fp32 must have passed the desktop parity gate
+    (zero flips vs PyTorch); fp32/fp16 use exports/et/<m>_<p>.pte; int8 uses ONLY the
+    canonical seed from canonical_int8.json, never another seed. The artifact's sha256
+    must match its to_executorch.py sidecar."""
+    import hashlib
+    res = repo / "results" / "phase_2_conversion_app" / "executorch" / model
+    gate = res / "parity_report_fp32_conversion.json"
+    if not gate.is_file() or json.loads(gate.read_text()).get("pass") is not True:
+        raise NotHonourable(f"{model}: no passed ExecuTorch fp32 parity gate ({gate})")
+    if precision in ("fp32", "fp16"):
+        stem = f"{model}_{precision}"
+    elif precision == "int8":
+        can = res / "canonical_int8.json"
+        seed = json.loads(can.read_text()).get("canonical_seed") if can.is_file() else None
+        if seed is None:
+            raise NotHonourable(f"{model}: no canonical ExecuTorch int8 artifact ({can})")
+        stem = f"{model}_int8_seed{seed}"
+    else:
+        raise NotHonourable(f"unknown precision {precision!r}")
+    pte = repo / "exports" / "et" / f"{stem}.pte"
+    side = pte.with_name(f"conversion_log_{stem}_executorch.json")
+    if not pte.is_file() or not side.is_file():
+        raise NotHonourable(f"{pte} or its sidecar is missing")
+    log = json.loads(side.read_text())
+    sha = hashlib.sha256(pte.read_bytes()).hexdigest()
+    if not log.get("converts") or log.get("sha256") != sha or log.get("precision") != precision:
+        raise NotHonourable(f"{pte}: sidecar disagrees (converts/sha256/precision)")
+    return pte
+
+
+if __name__ == "__main__":
+    # `python -m deploybench.artifacts et <model> <precision>`: print the .pte path or
+    # exit 3 (the run_cell.sh refusal code) with the reason on stderr.
+    import sys
+    if len(sys.argv) != 4 or sys.argv[1] != "et":
+        raise SystemExit("usage: python -m deploybench.artifacts et <model> <precision>")
+    try:
+        print(et_artifact(sys.argv[2], sys.argv[3], Path(__file__).resolve().parent.parent))
+    except NotHonourable as e:
+        print(e, file=sys.stderr)
+        raise SystemExit(3)

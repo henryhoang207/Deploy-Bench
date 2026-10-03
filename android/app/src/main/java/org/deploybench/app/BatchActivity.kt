@@ -19,20 +19,19 @@ class BatchActivity : Activity() {
         val cfg = JSONObject(File(root, "config.json").readText())
         val outDir = File(root, "out").apply { mkdirs() }
 
-        // RUNTIME MUST BE HONOURED, NOT RECORDED. This build has an ORT runner
-        // and nothing else (OD-4: no ExecuTorch runner exists). Without this
-        // check a cell configured runtime=executorch would run ORT and emit
-        // scores LABELLED executorch -- the device-side twin of review defect
-        // B2, and campaign.sh iterates RUNTIMES=(ort executorch), so it would
-        // have fired on half of every phone's cells.
-        val runtime = cfg.optString("runtime", "ort")
-        require(runtime == "ort") {
-            "config.json requests runtime='$runtime' but this build only has an " +
-            "ORT runner (OD-4). Refusing to emit ORT scores under another label."
+        // RUNTIME MUST BE HONOURED, NOT RECORDED (review B2). The runner is chosen
+        // from config.runtime and nothing else; an unknown runtime is refused rather
+        // than run on ORT under another label. NO DEFAULT: a missing key used to mean
+        // "ort", which would label an executorch cell's absence as an ORT result.
+        require(cfg.has("runtime")) { "config.json must set runtime (ort | executorch)" }
+        val runtime = cfg.getString("runtime")
+        val stem = "models/${cfg.getString("model")}_${cfg.getString("precision")}"
+        val scorer: Scorer = when (runtime) {
+            "ort" -> OrtScorer(File(root, "$stem.onnx").path)
+            "executorch" -> EtScorer(File(root, "$stem.pte").path)     // D48 / DEV-7
+            else -> throw IllegalArgumentException(
+                "config.json requests runtime='$runtime'; this build has ort and executorch only")
         }
-
-        val scorer = OrtScorer(
-            File(root, "models/${cfg.getString("model")}_${cfg.getString("precision")}.onnx").path)
         // NO DEFAULT. 64600 (AASIST) vs 96000 (TSSDNet) silently changes what
         // audio the model sees, and a fixed-shape graph would still run. A
         // missing key must fail loudly rather than emit plausible wrong scores.
