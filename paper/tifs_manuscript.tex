@@ -420,17 +420,18 @@ input, frontend, and predicted int8 outcome per
 \texttt{reference\_architectures.md}.}
 \label{tab:roster}
 \centering
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{llrllll}
 \toprule
 \# & Model & Params & Input & Frontend & Mechanism under test & Score conv.\ (author repo) \\
 \midrule
-1 & AASIST~\cite{jung22_aasist}           & 297K  & raw       & SincConv & graph attention & \verb|out[:,1]| \\
-2 & AASIST-L~\cite{jung22_aasist}         & 85K   & raw       & SincConv & \emph{within-class control} & \verb|out[:,1]| \\
-3 & RawNet2~\cite{tak21_rawnet2}          & 17.6M & raw       & SincConv & recurrence (GRU) & \verb|out[:,1]| \\
-4 & Res-TSSDNet~\cite{hua21_res_tssdnet}  & 350K  & raw (6\,s)& conv     & plain convolution & \verb|out[:,0]-out[:,1]| \\
-5 & XLSR+AASIST~\cite{tak22_xlsr_aasist}\,\textsuperscript{ref} & 315M & raw & SSL CNN & transformer & \verb|out[:,1]| \\
+1 & AASIST~\cite{jung22_aasist}           & 297K  & raw       & SincConv & graph attention & \texttt{out[:,1]} \\
+2 & AASIST-L~\cite{jung22_aasist}         & 85K   & raw       & SincConv & \emph{within-class control} & \texttt{out[:,1]} \\
+3 & RawNet2~\cite{tak21_rawnet2}          & 17.6M & raw       & SincConv & recurrence (GRU) & \texttt{out[:,1]} \\
+4 & Res-TSSDNet~\cite{hua21_res_tssdnet}  & 350K  & raw (6\,s)& conv     & plain convolution & \texttt{out[:,0]-out[:,1]} \\
+5 & XLSR+AASIST~\cite{tak22_xlsr_aasist}\,\textsuperscript{ref} & 315M & raw & SSL CNN & transformer & \texttt{out[:,1]} \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table*}
 % NOTE per-repo score conventions differ (D9); Res-TSSDNet has bonafide=index 0.
 % XLSR+AASIST is the UNRANKED server reference (D16), is in a different score
@@ -551,7 +552,7 @@ Low      & \todo{} & \todo{} & \todo{} \\
 size + CI only); C = confirmatory (Holm--Bonferroni family).}
 \label{tab:hypotheses}
 \centering
-\begin{tabular}{clc}
+\begin{tabular}{cp{0.68\columnwidth}c}
 \toprule
 H & Statement & Type \\
 \midrule
