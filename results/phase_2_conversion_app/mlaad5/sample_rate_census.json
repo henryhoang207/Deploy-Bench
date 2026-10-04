@@ -1,0 +1,100 @@
+{
+ "by_lang_class_sr_ch": [
+  {
+   "lang": "de",
+   "class": "bonafide",
+   "sr": 16000,
+   "ch": 1,
+   "n": 40200
+  },
+  {
+   "lang": "de",
+   "class": "bonafide",
+   "sr": 22050,
+   "ch": 1,
+   "n": 1947
+  },
+  {
+   "lang": "de",
+   "class": "bonafide",
+   "sr": 44100,
+   "ch": 1,
+   "n": 1853
+  },
+  {
+   "lang": "de",
+   "class": "spoof",
+   "sr": 22050,
+   "ch": 1,
+   "n": 44000
+  },
+  {
+   "lang": "en",
+   "class": "bonafide",
+   "sr": 16000,
+   "ch": 1,
+   "n": 69853
+  },
+  {
+   "lang": "en",
+   "class": "spoof",
+   "sr": 22050,
+   "ch": 1,
+   "n": 143000
+  },
+  {
+   "lang": "fr",
+   "class": "bonafide",
+   "sr": 16000,
+   "ch": 1,
+   "n": 42000
+  },
+  {
+   "lang": "fr",
+   "class": "spoof",
+   "sr": 22050,
+   "ch": 1,
+   "n": 42000
+  },
+  {
+   "lang": "it",
+   "class": "bonafide",
+   "sr": 16000,
+   "ch": 1,
+   "n": 34000
+  },
+  {
+   "lang": "it",
+   "class": "spoof",
+   "sr": 22050,
+   "ch": 1,
+   "n": 34000
+  },
+  {
+   "lang": "pl",
+   "class": "bonafide",
+   "sr": 16000,
+   "ch": 1,
+   "n": 21000
+  },
+  {
+   "lang": "pl",
+   "class": "spoof",
+   "sr": 22050,
+   "ch": 1,
+   "n": 21000
+  }
+ ],
+ "mean_duration_s": {
+  "de|bonafide": 7.087,
+  "de|spoof": 6.923,
+  "en|bonafide": 7.405,
+  "en|spoof": 7.212,
+  "fr|bonafide": 7.609,
+  "fr|spoof": 7.251,
+  "it|bonafide": 6.29,
+  "it|spoof": 6.072,
+  "pl|bonafide": 7.372,
+  "pl|spoof": 7.622
+ }
+}

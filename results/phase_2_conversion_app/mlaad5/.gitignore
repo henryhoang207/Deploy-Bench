@@ -1,0 +1,2 @@
+# 495k-row MLAAD score CSVs are committed gzipped (scores_*_mlaad.csv.gz); the raw copies stay local
+*.csv
