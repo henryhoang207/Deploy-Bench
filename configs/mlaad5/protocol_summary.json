@@ -1,0 +1,52 @@
+{
+  "seed": 20261003,
+  "languages": {
+    "en": {
+      "spoof": 143000,
+      "bonafide": 69853,
+      "bonafide_pool": 69853,
+      "systems": 143,
+      "imbalanced": true
+    },
+    "de": {
+      "spoof": 44000,
+      "bonafide": 44000,
+      "bonafide_pool": 118528,
+      "systems": 44,
+      "imbalanced": false
+    },
+    "it": {
+      "spoof": 34000,
+      "bonafide": 34000,
+      "bonafide_pool": 73405,
+      "systems": 34,
+      "imbalanced": false
+    },
+    "fr": {
+      "spoof": 42000,
+      "bonafide": 42000,
+      "bonafide_pool": 90348,
+      "systems": 42,
+      "imbalanced": false
+    },
+    "pl": {
+      "spoof": 21000,
+      "bonafide": 21000,
+      "bonafide_pool": 26322,
+      "systems": 21,
+      "imbalanced": false
+    }
+  },
+  "mlaad_revision": "30c3dec763fa4803f11c2df1557d3b0828395366",
+  "rows": 494853,
+  "protocol_sha256": "14bd7b487600c0446248b5599a55da0b05d9c15823f8c8cf3c90e4d294a7a84f",
+  "mailabs_archives_sha256": [
+    "7c693148afc46d63181fd2e82ebc40ccc50e3610fa9810f8a4222f3b4ad2aa8c  en_US.tgz",
+    "32bf88455dbaf31ba11dceb90978b3500654a6057c28c744863a61493f8e9555  en_UK.tgz",
+    "ef7d7cfbf0f1f836be02b8e89dd61b4d2e36a1714303db93676c32421b7e1f0d  de_DE.tgz",
+    "b46e48246f8aff8e4fe1aed5cd47863c6efb83bccb58634740d091f6fffcc01b  it_IT.tgz",
+    "0149ec624f6518cd8d97c3d69592c2c1181b0993e2fb349817e85ba12942f5d0  fr_FR.tgz",
+    "15fcade94d5cdb421b32523a07462e5efc5ce6033755bcd7dc3d37fab8a4b293  pl_PL.tgz",
+    ""
+  ]
+}
