@@ -1,7 +1,7 @@
 # MLAAD-5 at the frozen 19LA-dev taus (D47 / DEVIATIONS.md DEV-6), sol1, 2026-10-04/05
 
 **Descriptive only.** MLAAD enters no registered hypothesis test. Protocol: `configs/mlaad5/` (494,853 trials:
-284,000 MLAAD spoof clips from snapshot `30c3dec`, plus 210,853 count-matched M-AILABS bona fide clips;
+284,000 MLAAD spoof clips (162 TTS systems, 284 language-system pairs) from snapshot `30c3dec`, plus 210,853 count-matched M-AILABS bona fide clips;
 committed before any scoring, sha256 `14bd7b48...`). Launcher: `scripts/sol1/mlaad_scoring.sh` (verifies the
 protocol and every artifact first). Report: `python analysis/mlaad_report.py` → `mlaad_report.{txt,json}`.
 Score files are committed gzipped (`scores_<p>_<runtime>_mlaad.csv.gz`, ~7 MB each).

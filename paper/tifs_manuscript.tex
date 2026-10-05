@@ -153,7 +153,7 @@ artifact the registered procedure admits).
   \item \textbf{An audit} of five countermeasures across
         \(\{\text{fp32},\text{fp16},\text{int8}\}\) precisions,
         two runtimes (ONNX Runtime and ExecuTorch),
-        \todo{four evaluation sets: MLAAD not yet scored}, and 3 physical phones, with pre-registered
+        four evaluation sets, and 3 physical phones, with pre-registered
         hypotheses and bootstrap confidence intervals.
   \item \textbf{Two metrics}: the \emph{threshold transfer gap} (\(\ttg\)) and the
         \emph{quantization-induced threshold shift} (\(\qts\)), the latter not
@@ -525,8 +525,17 @@ files, and the published RawNet2 baseline EER of 22.38\% mixes 15.06\% on clean
 trials with about 30\% on affected ones. On the clean trials, our scoring of the
 released RawNet2 checkpoint matches the organisers' per-trial scores to
 \(3.7{\times}10^{-5}\).
-\todo{MLAAD: loader exists, not yet scored. Either score it or drop
-``four evaluation sets'' from the contributions.}
+\emph{Language axis (descriptive; DEVIATIONS.md DEV-6).} MLAAD \cite{mlaad24}
+(snapshot \texttt{30c3dec}) supplies the spoofs: all 284,000 clips in English,
+German, Italian, French and Polish, from 162 TTS systems (284 language--system pairs). M-AILABS, the corpus
+MLAAD synthesises from, supplies the bona fide side: per language a seeded
+draw of as many clips as there are spoofs. English has only 69,853, so all are
+used. The resulting 494,853-trial protocol was committed with per-file hashes
+before any scoring. One confound qualifies every MLAAD number: all spoofs are
+22.05\,kHz, while 98.1\% of the bona fide clips are native 16\,kHz. After
+resampling, only the spoofs carry resampling traces, so MLAAD rates are not a
+clean language effect.
+% src: configs/mlaad5/README.md; results/phase_2_conversion_app/mlaad5/sample_rate_census.json
 
 \begin{table}[!t]
 \caption{Devices. \todo{fill from phones.md}}
@@ -807,6 +816,19 @@ deviations from the target-oracle threshold. Triangles mark the frozen
 costly. fp32, PyTorch.}
 \label{fig:sens}
 \end{figure*}
+
+\emph{MLAAD-5 (descriptive; confounded by sample rate, Sec.~\ref{sec:setup}).}
+On the language axis the transferred threshold fails the other way. At
+\(\taustar_{\eer}\), AASIST, AASIST-L, RawNet2 and XLS-R\,+\,AASIST accept 31--60\%
+of spoofs while rejecting 5--19\% of bona fide speech; only Res-TSSDNet keeps
+the In-the-Wild pattern (FRR 60.8\%, FAR 18.4\%). EERs are 24.8--37.7\% and
+\(\ttg\) is 0.4--7.1\,pp. XLS-R\,+\,AASIST, the model with the largest gap on
+In-the-Wild and DF21, has the smallest here (0.38\,pp [0.32, 0.45]), so the
+model most hurt by transfer changes with the target. FRR budgets do not
+transfer either: the threshold that held FRR at 1\% on 19LA dev gives
+7.2--66.6\% on MLAAD-5.
+\todo{MLAAD rows for the converted artifacts: scoring on sol1}
+% src: results/phase_2_conversion_app/mlaad5/README.md, mlaad_report.txt
 
 \subsection{Quantization (H3)}
 \label{sec:res-quant}
