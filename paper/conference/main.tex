@@ -135,8 +135,8 @@ registered, and frozen, before any ITW score existed. Our contributions:
   against TTG; H4: model size against TTG). The registration's two other
   confirmatory hypotheses, on int8 quantization, were not supported;
   Sec.~\ref{sec:prereg} states their outcomes.
-\item \emph{Four findings.} Unseen attacks raise false acceptance, but under
-  corpus shift the larger error is genuine speech rejected, and a
+\item \emph{Four findings.} Unseen attacks raise false acceptance, but on the
+  shifted corpora tested here the larger error is genuine speech rejected, and a
   false-rejection budget fixed on source data does not survive transfer.
   Source EER shows no detectable association with the gap, and the most
   accurate model has the largest one, which its saturated scores explain. A
@@ -594,7 +594,7 @@ model alone.
 \section{Discussion and Limitations}
 \label{sec:discussion}
 \emph{What to report.} The two failures found here, attacks accepted in-domain
-and genuine speech rejected under shift, are invisible to EER. The second lands
+and genuine speech rejected on the shifted corpora, are invisible to EER. The second lands
 on real people: a screening system with this behaviour flags genuine callers as
 fake. We suggest that CM papers report, alongside EER:
 \begin{enumerate}
@@ -609,7 +609,7 @@ target scores moves mass across that tail first. Calibrating scores on source
 data does not escape this. A calibrated score with a Bayes threshold
 \cite{brummer06_calibration} is a monotone map followed by a source-chosen
 threshold: one more point on the same curve. The results also suggest a
-cheap check for deployers. False rejection, the dominant failure under shift,
+cheap check for deployers. False rejection, the dominant failure on both shifted corpora here,
 can be estimated from genuine speech of the deployment channel alone, without
 any attack data. Saturated detectors deserve particular care. A wide valley on
 source data says nothing about where genuine target speech will fall, and the
@@ -625,7 +625,8 @@ community's transfer target since 2022 and is not an independent proxy for
 deployment. Our DF21 figures use a verified surface and are not comparable with
 published ones. (d) H5 covers one neural codec at one bitrate on 1,000 clips.
 Conventional codecs, noise and reverberation are not tested here, and neither is
-a language shift (e.g.\ MLAAD \cite{mlaad24}). (e) Everything here is fp32
+a language shift (e.g.\ MLAAD \cite{mlaad24}), which is reported separately; the
+findings above are claimed only for the targets tested. (e) Everything here is fp32
 desktop scoring.
 
 % ============================ 6. CONCLUSION ==================================
