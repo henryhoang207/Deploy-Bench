@@ -1,0 +1,50 @@
+MLAAD-5 at the frozen 19LA-dev taus (descriptive; DEV-6). % throughout.
+
+aasist      fp32                 n=494853 EER  27.21 | tau_eer HTER  33.28 FRR   6.49 FAR  60.06 | TTG   7.11 [7.00, 7.22]
+                                  tau_frr1 HTER  28.21 FRR  10.79 FAR  45.63
+                                  tau_frr5 HTER  43.68 FRR  78.75 FAR   8.60
+            fp32 en: n=212853 (bona 69853) EER  22.58 | tau_eer FRR   0.38 FAR  64.21 TTG  12.66
+            fp32 de: n=88000 (bona 44000) EER  27.84 | tau_eer FRR  16.56 FAR  54.95 TTG   7.94
+            fp32 it: n=68000 (bona 34000) EER  28.38 | tau_eer FRR  14.32 FAR  40.50 TTG   0.22
+            fp32 fr: n=84000 (bona 42000) EER  25.96 | tau_eer FRR   2.45 FAR  67.32 TTG  10.39
+            fp32 pl: n=42000 (bona 21000) EER  31.51 | tau_eer FRR   1.16 FAR  59.69 TTG   3.53
+
+aasist_l    fp32                 n=494853 EER  30.95 | tau_eer HTER  34.21 FRR   9.88 FAR  58.54 | TTG   3.58 [3.48, 3.69]
+                                  tau_frr1 HTER  31.16 FRR  18.33 FAR  43.99
+                                  tau_frr5 HTER  46.00 FRR  86.18 FAR   5.83
+aasist_l    fp16                 n=494853 EER  30.95 | tau_eer HTER  34.21 FRR   9.88 FAR  58.54 | TTG   3.58 | dEER +0.00 pp, flips 160
+                                  tau_frr1 HTER  31.16 FRR  18.33 FAR  43.98
+                                  tau_frr5 HTER  46.01 FRR  86.20 FAR   5.82
+            fp32 en: n=212853 (bona 69853) EER  26.04 | tau_eer FRR   1.95 FAR  61.29 TTG   6.92
+            fp32 de: n=88000 (bona 44000) EER  32.46 | tau_eer FRR  17.61 FAR  58.62 TTG   5.71
+            fp32 it: n=68000 (bona 34000) EER  31.38 | tau_eer FRR  24.99 FAR  36.17 TTG   0.29
+            fp32 fr: n=84000 (bona 42000) EER  29.94 | tau_eer FRR   5.44 FAR  66.53 TTG   6.83
+            fp32 pl: n=42000 (bona 21000) EER  33.79 | tau_eer FRR   4.44 FAR  59.99 TTG   1.49
+
+rawnet2     fp32                 n=494853 EER  27.58 | tau_eer HTER  32.37 FRR   4.52 FAR  60.22 | TTG   5.03 [4.93, 5.15]
+                                  tau_frr1 HTER  30.24 FRR   7.18 FAR  53.31
+                                  tau_frr5 HTER  27.92 FRR  30.99 FAR  24.86
+            fp32 en: n=212853 (bona 69853) EER  21.61 | tau_eer FRR   0.74 FAR  62.40 TTG  10.75
+            fp32 de: n=88000 (bona 44000) EER  30.30 | tau_eer FRR   9.28 FAR  55.39 TTG   2.55
+            fp32 it: n=68000 (bona 34000) EER  27.05 | tau_eer FRR   5.31 FAR  52.26 TTG   2.51
+            fp32 fr: n=84000 (bona 42000) EER  27.96 | tau_eer FRR   4.39 FAR  64.30 TTG   7.02
+            fp32 pl: n=42000 (bona 21000) EER  36.10 | tau_eer FRR   6.09 FAR  60.30 TTG   0.56
+
+tssdnet     fp32                 n=494853 EER  37.69 | tau_eer HTER  39.60 FRR  60.78 FAR  18.42 | TTG   2.02 [1.92, 2.13]
+                                  tau_frr1 HTER  41.04 FRR  66.61 FAR  15.48
+                                  tau_frr5 HTER  48.16 FRR  90.77 FAR   5.55
+            fp32 en: n=212853 (bona 69853) EER  43.15 | tau_eer FRR  76.08 FAR  12.54 TTG   1.95
+            fp32 de: n=88000 (bona 44000) EER  35.31 | tau_eer FRR  49.41 FAR  24.75 TTG   1.84
+            fp32 it: n=68000 (bona 34000) EER  37.34 | tau_eer FRR  75.29 FAR  12.04 TTG   6.98
+            fp32 fr: n=84000 (bona 42000) EER  38.78 | tau_eer FRR  54.05 FAR  26.59 TTG   1.64
+            fp32 pl: n=42000 (bona 21000) EER  34.44 | tau_eer FRR  23.68 FAR  39.14 TTG   3.18
+
+xlsr_aasist fp32                 n=494853 EER  24.80 | tau_eer HTER  25.12 FRR  18.75 FAR  31.49 | TTG   0.38 [0.32, 0.45]
+                                  tau_frr1 HTER  34.61 FRR  56.72 FAR  12.51
+                                  tau_frr5 HTER  44.28 FRR  82.97 FAR   5.58
+            fp32 en: n=212853 (bona 69853) EER  26.54 | tau_eer FRR  23.27 FAR  30.06 TTG   0.22
+            fp32 de: n=88000 (bona 44000) EER  27.01 | tau_eer FRR  24.26 FAR  31.14 TTG   1.11
+            fp32 it: n=68000 (bona 34000) EER  22.79 | tau_eer FRR  21.07 FAR  24.20 TTG   0.08
+            fp32 fr: n=84000 (bona 42000) EER  21.95 | tau_eer FRR   4.37 FAR  41.90 TTG   3.16
+            fp32 pl: n=42000 (bona 21000) EER  25.83 | tau_eer FRR  17.16 FAR  32.97 TTG   0.00
+
