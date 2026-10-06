@@ -1,0 +1,20 @@
+# Line-ending policy. This repo is edited on Windows but its shell scripts run on
+# Linux (the GPU server) and are piped through adb; a CRLF shebang gives "bad interpreter".
+# core.autocrlf is on for this clone -- without the rule below, run_cell.sh,
+# campaign.sh, soak.sh and pilot_tssdnet.sh would check out with CRLF.
+*.sh text eol=lf
+
+# .ps1 files in this project carry a UTF-8 BOM and are required to stay
+# ASCII-only (2026-07-25: a CP1252-decoded em-dash closed a string early and
+# broke pilot_tssdnet.ps1 under PowerShell 5.1). Exclude them from any
+# normalisation so nothing rewrites them behind our back.
+*.ps1 -text
+
+# The Gradle wrapper script has no extension, so *.sh does not cover it.
+# It is a POSIX shell script and must stay LF for anyone cloning on Linux/macOS.
+gradlew text eol=lf
+
+# Score CSVs are hashed into tau_*.json and the repro reports. Python's csv module
+# writes CRLF on every OS, so store the bytes exactly as written: with
+# normalisation, a Linux checkout (the GPU server) hashed differently from the recorded value.
+*.csv -text

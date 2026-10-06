@@ -1,0 +1,19 @@
+aasist    FRR   0.2 ->   6.4  FAR  10.2 ->   3.8  dFRR-dFAR  +12.6 pp  CI [+8.8, +16.2]  p=0.000  Holm reject: True
+aasist_l  FRR   0.0 ->  11.2  FAR  12.2 ->   5.8  dFRR-dFAR  +17.6 pp  CI [+13.8, +21.8]  p=0.000  Holm reject: True
+rawnet2   FRR   0.6 ->   1.8  FAR  14.2 ->  12.6  dFRR-dFAR   +2.8 pp  CI [+1.0, +4.6]  p=0.000  Holm reject: True
+tssdnet   FRR   0.4 ->  68.4  FAR   5.0 ->   1.4  dFRR-dFAR  +71.6 pp  CI [+67.0, +75.8]  p=0.000  Holm reject: True
+
+dFRR > dFAR (Holm, alpha 0.05) in 4 of 4; majority needs 3 -> H5 SUPPORTED
+
+Checks: the clean scores through the stress path equal the existing PyTorch-CPU parity
+references to <= 9.5e-7 (all four models). Stress-set ids sha256 = 2a3c8964... (the frozen
+parity manifest). EnCodec 0.1.1, 24 kHz weights sha256 d7cc33bc...47bf. p = 0.000 means
+p < 0.001 at B = 1000.
+
+Reading (not part of the registered test): FAR FALLS under EnCodec for all four models
+(aasist 10.2 -> 3.8, aasist_l 12.2 -> 5.8, rawnet2 14.2 -> 12.6, tssdnet 5.0 -> 1.4) while FRR
+rises. Resynthesis pushes BOTH classes' scores toward "spoof". H5's stated mechanism
+("bona-fide corruption asymmetry") is therefore only half the picture: the test as
+registered (dFRR > dFAR) is met, but partly because dFAR is negative. The paper should report
+dFRR and dFAR separately. Effect sizes span 2.8 pp (rawnet2) to 71.6 pp (tssdnet). At
+tau_eer, tssdnet rejects 68% of EnCodec-resynthesised bona fide speech.

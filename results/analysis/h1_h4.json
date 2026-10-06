@@ -1,0 +1,413 @@
+{
+  "exploratory": true,
+  "B": 1000,
+  "seed": 0,
+  "h1": {
+    "primary_itw": {
+      "rho": 0.0,
+      "lo": -0.617906676937867,
+      "hi": 0.5828611655753185,
+      "n": 12
+    },
+    "secondary_itw_df21": {
+      "rho": 0.09690874237046979,
+      "lo": -0.31873553449867825,
+      "hi": 0.5258767565344998,
+      "n": 24
+    },
+    "distinct_x": 4
+  },
+  "h4": {
+    "itw": {
+      "rho": 0.39999999999999997,
+      "lo": -1.0,
+      "hi": 1.0,
+      "n": 4
+    },
+    "df21_verified": {
+      "rho": 0.7999999999999999,
+      "lo": -1.0,
+      "hi": 1.0,
+      "n": 4
+    }
+  },
+  "params": {
+    "aasist": 297866,
+    "aasist_l": 85306,
+    "rawnet2": 17621410,
+    "tssdnet": 348530,
+    "xlsr_aasist": 317837834
+  },
+  "cells": [
+    {
+      "model": "aasist",
+      "ranked": true,
+      "target": "itw",
+      "policy": "eer",
+      "oracle_eer_19la": 0.008293677770224335,
+      "ttg": 0.029445596560814247,
+      "hter_fixed": 0.42837621298793427,
+      "hter_oracle": 0.39893061642712,
+      "ttg_ci95": [
+        0.025371900036903074,
+        0.034575311387254636
+      ],
+      "log10_params": 5.4740209333758765
+    },
+    {
+      "model": "aasist",
+      "ranked": true,
+      "target": "itw",
+      "policy": "frr1",
+      "oracle_eer_19la": 0.008293677770224335,
+      "ttg": 0.0028678160385474105,
+      "hter_fixed": 0.40179843246566743,
+      "hter_oracle": 0.39893061642712,
+      "log10_params": 5.4740209333758765
+    },
+    {
+      "model": "aasist",
+      "ranked": true,
+      "target": "itw",
+      "policy": "frr5",
+      "oracle_eer_19la": 0.008293677770224335,
+      "ttg": 0.09260886660294465,
+      "hter_fixed": 0.49153948303006467,
+      "hter_oracle": 0.39893061642712,
+      "log10_params": 5.4740209333758765
+    },
+    {
+      "model": "aasist",
+      "ranked": true,
+      "target": "df21_verified",
+      "policy": "eer",
+      "oracle_eer_19la": 0.008293677770224335,
+      "ttg": 0.0028719524733950563,
+      "hter_fixed": 0.15044989904767467,
+      "hter_oracle": 0.1475779465742796,
+      "ttg_ci95": [
+        0.0016434672774414162,
+        0.005204646670017743
+      ],
+      "log10_params": 5.4740209333758765
+    },
+    {
+      "model": "aasist",
+      "ranked": true,
+      "target": "df21_verified",
+      "policy": "frr1",
+      "oracle_eer_19la": 0.008293677770224335,
+      "ttg": 0.00018286685371668443,
+      "hter_fixed": 0.1477608134279963,
+      "hter_oracle": 0.1475779465742796,
+      "log10_params": 5.4740209333758765
+    },
+    {
+      "model": "aasist",
+      "ranked": true,
+      "target": "df21_verified",
+      "policy": "frr5",
+      "oracle_eer_19la": 0.008293677770224335,
+      "ttg": 0.042450203303930484,
+      "hter_fixed": 0.1900281498782101,
+      "hter_oracle": 0.1475779465742796,
+      "log10_params": 5.4740209333758765
+    },
+    {
+      "model": "aasist_l",
+      "ranked": true,
+      "target": "itw",
+      "policy": "eer",
+      "oracle_eer_19la": 0.009908894524279123,
+      "ttg": 0.015479209913424496,
+      "hter_fixed": 0.4359195329741878,
+      "hter_oracle": 0.4204403230607633,
+      "ttg_ci95": [
+        0.012293024604404382,
+        0.020455738130775537
+      ],
+      "log10_params": 4.930979578356865
+    },
+    {
+      "model": "aasist_l",
+      "ranked": true,
+      "target": "itw",
+      "policy": "frr1",
+      "oracle_eer_19la": 0.009908894524279123,
+      "ttg": 0.0014856063609349213,
+      "hter_fixed": 0.4219259294216982,
+      "hter_oracle": 0.4204403230607633,
+      "log10_params": 4.930979578356865
+    },
+    {
+      "model": "aasist_l",
+      "ranked": true,
+      "target": "itw",
+      "policy": "frr5",
+      "oracle_eer_19la": 0.009908894524279123,
+      "ttg": 0.06681017422855168,
+      "hter_fixed": 0.48725049728931497,
+      "hter_oracle": 0.4204403230607633,
+      "log10_params": 4.930979578356865
+    },
+    {
+      "model": "aasist_l",
+      "ranked": true,
+      "target": "df21_verified",
+      "policy": "eer",
+      "oracle_eer_19la": 0.009908894524279123,
+      "ttg": 0.0003408959319264049,
+      "hter_fixed": 0.14883913631222573,
+      "hter_oracle": 0.14849824038029932,
+      "ttg_ci95": [
+        0.00018208404246533791,
+        0.0012890295116505085
+      ],
+      "log10_params": 4.930979578356865
+    },
+    {
+      "model": "aasist_l",
+      "ranked": true,
+      "target": "df21_verified",
+      "policy": "frr1",
+      "oracle_eer_19la": 0.009908894524279123,
+      "ttg": 0.011099956592863142,
+      "hter_fixed": 0.15959819697316247,
+      "hter_oracle": 0.14849824038029932,
+      "log10_params": 4.930979578356865
+    },
+    {
+      "model": "aasist_l",
+      "ranked": true,
+      "target": "df21_verified",
+      "policy": "frr5",
+      "oracle_eer_19la": 0.009908894524279123,
+      "ttg": 0.06679030590265203,
+      "hter_fixed": 0.21528854628295135,
+      "hter_oracle": 0.14849824038029932,
+      "log10_params": 4.930979578356865
+    },
+    {
+      "model": "rawnet2",
+      "ranked": true,
+      "target": "itw",
+      "policy": "eer",
+      "oracle_eer_19la": 0.04595513256288239,
+      "ttg": 0.054366066813991754,
+      "hter_fixed": 0.5140990415036945,
+      "hter_oracle": 0.4597329746897027,
+      "ttg_ci95": [
+        0.04982628858013254,
+        0.060764899619136246
+      ],
+      "log10_params": 7.24604065610325
+    },
+    {
+      "model": "rawnet2",
+      "ranked": true,
+      "target": "itw",
+      "policy": "frr1",
+      "oracle_eer_19la": 0.04595513256288239,
+      "ttg": 0.043752775318835424,
+      "hter_fixed": 0.5034857500085381,
+      "hter_oracle": 0.4597329746897027,
+      "log10_params": 7.24604065610325
+    },
+    {
+      "model": "rawnet2",
+      "ranked": true,
+      "target": "itw",
+      "policy": "frr5",
+      "oracle_eer_19la": 0.04595513256288239,
+      "ttg": 0.008873747594186687,
+      "hter_fixed": 0.4686067222838894,
+      "hter_oracle": 0.4597329746897027,
+      "log10_params": 7.24604065610325
+    },
+    {
+      "model": "rawnet2",
+      "ranked": true,
+      "target": "df21_verified",
+      "policy": "eer",
+      "oracle_eer_19la": 0.04595513256288239,
+      "ttg": 0.005771614146832138,
+      "hter_fixed": 0.19640024635929218,
+      "hter_oracle": 0.19062863221246004,
+      "ttg_ci95": [
+        0.003483856478063488,
+        0.00859881405556357
+      ],
+      "log10_params": 7.24604065610325
+    },
+    {
+      "model": "rawnet2",
+      "ranked": true,
+      "target": "df21_verified",
+      "policy": "frr1",
+      "oracle_eer_19la": 0.04595513256288239,
+      "ttg": 0.0066902064959903085,
+      "hter_fixed": 0.19731883870845035,
+      "hter_oracle": 0.19062863221246004,
+      "log10_params": 7.24604065610325
+    },
+    {
+      "model": "rawnet2",
+      "ranked": true,
+      "target": "df21_verified",
+      "policy": "frr5",
+      "oracle_eer_19la": 0.04595513256288239,
+      "ttg": 0.021493767754695137,
+      "hter_fixed": 0.21212239996715518,
+      "hter_oracle": 0.19062863221246004,
+      "log10_params": 7.24604065610325
+    },
+    {
+      "model": "tssdnet",
+      "ranked": true,
+      "target": "itw",
+      "policy": "eer",
+      "oracle_eer_19la": 0.01617946974847043,
+      "ttg": 0.007327252946725926,
+      "hter_fixed": 0.34624416333046193,
+      "hter_oracle": 0.338916910383736,
+      "ttg_ci95": [
+        0.004429558405969087,
+        0.012100369826443635
+      ],
+      "log10_params": 5.542240166289717
+    },
+    {
+      "model": "tssdnet",
+      "ranked": true,
+      "target": "itw",
+      "policy": "frr1",
+      "oracle_eer_19la": 0.01617946974847043,
+      "ttg": 0.009205825631853515,
+      "hter_fixed": 0.3481227360155895,
+      "hter_oracle": 0.338916910383736,
+      "log10_params": 5.542240166289717
+    },
+    {
+      "model": "tssdnet",
+      "ranked": true,
+      "target": "itw",
+      "policy": "frr5",
+      "oracle_eer_19la": 0.01617946974847043,
+      "ttg": 0.058044878794218824,
+      "hter_fixed": 0.3969617891779548,
+      "hter_oracle": 0.338916910383736,
+      "log10_params": 5.542240166289717
+    },
+    {
+      "model": "tssdnet",
+      "ranked": true,
+      "target": "df21_verified",
+      "policy": "eer",
+      "oracle_eer_19la": 0.01617946974847043,
+      "ttg": 0.018159633292359145,
+      "hter_fixed": 0.2899935094162832,
+      "hter_oracle": 0.27183387612392407,
+      "ttg_ci95": [
+        0.015615325617223966,
+        0.0212482613003511
+      ],
+      "log10_params": 5.542240166289717
+    },
+    {
+      "model": "tssdnet",
+      "ranked": true,
+      "target": "df21_verified",
+      "policy": "frr1",
+      "oracle_eer_19la": 0.01617946974847043,
+      "ttg": 0.025363574359741348,
+      "hter_fixed": 0.2971974504836654,
+      "hter_oracle": 0.27183387612392407,
+      "log10_params": 5.542240166289717
+    },
+    {
+      "model": "tssdnet",
+      "ranked": true,
+      "target": "df21_verified",
+      "policy": "frr5",
+      "oracle_eer_19la": 0.01617946974847043,
+      "ttg": 0.06895882458640878,
+      "hter_fixed": 0.34079270071033285,
+      "hter_oracle": 0.27183387612392407,
+      "log10_params": 5.542240166289717
+    },
+    {
+      "model": "xlsr_aasist",
+      "ranked": false,
+      "target": "itw",
+      "policy": "eer",
+      "oracle_eer_19la": 0.001495581237253569,
+      "ttg": 0.14957635657788168,
+      "hter_fixed": 0.2516696871778803,
+      "hter_oracle": 0.10209333059999862,
+      "ttg_ci95": [
+        0.14583527516977837,
+        0.15392487977546881
+      ],
+      "log10_params": 8.502205592429092
+    },
+    {
+      "model": "xlsr_aasist",
+      "ranked": false,
+      "target": "itw",
+      "policy": "frr1",
+      "oracle_eer_19la": 0.001495581237253569,
+      "ttg": 0.3072786169308278,
+      "hter_fixed": 0.40937194753082645,
+      "hter_oracle": 0.10209333059999862,
+      "log10_params": 8.502205592429092
+    },
+    {
+      "model": "xlsr_aasist",
+      "ranked": false,
+      "target": "itw",
+      "policy": "frr5",
+      "oracle_eer_19la": 0.001495581237253569,
+      "ttg": 0.37029176793588114,
+      "hter_fixed": 0.47238509853587973,
+      "hter_oracle": 0.10209333059999862,
+      "log10_params": 8.502205592429092
+    },
+    {
+      "model": "xlsr_aasist",
+      "ranked": false,
+      "target": "df21_verified",
+      "policy": "eer",
+      "oracle_eer_19la": 0.001495581237253569,
+      "ttg": 0.053970939737622216,
+      "hter_fixed": 0.0735956484866162,
+      "hter_oracle": 0.01962470874899399,
+      "ttg_ci95": [
+        0.05102304534793561,
+        0.0568479998847214
+      ],
+      "log10_params": 8.502205592429092
+    },
+    {
+      "model": "xlsr_aasist",
+      "ranked": false,
+      "target": "df21_verified",
+      "policy": "frr1",
+      "oracle_eer_19la": 0.001495581237253569,
+      "ttg": 0.12606610874782676,
+      "hter_fixed": 0.14569081749682075,
+      "hter_oracle": 0.01962470874899399,
+      "log10_params": 8.502205592429092
+    },
+    {
+      "model": "xlsr_aasist",
+      "ranked": false,
+      "target": "df21_verified",
+      "policy": "frr5",
+      "oracle_eer_19la": 0.001495581237253569,
+      "ttg": 0.1890136840930941,
+      "hter_fixed": 0.2086383928420881,
+      "hter_oracle": 0.01962470874899399,
+      "log10_params": 8.502205592429092
+    }
+  ]
+}

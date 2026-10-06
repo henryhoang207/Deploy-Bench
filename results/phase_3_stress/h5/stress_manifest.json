@@ -1,0 +1,14 @@
+{
+  "created": "2026-09-30T05:22:44+00:00",
+  "source_dataset": "asvspoof19_eval",
+  "n_utts": 1000,
+  "ids_sha256": "2a3c8964169856262344c68737fc96ea74814d6f874d8f9a2eb7e4303f902792",
+  "conditions": [
+    "clean",
+    "encodec6k"
+  ],
+  "musan": null,
+  "ir": null,
+  "ffmpeg": "ffmpeg version 7.0.2-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2000-2024 the FFmpeg developers",
+  "encodec": "0.1.1"
+}

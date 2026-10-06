@@ -1,0 +1,76 @@
+{
+  "hypothesis": "H5",
+  "spec": "DEVIATIONS.md DEV-2",
+  "B": 1000,
+  "seed": 0,
+  "alpha": 0.05,
+  "per_model": {
+    "aasist": {
+      "tau_eer": -1.0931490611056907,
+      "frr_clean": 0.002,
+      "frr_encodec": 0.064,
+      "far_clean": 0.102,
+      "far_encodec": 0.038,
+      "dfrr": 0.062,
+      "dfar": -0.064,
+      "stat": 0.126,
+      "ci95": [
+        0.08795,
+        0.162
+      ],
+      "p_one_sided": 0.0,
+      "holm_reject_h0": true
+    },
+    "aasist_l": {
+      "tau_eer": -0.9449459508973773,
+      "frr_clean": 0.0,
+      "frr_encodec": 0.112,
+      "far_clean": 0.122,
+      "far_encodec": 0.058,
+      "dfrr": 0.112,
+      "dfar": -0.064,
+      "stat": 0.176,
+      "ci95": [
+        0.138,
+        0.218
+      ],
+      "p_one_sided": 0.0,
+      "holm_reject_h0": true
+    },
+    "rawnet2": {
+      "tau_eer": -7.067737815144296,
+      "frr_clean": 0.006,
+      "frr_encodec": 0.018,
+      "far_clean": 0.142,
+      "far_encodec": 0.126,
+      "dfrr": 0.011999999999999999,
+      "dfar": -0.015999999999999986,
+      "stat": 0.027999999999999983,
+      "ci95": [
+        0.010000000000000005,
+        0.046
+      ],
+      "p_one_sided": 0.0,
+      "holm_reject_h0": true
+    },
+    "tssdnet": {
+      "tau_eer": -8.24478095297237,
+      "frr_clean": 0.004,
+      "frr_encodec": 0.684,
+      "far_clean": 0.05,
+      "far_encodec": 0.014,
+      "dfrr": 0.68,
+      "dfar": -0.036000000000000004,
+      "stat": 0.7160000000000001,
+      "ci95": [
+        0.67,
+        0.75805
+      ],
+      "p_one_sided": 0.0,
+      "holm_reject_h0": true
+    }
+  },
+  "n_models": 4,
+  "majority_required": 3,
+  "h5_supported": true
+}

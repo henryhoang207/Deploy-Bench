@@ -1,0 +1,12 @@
+{
+  "model": "rawnet2",
+  "dev_dataset": "asvspoof19_dev",
+  "n_dev": 24844,
+  "dev_scores_sha256": "2ddb1b3ff45679edfb86098a63b7cd095ac9be3c5a7c70c018bb816b33f1a664",
+  "frozen_utc": "2026-09-18T08:13:21Z",
+  "taus": {
+    "eer": -7.067737815144296,
+    "frr1": -5.178792953491211,
+    "frr5": -0.008322085253894329
+  }
+}

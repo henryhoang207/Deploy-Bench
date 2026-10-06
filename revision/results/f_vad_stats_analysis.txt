@@ -1,0 +1,50 @@
+vad_stats.csv: 127860 clips (LA19 dev 24844, LA19 eval 71237, ITW 31779)
+
+== F1a  Leading / trailing silence (seconds, energy VAD, T = 35 dB re the loudest frame): median [P10, P90] and share < 0.1 s
+set        class        n         duration                     lead lead<0.1s                    trail
+LA19 dev   bona      2548  3.39 [ 2.22, 4.90]       1.00 [ 0.57, 1.61]      0.7%       0.34 [ 0.10, 0.95]
+LA19 dev   spoof    22296  3.27 [ 1.77, 5.42]       0.38 [ 0.04, 1.25]     23.7%       0.31 [ 0.04, 0.72]
+LA19 eval  bona      7355  3.20 [ 2.26, 4.76]       0.90 [ 0.51, 1.50]      0.9%       0.37 [ 0.11, 1.01]
+LA19 eval  spoof    63882  2.75 [ 1.47, 5.11]       0.05 [ 0.00, 0.88]     67.2%       0.23 [ 0.01, 0.65]
+ITW        bona     19963  2.99 [ 1.41, 6.87]       0.09 [ 0.00, 0.38]     50.1%       0.03 [ 0.00, 0.37]
+ITW        spoof    11816  4.05 [ 1.65,10.16]       0.24 [ 0.00, 0.36]     20.8%       0.19 [ 0.01, 0.32]
+
+== F1b  Sensitivity of the leading-silence median (s) to the VAD threshold T (dB below the loudest frame)
+LA19 dev   bona: T25= 1.07  T35= 1.00  T45= 0.45 | spoof: T25= 0.44  T35= 0.38  T45= 0.21
+LA19 eval  bona: T25= 1.00  T35= 0.90  T45= 0.43 | spoof: T25= 0.06  T35= 0.05  T45= 0.02
+ITW        bona: T25= 0.33  T35= 0.09  T45= 0.00 | spoof: T25= 0.27  T35= 0.24  T45= 0.02
+
+== F1c  Leading silence alone as a bona-fide detector (EER %, longer silence = bona fide); Mueller et al. 2021 report 15.1% on LA19 eval
+LA19 dev   T25:  36.5%  T35:  34.9%  T45:  40.8%
+LA19 eval  T25:  18.4%  T35:  17.5%  T45:  23.6%
+ITW        T25:  38.3%  T35:  56.5%  T45:  63.4%
+
+== F1d  Does the per-clip decision depend on leading silence? Registered tau_eer; bona fide clips of ITW and LA19 eval
+-- ITW bona fide: bin edges of leading silence (s) = [0.005, 0.2, 0.3, 0.4]; clips per bin [8456, 2214, 2337, 6794, 162]
+model         Spearman(score, lead) | FRR % at tau_eer by leading-silence bin (shortest -> longest) | short minus long
+AASIST                       +0.098 |  49.3   41.6   37.1   40.1   33.3 | +15.9 pp
+AASIST-L                     +0.082 |  57.1   45.6   42.6   47.3   42.0 | +15.1 pp
+RawNet2                      +0.114 |  39.8   37.7   32.2   25.7   22.8 | +16.9 pp
+Res-TSSDNet                  -0.080 |  43.8   57.9   52.8   54.5   69.8 | -25.9 pp
+XLS-R+AASIST                 +0.278 |  62.4   48.1   45.7   36.9   24.7 | +37.7 pp
+-- LA19 eval bona fide: bin edges of leading silence (s) = [0.65, 0.82, 0.99, 1.22]; clips per bin [1436, 1473, 1483, 1460, 1503]
+model         Spearman(score, lead) | FRR % at tau_eer by leading-silence bin (shortest -> longest) | short minus long
+AASIST                       +0.200 |   0.4    0.1    0.1    0.1    0.1 |  +0.4 pp
+AASIST-L                     +0.174 |   0.4    0.1    0.0    0.0    0.0 |  +0.4 pp
+RawNet2                      +0.113 |   1.7    0.3    0.2    0.3    0.1 |  +1.7 pp
+Res-TSSDNet                  +0.131 |   0.5    0.1    0.3    0.1    0.2 |  +0.3 pp
+XLS-R+AASIST                 -0.040 |   0.3    0.0    0.0    0.0    0.0 |  +0.3 pp
+
+== F1e  Same for spoofs: FAR % at tau_eer by leading-silence bin of the spoof clips (shortest -> longest)
+-- ITW spoof: bin edges (s) = [0.005, 0.2, 0.3, 0.4]; clips per bin [1901, 1053, 6083, 2689, 90]
+AASIST        49.6   44.4   40.7   37.5   61.1
+AASIST-L      49.3   43.1   31.4   35.9   54.4
+RawNet2       80.6   76.4   63.8   69.6   77.8
+Res-TSSDNet   38.8   24.7   13.8   14.6   12.2
+XLS-R+AASIST   1.4    0.1    0.2    0.3    1.1
+-- LA19 eval spoof: bin edges (s) = [0.02, 0.04, 0.07, 0.5]; clips per bin [10318, 12961, 14750, 13042, 12811]
+AASIST         8.2   10.6   10.7    6.1   13.2
+AASIST-L      11.0   13.1   10.9    4.9   15.9
+RawNet2        1.1    0.4    0.5    6.9   48.2
+Res-TSSDNet    4.1    2.6    2.8    8.2   12.9
+XLS-R+AASIST   0.5    0.7    0.5    0.2    0.6

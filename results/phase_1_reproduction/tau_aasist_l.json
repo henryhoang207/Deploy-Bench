@@ -1,0 +1,12 @@
+{
+  "model": "aasist_l",
+  "dev_dataset": "asvspoof19_dev",
+  "n_dev": 24844,
+  "dev_scores_sha256": "d0a7ff003cc22fe94221c6be04b33ca634cb10ee8dfee3beb387c497b21322af",
+  "frozen_utc": "2026-09-18T04:15:03Z",
+  "taus": {
+    "eer": -0.9449459508973773,
+    "frr1": 0.0061308518052101135,
+    "frr5": 3.45552659034729
+  }
+}

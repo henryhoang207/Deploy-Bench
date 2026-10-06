@@ -1,0 +1,1324 @@
+{
+ "a1_h2": {
+  "B": 10000,
+  "seed": 0,
+  "clusters": 54,
+  "per_model": {
+   "aasist": {
+    "delta_pp": 1.856691480457534,
+    "ci95_pp": [
+     -9.842174937151176,
+     17.39022275262352
+    ],
+    "p_one_sided": 0.36706329367063295,
+    "registered_ci95_pp": [
+     0.7435368180795906,
+     3.0408904153794865
+    ],
+    "registered_p": 0.0,
+    "loo_min_pp": -0.523144897798089,
+    "loo_max_pp": 5.421566258113991,
+    "loo_argmin": "Bill Clinton",
+    "loo_argmax": "Alec Guinness",
+    "macro_speaker_delta_pp": 3.336884886813693,
+    "share_replicates_delta_positive": 0.633,
+    "holm_reject_h0": false
+   },
+   "aasist_l": {
+    "delta_pp": 14.113493595514603,
+    "ci95_pp": [
+     -3.707581533620446,
+     32.89359192761386
+    ],
+    "p_one_sided": 0.061493850614938506,
+    "registered_ci95_pp": [
+     12.94528121142258,
+     15.236813030053465
+    ],
+    "registered_p": 0.0,
+    "loo_min_pp": 10.36457886436612,
+    "loo_max_pp": 22.585849635029966,
+    "loo_argmin": "Ayn Rand",
+    "loo_argmax": "Alec Guinness",
+    "macro_speaker_delta_pp": 15.936502160863533,
+    "share_replicates_delta_positive": 0.9386,
+    "holm_reject_h0": false
+   },
+   "rawnet2": {
+    "delta_pp": -35.31492426527329,
+    "ci95_pp": [
+     -51.97137915614232,
+     -11.04664325360385
+    ],
+    "p_one_sided": 0.9969003099690031,
+    "registered_ci95_pp": [
+     -36.37820481813155,
+     -34.28011461945968
+    ],
+    "registered_p": 1.0,
+    "loo_min_pp": -43.14478054517895,
+    "loo_max_pp": -30.434981531895705,
+    "loo_argmin": "Ayn Rand",
+    "loo_argmax": "Alec Guinness",
+    "macro_speaker_delta_pp": -27.08532923321119,
+    "share_replicates_delta_positive": 0.0031,
+    "holm_reject_h0": false
+   },
+   "tssdnet": {
+    "delta_pp": 31.317214521204107,
+    "ci95_pp": [
+     14.322583814423211,
+     51.808940627818814
+    ],
+    "p_one_sided": 9.999000099990002e-05,
+    "registered_ci95_pp": [
+     30.285756073414223,
+     32.36690872994865
+    ],
+    "registered_p": 0.0,
+    "loo_min_pp": 27.58914285332883,
+    "loo_max_pp": 38.04416869749561,
+    "loo_argmin": "Ayn Rand",
+    "loo_argmax": "Alec Guinness",
+    "macro_speaker_delta_pp": 41.9115891601096,
+    "share_replicates_delta_positive": 1.0,
+    "holm_reject_h0": true
+   }
+  },
+  "n_models_frr_gt_far": 1,
+  "h2_supported_cluster": false
+ },
+ "a2_h5": {
+  "B": 10000,
+  "seed": 0,
+  "clusters": 67,
+  "per_model": {
+   "aasist": {
+    "dfrr_pp": 6.2,
+    "dfar_pp": -6.4,
+    "stat_pp": 12.6,
+    "stat_ci95_pp": [
+     8.428103604783841,
+     17.1245226570264
+    ],
+    "dfrr_ci95_pp": [
+     4.0,
+     8.722141901514824
+    ],
+    "dfar_ci95_pp": [
+     -10.040983606557377,
+     -2.910799039390669
+    ],
+    "p_stat": 9.999000099990002e-05,
+    "p_dfrr": 9.999000099990002e-05,
+    "p_dfar": 0.00019998000199980003,
+    "registered_ci95_pp": [
+     8.795,
+     16.2
+    ],
+    "registered_p": 0.0,
+    "n_bona": 500,
+    "n_spoof": 500,
+    "dfrr_bona_clips_changed": 31,
+    "holm_stat": true,
+    "holm_dfrr": true,
+    "holm_dfar": true
+   },
+   "aasist_l": {
+    "dfrr_pp": 11.200000000000001,
+    "dfar_pp": -6.4,
+    "stat_pp": 17.599999999999998,
+    "stat_ci95_pp": [
+     12.766915193639905,
+     22.81135953546756
+    ],
+    "dfrr_ci95_pp": [
+     7.566462167689162,
+     15.354330708661418
+    ],
+    "dfar_ci95_pp": [
+     -9.311028255026073,
+     -3.5362270944559286
+    ],
+    "p_stat": 9.999000099990002e-05,
+    "p_dfrr": 9.999000099990002e-05,
+    "p_dfar": 9.999000099990002e-05,
+    "registered_ci95_pp": [
+     13.8,
+     21.8
+    ],
+    "registered_p": 0.0,
+    "n_bona": 500,
+    "n_spoof": 500,
+    "dfrr_bona_clips_changed": 56,
+    "holm_stat": true,
+    "holm_dfrr": true,
+    "holm_dfar": true
+   },
+   "rawnet2": {
+    "dfrr_pp": 1.2,
+    "dfar_pp": -1.6,
+    "stat_pp": 2.8000000000000003,
+    "stat_ci95_pp": [
+     0.9106654257225335,
+     4.8978460757469175
+    ],
+    "dfrr_ci95_pp": [
+     0.20702864329346543,
+     2.460850111856823
+    ],
+    "dfar_ci95_pp": [
+     -3.125,
+     -0.1779359430604982
+    ],
+    "p_stat": 0.0011998800119988001,
+    "p_dfrr": 0.005599440055994401,
+    "p_dfar": 0.0230976902309769,
+    "registered_ci95_pp": [
+     1.0000000000000004,
+     4.6
+    ],
+    "registered_p": 0.0,
+    "n_bona": 500,
+    "n_spoof": 500,
+    "dfrr_bona_clips_changed": 6,
+    "holm_stat": true,
+    "holm_dfrr": true,
+    "holm_dfar": true
+   },
+   "tssdnet": {
+    "dfrr_pp": 68.0,
+    "dfar_pp": -3.5999999999999996,
+    "stat_pp": 71.60000000000001,
+    "stat_ci95_pp": [
+     66.0235888775236,
+     77.03119117297065
+    ],
+    "dfrr_ci95_pp": [
+     62.97786720321932,
+     72.72727272727273
+    ],
+    "dfar_ci95_pp": [
+     -5.894748333716387,
+     -1.481364275668075
+    ],
+    "p_stat": 9.999000099990002e-05,
+    "p_dfrr": 9.999000099990002e-05,
+    "p_dfar": 0.00019998000199980003,
+    "registered_ci95_pp": [
+     67.0,
+     75.805
+    ],
+    "registered_p": 0.0,
+    "n_bona": 500,
+    "n_spoof": 500,
+    "dfrr_bona_clips_changed": 340,
+    "holm_stat": true,
+    "holm_dfrr": true,
+    "holm_dfar": true
+   }
+  },
+  "n_rejected": {
+   "stat": 4,
+   "dfrr": 4,
+   "dfar": 4
+  },
+  "h5_supported_cluster": true
+ },
+ "a3_e2": {
+  "B": 1000,
+  "seed": 0,
+  "ttg": {
+   "19la_eval": {
+    "clusters": 67,
+    "cells": {
+     "aasist|eer": {
+      "ttg_pp": 4.178828525426863,
+      "cluster_ci95_pp": [
+       3.7371984571584167,
+       4.651279229847493
+      ],
+      "registered_ci95_pp": [
+       4.0327526756238266,
+       4.326122154692462
+      ]
+     },
+     "aasist|frr1": {
+      "ttg_pp": 1.4207508826553952,
+      "cluster_ci95_pp": [
+       1.1828354419838985,
+       1.6845960260362545
+      ],
+      "registered_ci95_pp": null
+     },
+     "aasist|frr5": {
+      "ttg_pp": 1.0637613184284733,
+      "cluster_ci95_pp": [
+       0.607011935691606,
+       1.6097247010024056
+      ],
+      "registered_ci95_pp": null
+     },
+     "aasist|far1": {
+      "ttg_pp": 7.467660621977414,
+      "cluster_ci95_pp": [
+       6.884027765426043,
+       8.064887216465314
+      ],
+      "registered_ci95_pp": null
+     },
+     "aasist|far5": {
+      "ttg_pp": 17.222522210233343,
+      "cluster_ci95_pp": [
+       16.418213374416915,
+       18.05631931572145
+      ],
+      "registered_ci95_pp": null
+     },
+     "aasist_l|eer": {
+      "ttg_pp": 4.643325002839725,
+      "cluster_ci95_pp": [
+       3.9915753316923994,
+       5.363729846853401
+      ],
+      "registered_ci95_pp": [
+       4.4938442172793485,
+       4.8075507019644945
+      ]
+     },
+     "aasist_l|frr1": {
+      "ttg_pp": 1.7112433527222026,
+      "cluster_ci95_pp": [
+       1.3795183480744029,
+       2.1254291413913142
+      ],
+      "registered_ci95_pp": null
+     },
+     "aasist_l|frr5": {
+      "ttg_pp": 1.398118229159386,
+      "cluster_ci95_pp": [
+       0.9180906345183734,
+       1.9489412695476476
+      ],
+      "registered_ci95_pp": null
+     },
+     "aasist_l|far1": {
+      "ttg_pp": 7.5282874647514095,
+      "cluster_ci95_pp": [
+       6.663557744065539,
+       8.407982955004343
+      ],
+      "registered_ci95_pp": null
+     },
+     "aasist_l|far5": {
+      "ttg_pp": 17.543047428264185,
+      "cluster_ci95_pp": [
+       16.675216027802673,
+       18.439789386037276
+      ],
+      "registered_ci95_pp": null
+     },
+     "rawnet2|eer": {
+      "ttg_pp": 1.7436596166398006,
+      "cluster_ci95_pp": [
+       1.3989546179733363,
+       2.236111379656102
+      ],
+      "registered_ci95_pp": [
+       1.5765554000598176,
+       1.9258127466959776
+      ]
+     },
+     "rawnet2|frr1": {
+      "ttg_pp": 1.156078452004826,
+      "cluster_ci95_pp": [
+       0.8823445912098262,
+       1.590599637157228
+      ],
+      "registered_ci95_pp": null
+     },
+     "rawnet2|frr5": {
+      "ttg_pp": 0.16401490673310232,
+      "cluster_ci95_pp": [
+       0.009941185101267035,
+       0.5689769025615986
+      ],
+      "registered_ci95_pp": null
+     },
+     "rawnet2|far1": {
+      "ttg_pp": 2.4271525565778584,
+      "cluster_ci95_pp": [
+       2.052430625846151,
+       2.922438839337797
+      ],
+      "registered_ci95_pp": null
+     },
+     "rawnet2|far5": {
+      "ttg_pp": 6.45227750493661,
+      "cluster_ci95_pp": [
+       5.687501397240142,
+       7.317248283916644
+      ],
+      "registered_ci95_pp": null
+     },
+     "tssdnet|eer": {
+      "ttg_pp": 1.5825965961927893,
+      "cluster_ci95_pp": [
+       1.3028005131676124,
+       1.89248860871177
+      ],
+      "registered_ci95_pp": [
+       1.4495534722617296,
+       1.730229952037461
+      ]
+     },
+     "tssdnet|frr1": {
+      "ttg_pp": 1.0121018717996175,
+      "cluster_ci95_pp": [
+       0.7788818095224129,
+       1.2757136452754883
+      ],
+      "registered_ci95_pp": null
+     },
+     "tssdnet|frr5": {
+      "ttg_pp": 0.12560452266565275,
+      "cluster_ci95_pp": [
+       0.035191212147945,
+       0.26684325345476373
+      ],
+      "registered_ci95_pp": null
+     },
+     "tssdnet|far1": {
+      "ttg_pp": 2.2717702597951512,
+      "cluster_ci95_pp": [
+       1.9406443109177403,
+       2.6551959121894466
+      ],
+      "registered_ci95_pp": null
+     },
+     "tssdnet|far5": {
+      "ttg_pp": 9.750269930680954,
+      "cluster_ci95_pp": [
+       9.02773930469923,
+       10.447558159606464
+      ],
+      "registered_ci95_pp": null
+     },
+     "xlsr_aasist|eer": {
+      "ttg_pp": 0.12543276649326757,
+      "cluster_ci95_pp": [
+       0.08444899433380282,
+       0.18305798391055078
+      ],
+      "registered_ci95_pp": [
+       0.09465322769328594,
+       0.16432743326405463
+      ]
+     },
+     "xlsr_aasist|frr1": {
+      "ttg_pp": 0.20588723119706553,
+      "cluster_ci95_pp": [
+       0.10478020595957344,
+       0.3356093594763046
+      ],
+      "registered_ci95_pp": null
+     },
+     "xlsr_aasist|frr5": {
+      "ttg_pp": 2.81693712091662,
+      "cluster_ci95_pp": [
+       2.353340753805519,
+       3.3703898008091433
+      ],
+      "registered_ci95_pp": null
+     },
+     "xlsr_aasist|far1": {
+      "ttg_pp": 4.891206724601065,
+      "cluster_ci95_pp": [
+       4.493637797148087,
+       5.360747953754523
+      ],
+      "registered_ci95_pp": null
+     },
+     "xlsr_aasist|far5": {
+      "ttg_pp": 9.794778935865585,
+      "cluster_ci95_pp": [
+       9.212362164282984,
+       10.419905291160408
+      ],
+      "registered_ci95_pp": null
+     }
+    }
+   },
+   "itw": {
+    "clusters": 54,
+    "cells": {
+     "aasist|eer": {
+      "ttg_pp": 2.9445596560814247,
+      "cluster_ci95_pp": [
+       0.15661699567711393,
+       7.254569598967069
+      ],
+      "registered_ci95_pp": [
+       2.5371900036903074,
+       3.4575311387254635
+      ]
+     },
+     "aasist|frr1": {
+      "ttg_pp": 0.28678160385474105,
+      "cluster_ci95_pp": [
+       0.03568699652917867,
+       2.5215121818441935
+      ],
+      "registered_ci95_pp": null
+     },
+     "aasist|frr5": {
+      "ttg_pp": 9.260886660294465,
+      "cluster_ci95_pp": [
+       2.9668832135529963,
+       16.163869804409625
+      ],
+      "registered_ci95_pp": null
+     },
+     "aasist|far1": {
+      "ttg_pp": 5.942965542448519,
+      "cluster_ci95_pp": [
+       1.0874502876032064,
+       11.15472740034903
+      ],
+      "registered_ci95_pp": null
+     },
+     "aasist|far5": {
+      "ttg_pp": 9.955602826298392,
+      "cluster_ci95_pp": [
+       4.05184836355344,
+       16.214419276421182
+      ],
+      "registered_ci95_pp": null
+     },
+     "aasist_l|eer": {
+      "ttg_pp": 1.5479209913424496,
+      "cluster_ci95_pp": [
+       0.18779568657942974,
+       5.393463918987099
+      ],
+      "registered_ci95_pp": [
+       1.2293024604404381,
+       2.045573813077554
+      ]
+     },
+     "aasist_l|frr1": {
+      "ttg_pp": 0.14856063609349213,
+      "cluster_ci95_pp": [
+       0.10952528974718599,
+       2.4576492154075367
+      ],
+      "registered_ci95_pp": null
+     },
+     "aasist_l|frr5": {
+      "ttg_pp": 6.6810174228551675,
+      "cluster_ci95_pp": [
+       2.5719428147882453,
+       12.908880756678675
+      ],
+      "registered_ci95_pp": null
+     },
+     "aasist_l|far1": {
+      "ttg_pp": 2.8565180553556946,
+      "cluster_ci95_pp": [
+       0.2509487328119768,
+       7.773193694359952
+      ],
+      "registered_ci95_pp": null
+     },
+     "aasist_l|far5": {
+      "ttg_pp": 6.401923958782108,
+      "cluster_ci95_pp": [
+       2.0407204074450696,
+       11.64249243889835
+      ],
+      "registered_ci95_pp": null
+     },
+     "rawnet2|eer": {
+      "ttg_pp": 5.436606681399176,
+      "cluster_ci95_pp": [
+       2.5563985771272772,
+       9.107960857779176
+      ],
+      "registered_ci95_pp": [
+       4.982628858013254,
+       6.076489961913625
+      ]
+     },
+     "rawnet2|frr1": {
+      "ttg_pp": 4.375277531883542,
+      "cluster_ci95_pp": [
+       1.971610326932257,
+       7.982560470212334
+      ],
+      "registered_ci95_pp": null
+     },
+     "rawnet2|frr5": {
+      "ttg_pp": 0.8873747594186687,
+      "cluster_ci95_pp": [
+       0.28439612740221304,
+       3.360629174282584
+      ],
+      "registered_ci95_pp": null
+     },
+     "rawnet2|far1": {
+      "ttg_pp": 6.266135342936901,
+      "cluster_ci95_pp": [
+       3.177623576033619,
+       10.467857911626293
+      ],
+      "registered_ci95_pp": null
+     },
+     "rawnet2|far5": {
+      "ttg_pp": 7.478657791796345,
+      "cluster_ci95_pp": [
+       3.4725365296286252,
+       13.7022194964076
+      ],
+      "registered_ci95_pp": null
+     },
+     "tssdnet|eer": {
+      "ttg_pp": 0.7327252946725926,
+      "cluster_ci95_pp": [
+       0.07145096591052794,
+       5.171746478633886
+      ],
+      "registered_ci95_pp": [
+       0.4429558405969087,
+       1.2100369826443635
+      ]
+     },
+     "tssdnet|frr1": {
+      "ttg_pp": 0.9205825631853515,
+      "cluster_ci95_pp": [
+       0.03601841312356399,
+       5.852555428116086
+      ],
+      "registered_ci95_pp": null
+     },
+     "tssdnet|frr5": {
+      "ttg_pp": 5.804487879421883,
+      "cluster_ci95_pp": [
+       2.5695644858761324,
+       12.179675476450482
+      ],
+      "registered_ci95_pp": null
+     },
+     "tssdnet|far1": {
+      "ttg_pp": 0.585113646773272,
+      "cluster_ci95_pp": [
+       0.15730484304406364,
+       4.625976822357945
+      ],
+      "registered_ci95_pp": null
+     },
+     "tssdnet|far5": {
+      "ttg_pp": 0.36704095026713346,
+      "cluster_ci95_pp": [
+       0.08596454404653203,
+       3.661884967783284
+      ],
+      "registered_ci95_pp": null
+     },
+     "xlsr_aasist|eer": {
+      "ttg_pp": 14.957635657788169,
+      "cluster_ci95_pp": [
+       11.424573093809625,
+       19.655758871060574
+      ],
+      "registered_ci95_pp": [
+       14.583527516977837,
+       15.392487977546882
+      ]
+     },
+     "xlsr_aasist|frr1": {
+      "ttg_pp": 30.72786169308278,
+      "cluster_ci95_pp": [
+       27.012806457729692,
+       34.521134031055276
+      ],
+      "registered_ci95_pp": null
+     },
+     "xlsr_aasist|frr5": {
+      "ttg_pp": 37.029176793588114,
+      "cluster_ci95_pp": [
+       33.62141766297348,
+       40.027304902924335
+      ],
+      "registered_ci95_pp": null
+     },
+     "xlsr_aasist|far1": {
+      "ttg_pp": 0.17962839411340276,
+      "cluster_ci95_pp": [
+       0.014790795730476904,
+       1.49646124928742
+      ],
+      "registered_ci95_pp": null
+     },
+     "xlsr_aasist|far5": {
+      "ttg_pp": 0.9596826997243485,
+      "cluster_ci95_pp": [
+       0.06258948368668059,
+       2.923837013911285
+      ],
+      "registered_ci95_pp": null
+     }
+    }
+   },
+   "df21_verified": {
+    "clusters": 93,
+    "cells": {
+     "aasist|eer": {
+      "ttg_pp": 0.28719524733950563,
+      "cluster_ci95_pp": [
+       0.07888834248559143,
+       1.919590611275727
+      ],
+      "registered_ci95_pp": [
+       0.1643467277441416,
+       0.5204646670017743
+      ]
+     },
+     "aasist|frr1": {
+      "ttg_pp": 0.018286685371668443,
+      "cluster_ci95_pp": [
+       0.015649207705896312,
+       1.5456081446354788
+      ],
+      "registered_ci95_pp": null
+     },
+     "aasist|frr5": {
+      "ttg_pp": 4.245020330393048,
+      "cluster_ci95_pp": [
+       1.8870707827964808,
+       7.9102426709811855
+      ],
+      "registered_ci95_pp": null
+     },
+     "aasist|far1": {
+      "ttg_pp": 0.5644303798160749,
+      "cluster_ci95_pp": [
+       0.013699856941719603,
+       3.2794706191279435
+      ],
+      "registered_ci95_pp": null
+     },
+     "aasist|far5": {
+      "ttg_pp": 6.822590034173645,
+      "cluster_ci95_pp": [
+       3.889237415901028,
+       12.125079098894435
+      ],
+      "registered_ci95_pp": null
+     },
+     "aasist_l|eer": {
+      "ttg_pp": 0.03408959319264049,
+      "cluster_ci95_pp": [
+       0.021939811720842403,
+       0.911987345933264
+      ],
+      "registered_ci95_pp": [
+       0.01820840424653379,
+       0.12890295116505085
+      ]
+     },
+     "aasist_l|frr1": {
+      "ttg_pp": 1.109995659286314,
+      "cluster_ci95_pp": [
+       0.1625697423881298,
+       3.10899713437647
+      ],
+      "registered_ci95_pp": null
+     },
+     "aasist_l|frr5": {
+      "ttg_pp": 6.679030590265203,
+      "cluster_ci95_pp": [
+       3.2286610621859544,
+       10.77008889097566
+      ],
+      "registered_ci95_pp": null
+     },
+     "aasist_l|far1": {
+      "ttg_pp": 0.36089167086692797,
+      "cluster_ci95_pp": [
+       0.05248341600938809,
+       2.04787379013646
+      ],
+      "registered_ci95_pp": null
+     },
+     "aasist_l|far5": {
+      "ttg_pp": 5.166146541174505,
+      "cluster_ci95_pp": [
+       2.311828603565446,
+       9.68630424213904
+      ],
+      "registered_ci95_pp": null
+     },
+     "rawnet2|eer": {
+      "ttg_pp": 0.5771614146832138,
+      "cluster_ci95_pp": [
+       0.04160228020562075,
+       2.528436747349219
+      ],
+      "registered_ci95_pp": [
+       0.3483856478063488,
+       0.859881405556357
+      ]
+     },
+     "rawnet2|frr1": {
+      "ttg_pp": 0.6690206495990308,
+      "cluster_ci95_pp": [
+       0.022621516880251616,
+       2.86350196307768
+      ],
+      "registered_ci95_pp": null
+     },
+     "rawnet2|frr5": {
+      "ttg_pp": 2.1493767754695137,
+      "cluster_ci95_pp": [
+       0.7383947879146577,
+       5.000256807584171
+      ],
+      "registered_ci95_pp": null
+     },
+     "rawnet2|far1": {
+      "ttg_pp": 0.6535548281434989,
+      "cluster_ci95_pp": [
+       0.14247878505947492,
+       2.420975008954455
+      ],
+      "registered_ci95_pp": null
+     },
+     "rawnet2|far5": {
+      "ttg_pp": 0.21088758416545061,
+      "cluster_ci95_pp": [
+       0.06541577761927923,
+       2.1038119704257356
+      ],
+      "registered_ci95_pp": null
+     },
+     "tssdnet|eer": {
+      "ttg_pp": 1.8159633292359145,
+      "cluster_ci95_pp": [
+       0.9402041475336922,
+       3.6123842804017556
+      ],
+      "registered_ci95_pp": [
+       1.5615325617223965,
+       2.12482613003511
+      ]
+     },
+     "tssdnet|frr1": {
+      "ttg_pp": 2.5363574359741348,
+      "cluster_ci95_pp": [
+       1.5592601218834787,
+       4.307804060622767
+      ],
+      "registered_ci95_pp": null
+     },
+     "tssdnet|frr5": {
+      "ttg_pp": 6.8958824586408785,
+      "cluster_ci95_pp": [
+       4.955218027841852,
+       9.317835831483137
+      ],
+      "registered_ci95_pp": null
+     },
+     "tssdnet|far1": {
+      "ttg_pp": 1.3210696290853363,
+      "cluster_ci95_pp": [
+       0.5849682240298819,
+       3.128528481067628
+      ],
+      "registered_ci95_pp": null
+     },
+     "tssdnet|far5": {
+      "ttg_pp": 0.115169866690773,
+      "cluster_ci95_pp": [
+       0.06957512502748647,
+       1.5262155167821754
+      ],
+      "registered_ci95_pp": null
+     },
+     "xlsr_aasist|eer": {
+      "ttg_pp": 5.397093973762222,
+      "cluster_ci95_pp": [
+       3.2297022024650355,
+       7.768939661551462
+      ],
+      "registered_ci95_pp": [
+       5.102304534793561,
+       5.68479998847214
+      ]
+     },
+     "xlsr_aasist|frr1": {
+      "ttg_pp": 12.606610874782675,
+      "cluster_ci95_pp": [
+       9.039699937379496,
+       16.13287960044447
+      ],
+      "registered_ci95_pp": null
+     },
+     "xlsr_aasist|frr5": {
+      "ttg_pp": 18.90136840930941,
+      "cluster_ci95_pp": [
+       14.751893920469985,
+       22.781671464250756
+      ],
+      "registered_ci95_pp": null
+     },
+     "xlsr_aasist|far1": {
+      "ttg_pp": 0.2511195216592366,
+      "cluster_ci95_pp": [
+       0.044835848113488855,
+       0.7566617726714177
+      ],
+      "registered_ci95_pp": null
+     },
+     "xlsr_aasist|far5": {
+      "ttg_pp": 2.321738326767423,
+      "cluster_ci95_pp": [
+       1.2636087197313914,
+       3.925704698354608
+      ],
+      "registered_ci95_pp": null
+     }
+    }
+   }
+  },
+  "stability": {
+   "19la_eval": {
+    "eer": {
+     "hter": {
+      "point_argmax": "aasist_l",
+      "freq": {
+       "aasist": 0.027,
+       "aasist_l": 0.973,
+       "rawnet2": 0.0,
+       "tssdnet": 0.0,
+       "xlsr_aasist": 0.0
+      },
+      "share_point_argmax": 0.973
+     },
+     "screening": {
+      "point_argmax": "aasist_l",
+      "freq": {
+       "aasist": 0.393,
+       "aasist_l": 0.575,
+       "rawnet2": 0.007,
+       "tssdnet": 0.025,
+       "xlsr_aasist": 0.0
+      },
+      "share_point_argmax": 0.575
+     },
+     "forensic": {
+      "point_argmax": "aasist_l",
+      "freq": {
+       "aasist": 0.001,
+       "aasist_l": 0.999,
+       "rawnet2": 0.0,
+       "tssdnet": 0.0,
+       "xlsr_aasist": 0.0
+      },
+      "share_point_argmax": 0.999
+     }
+    },
+    "frr1": {
+     "hter": {
+      "point_argmax": "aasist_l",
+      "freq": {
+       "aasist": 0.024,
+       "aasist_l": 0.965,
+       "rawnet2": 0.011,
+       "tssdnet": 0.0,
+       "xlsr_aasist": 0.0
+      },
+      "share_point_argmax": 0.965
+     },
+     "screening": {
+      "point_argmax": "xlsr_aasist",
+      "freq": {
+       "aasist": 0.0,
+       "aasist_l": 0.0,
+       "rawnet2": 0.0,
+       "tssdnet": 0.0,
+       "xlsr_aasist": 1.0
+      },
+      "share_point_argmax": 1.0
+     },
+     "forensic": {
+      "point_argmax": "rawnet2",
+      "freq": {
+       "aasist": 0.0,
+       "aasist_l": 0.0,
+       "rawnet2": 1.0,
+       "tssdnet": 0.0,
+       "xlsr_aasist": 0.0
+      },
+      "share_point_argmax": 1.0
+     }
+    },
+    "frr5": {
+     "hter": {
+      "point_argmax": "xlsr_aasist",
+      "freq": {
+       "aasist": 0.0,
+       "aasist_l": 0.0,
+       "rawnet2": 0.0,
+       "tssdnet": 0.0,
+       "xlsr_aasist": 1.0
+      },
+      "share_point_argmax": 1.0
+     },
+     "screening": {
+      "point_argmax": "xlsr_aasist",
+      "freq": {
+       "aasist": 0.0,
+       "aasist_l": 0.014,
+       "rawnet2": 0.0,
+       "tssdnet": 0.0,
+       "xlsr_aasist": 0.986
+      },
+      "share_point_argmax": 0.986
+     },
+     "forensic": {
+      "point_argmax": "rawnet2",
+      "freq": {
+       "aasist": 0.0,
+       "aasist_l": 0.0,
+       "rawnet2": 1.0,
+       "tssdnet": 0.0,
+       "xlsr_aasist": 0.0
+      },
+      "share_point_argmax": 1.0
+     }
+    }
+   },
+   "itw": {
+    "eer": {
+     "hter": {
+      "point_argmax": "xlsr_aasist",
+      "freq": {
+       "aasist": 0.0,
+       "aasist_l": 0.0,
+       "rawnet2": 0.0,
+       "tssdnet": 0.0,
+       "xlsr_aasist": 1.0
+      },
+      "share_point_argmax": 1.0
+     },
+     "screening": {
+      "point_argmax": "aasist_l",
+      "freq": {
+       "aasist": 0.0,
+       "aasist_l": 0.478,
+       "rawnet2": 0.0,
+       "tssdnet": 0.321,
+       "xlsr_aasist": 0.201
+      },
+      "share_point_argmax": 0.478
+     },
+     "forensic": {
+      "point_argmax": "rawnet2",
+      "freq": {
+       "aasist": 0.0,
+       "aasist_l": 0.0,
+       "rawnet2": 1.0,
+       "tssdnet": 0.0,
+       "xlsr_aasist": 0.0
+      },
+      "share_point_argmax": 1.0
+     }
+    },
+    "frr1": {
+     "hter": {
+      "point_argmax": "xlsr_aasist",
+      "freq": {
+       "aasist": 0.0,
+       "aasist_l": 0.0,
+       "rawnet2": 0.0,
+       "tssdnet": 0.0,
+       "xlsr_aasist": 1.0
+      },
+      "share_point_argmax": 1.0
+     },
+     "screening": {
+      "point_argmax": "xlsr_aasist",
+      "freq": {
+       "aasist": 0.0,
+       "aasist_l": 0.0,
+       "rawnet2": 0.0,
+       "tssdnet": 0.0,
+       "xlsr_aasist": 1.0
+      },
+      "share_point_argmax": 1.0
+     },
+     "forensic": {
+      "point_argmax": "rawnet2",
+      "freq": {
+       "aasist": 0.0,
+       "aasist_l": 0.0,
+       "rawnet2": 1.0,
+       "tssdnet": 0.0,
+       "xlsr_aasist": 0.0
+      },
+      "share_point_argmax": 1.0
+     }
+    },
+    "frr5": {
+     "hter": {
+      "point_argmax": "xlsr_aasist",
+      "freq": {
+       "aasist": 0.0,
+       "aasist_l": 0.0,
+       "rawnet2": 0.0,
+       "tssdnet": 0.0,
+       "xlsr_aasist": 1.0
+      },
+      "share_point_argmax": 1.0
+     },
+     "screening": {
+      "point_argmax": "aasist",
+      "freq": {
+       "aasist": 0.813,
+       "aasist_l": 0.128,
+       "rawnet2": 0.0,
+       "tssdnet": 0.0,
+       "xlsr_aasist": 0.059
+      },
+      "share_point_argmax": 0.813
+     },
+     "forensic": {
+      "point_argmax": "rawnet2",
+      "freq": {
+       "aasist": 0.0,
+       "aasist_l": 0.0,
+       "rawnet2": 0.921,
+       "tssdnet": 0.0,
+       "xlsr_aasist": 0.079
+      },
+      "share_point_argmax": 0.921
+     }
+    }
+   },
+   "df21_verified": {
+    "eer": {
+     "hter": {
+      "point_argmax": "xlsr_aasist",
+      "freq": {
+       "aasist": 0.004,
+       "aasist_l": 0.0,
+       "rawnet2": 0.0,
+       "tssdnet": 0.001,
+       "xlsr_aasist": 0.995
+      },
+      "share_point_argmax": 0.995
+     },
+     "screening": {
+      "point_argmax": "tssdnet",
+      "freq": {
+       "aasist": 0.0,
+       "aasist_l": 0.0,
+       "rawnet2": 0.0,
+       "tssdnet": 1.0,
+       "xlsr_aasist": 0.0
+      },
+      "share_point_argmax": 1.0
+     },
+     "forensic": {
+      "point_argmax": "aasist",
+      "freq": {
+       "aasist": 1.0,
+       "aasist_l": 0.0,
+       "rawnet2": 0.0,
+       "tssdnet": 0.0,
+       "xlsr_aasist": 0.0
+      },
+      "share_point_argmax": 1.0
+     }
+    },
+    "frr1": {
+     "hter": {
+      "point_argmax": "xlsr_aasist",
+      "freq": {
+       "aasist": 0.0,
+       "aasist_l": 0.0,
+       "rawnet2": 0.0,
+       "tssdnet": 0.0,
+       "xlsr_aasist": 1.0
+      },
+      "share_point_argmax": 1.0
+     },
+     "screening": {
+      "point_argmax": "tssdnet",
+      "freq": {
+       "aasist": 0.0,
+       "aasist_l": 0.0,
+       "rawnet2": 0.0,
+       "tssdnet": 1.0,
+       "xlsr_aasist": 0.0
+      },
+      "share_point_argmax": 1.0
+     },
+     "forensic": {
+      "point_argmax": "aasist",
+      "freq": {
+       "aasist": 1.0,
+       "aasist_l": 0.0,
+       "rawnet2": 0.0,
+       "tssdnet": 0.0,
+       "xlsr_aasist": 0.0
+      },
+      "share_point_argmax": 1.0
+     }
+    },
+    "frr5": {
+     "hter": {
+      "point_argmax": "xlsr_aasist",
+      "freq": {
+       "aasist": 0.0,
+       "aasist_l": 0.0,
+       "rawnet2": 0.0,
+       "tssdnet": 0.0,
+       "xlsr_aasist": 1.0
+      },
+      "share_point_argmax": 1.0
+     },
+     "screening": {
+      "point_argmax": "tssdnet",
+      "freq": {
+       "aasist": 0.0,
+       "aasist_l": 0.0,
+       "rawnet2": 0.0,
+       "tssdnet": 1.0,
+       "xlsr_aasist": 0.0
+      },
+      "share_point_argmax": 1.0
+     },
+     "forensic": {
+      "point_argmax": "xlsr_aasist",
+      "freq": {
+       "aasist": 0.0,
+       "aasist_l": 0.0,
+       "rawnet2": 0.0,
+       "tssdnet": 0.0,
+       "xlsr_aasist": 1.0
+      },
+      "share_point_argmax": 1.0
+     }
+    }
+   }
+  }
+ },
+ "a4_speakers": {
+  "aasist": {
+   "clips_per_speaker_min_med_max": [
+    14,
+    212.5,
+    3636
+   ],
+   "share_of_all_clips_top5": 0.5051763743352529,
+   "share_of_genuine_clips_top5": 0.5755147021990683,
+   "share_of_rejections_from_top5_speakers": 0.5687306855900195,
+   "speakers_frr_gt_50": 23,
+   "speakers_frr_gt_90": 9,
+   "speaker_frr_quartiles": [
+    0.10752118644067797,
+    0.38315959492917634,
+    0.7802325581395348
+   ],
+   "pooled_frr": 0.4376596703902219,
+   "macro_frr": 0.44521456293198736,
+   "pooled_far": 0.41909275558564657,
+   "macro_far": 0.41184571406385034
+  },
+  "aasist_l": {
+   "clips_per_speaker_min_med_max": [
+    14,
+    212.5,
+    3636
+   ],
+   "share_of_all_clips_top5": 0.5051763743352529,
+   "share_of_genuine_clips_top5": 0.5755147021990683,
+   "share_of_rejections_from_top5_speakers": 0.5905449510434181,
+   "speakers_frr_gt_50": 25,
+   "speakers_frr_gt_90": 8,
+   "speaker_frr_quartiles": [
+    0.13181036947940342,
+    0.45588235294117646,
+    0.8063630490956073
+   ],
+   "pooled_frr": 0.5064870009517608,
+   "macro_frr": 0.46832344536081116,
+   "pooled_far": 0.36535206499661477,
+   "macro_far": 0.30895842375217586
+  },
+  "rawnet2": {
+   "clips_per_speaker_min_med_max": [
+    14,
+    212.5,
+    3636
+   ],
+   "share_of_all_clips_top5": 0.5051763743352529,
+   "share_of_genuine_clips_top5": 0.5755147021990683,
+   "share_of_rejections_from_top5_speakers": 0.5175126150192936,
+   "speakers_frr_gt_50": 18,
+   "speakers_frr_gt_90": 6,
+   "speaker_frr_quartiles": [
+    0.05712772397094431,
+    0.2882247992863515,
+    0.5952259245944367
+   ],
+   "pooled_frr": 0.33752442017732803,
+   "macro_frr": 0.3679434897165865,
+   "pooled_far": 0.6906736628300609,
+   "macro_far": 0.6387967820486984
+  },
+  "tssdnet": {
+   "clips_per_speaker_min_med_max": [
+    14,
+    212.5,
+    3636
+   ],
+   "share_of_all_clips_top5": 0.5051763743352529,
+   "share_of_genuine_clips_top5": 0.5755147021990683,
+   "share_of_rejections_from_top5_speakers": 0.5090655509065551,
+   "speakers_frr_gt_50": 34,
+   "speakers_frr_gt_90": 9,
+   "speaker_frr_quartiles": [
+    0.37034632034632037,
+    0.6172438672438673,
+    0.8508064516129032
+   ],
+   "pooled_frr": 0.5028302359364825,
+   "macro_frr": 0.5761975703436559,
+   "pooled_far": 0.18965809072444142,
+   "macro_far": 0.15708167874255993
+  },
+  "xlsr_aasist": {
+   "clips_per_speaker_min_med_max": [
+    14,
+    212.5,
+    3636
+   ],
+   "share_of_all_clips_top5": 0.5051763743352529,
+   "share_of_genuine_clips_top5": 0.5755147021990683,
+   "share_of_rejections_from_top5_speakers": 0.5052198353744228,
+   "speakers_frr_gt_50": 33,
+   "speakers_frr_gt_90": 13,
+   "speaker_frr_quartiles": [
+    0.3728990006056935,
+    0.6242389336843837,
+    0.8882575757575757
+   ],
+   "pooled_frr": 0.49902319290687774,
+   "macro_frr": 0.6150251535892879,
+   "pooled_far": 0.004316181448882871,
+   "macro_far": 0.008849494677538823
+  }
+ }
+}

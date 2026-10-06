@@ -1,0 +1,23 @@
+== DF21 eval subset: 533928 trials (bona fide 14869, spoof 519059); class A 149983, class B 78420, rejected by libFLAC >= 1.4 = A + B = 228403
+   verified surface = eval - B = 455508; clean surface = eval - A - B = 305525
+
+condition      eval  bona% |       A A bona% |       B B bona% | verified  bona% |   clean  bona%
+high_m4a      54070   2.07 |   15823    2.76 |    7399    2.96 |    46671   1.93 |   30848   1.51
+high_mp3      54075   2.10 |   15576    2.81 |    7592    2.98 |    46483   1.96 |   30907   1.52
+high_ogg      65917   3.48 |   19259    4.12 |    8809    4.12 |    57108   3.38 |   37849   3.00
+low_m4a       54041   2.12 |   15358    2.73 |    7774    2.89 |    46267   1.99 |   30909   1.62
+low_mp3       53998   2.11 |   15285    2.80 |    7916    2.88 |    46082   1.98 |   30797   1.57
+low_ogg       65917   3.48 |   17302    4.00 |   10877    4.13 |    55040   3.35 |   37738   3.05
+mp3m4a        65917   3.48 |   18097    4.05 |    9920    4.23 |    55997   3.34 |   37900   3.01
+nocodec       54076   2.14 |   16119    2.87 |    7081    2.87 |    46995   2.03 |   30876   1.59
+oggm4a        65917   3.48 |   17164    3.92 |   11052    4.24 |    54865   3.32 |   37701   3.05
+all          533928   2.78 |  149983    3.38 |   78420    3.57 |   455508   2.65 |  305525   2.29
+
+   by source (eval / class B / verified): asvspoof: 81795 / 12257 (15.0%) / 69538; vcc2018: 186183 / 17787 (9.6%) / 168396; vcc2020: 265950 / 48376 (18.2%) / 217574
+   class-B share by condition: high_m4a 13.7%, high_mp3 14.0%, high_ogg 13.4%, low_m4a 14.4%, low_mp3 14.7%, low_ogg 16.5%, mp3m4a 15.0%, nocodec 13.1%, oggm4a 16.8%
+   DF21 other subsets in the key file (not in any registered surface): hidden 18576 (all 'trim'), progress 59325
+
+== H5 manifest: 1000 clips = 500 bona fide + 500 spoof, uniform seeded draw within class from LA19 eval (seed 20260725, frozen 2026-07-26 for the conversion-parity gate, before H5 was specified); 67 of 67 eval speakers (3-29 clips each, median 14)
+   spoofs per attack: A07 34, A08 32, A09 36, A10 41, A11 40, A12 47, A13 29, A14 28, A15 40, A16 34, A17 40, A18 46, A19 53
+
+== ITW meta.csv: 31779 clips, 54 distinct speaker labels (the dataset paper reports 58 public figures); bona fide 19963, spoof 11816; every label has both classes: True; clips per label min 14, median 212, max 3636

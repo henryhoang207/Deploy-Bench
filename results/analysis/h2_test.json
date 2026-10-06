@@ -1,0 +1,78 @@
+{
+  "hypothesis": "H2",
+  "family": [
+    "aasist",
+    "aasist_l",
+    "rawnet2",
+    "tssdnet"
+  ],
+  "B": 1000,
+  "seed": 0,
+  "alpha": 0.05,
+  "correction": "Holm-Bonferroni within the H2 family",
+  "per_model": {
+    "aasist": {
+      "tau_eer": -1.0931490611056907,
+      "frr": 0.4376596703902219,
+      "far": 0.41909275558564657,
+      "delta": 0.01856691480457534,
+      "ci95": [
+        0.007435368180795906,
+        0.030408904153794866
+      ],
+      "p_one_sided": 0.0,
+      "n_bona": 19963,
+      "n_spoof": 11816,
+      "scores": "results\\phase_2_conversion_app\\main_matrix\\aasist\\scores_fp32_pytorch_itw.csv",
+      "holm_reject_h0": true
+    },
+    "aasist_l": {
+      "tau_eer": -0.9449459508973773,
+      "frr": 0.5064870009517608,
+      "far": 0.36535206499661477,
+      "delta": 0.14113493595514603,
+      "ci95": [
+        0.1294528121142258,
+        0.15236813030053464
+      ],
+      "p_one_sided": 0.0,
+      "n_bona": 19963,
+      "n_spoof": 11816,
+      "scores": "results\\phase_2_conversion_app\\main_matrix\\aasist_l\\scores_fp32_pytorch_itw.csv",
+      "holm_reject_h0": true
+    },
+    "rawnet2": {
+      "tau_eer": -7.067737815144296,
+      "frr": 0.33752442017732803,
+      "far": 0.6906736628300609,
+      "delta": -0.3531492426527329,
+      "ci95": [
+        -0.3637820481813155,
+        -0.3428011461945968
+      ],
+      "p_one_sided": 1.0,
+      "n_bona": 19963,
+      "n_spoof": 11816,
+      "scores": "results\\phase_2_conversion_app\\main_matrix\\rawnet2\\scores_fp32_pytorch_itw.csv",
+      "holm_reject_h0": false
+    },
+    "tssdnet": {
+      "tau_eer": -8.24478095297237,
+      "frr": 0.5028302359364825,
+      "far": 0.18965809072444142,
+      "delta": 0.31317214521204106,
+      "ci95": [
+        0.3028575607341422,
+        0.3236690872994865
+      ],
+      "p_one_sided": 0.0,
+      "n_bona": 19963,
+      "n_spoof": 11816,
+      "scores": "results\\phase_2_conversion_app\\main_matrix\\tssdnet\\scores_fp32_pytorch_itw.csv",
+      "holm_reject_h0": true
+    }
+  },
+  "n_models_frr_gt_far": 3,
+  "majority_required": 3,
+  "h2_supported": true
+}
