@@ -406,3 +406,20 @@ set existed, and no stressed audio for the eight new conditions.
 `score.py`'s whole-utterance and `vad35` paths, the training and fitting scripts, the registered analysis scripts, and one
 defect found in review: `deploybench/stress.py` convolved an impulse response read at another sample rate as if it were
 16 kHz; it now refuses the mismatch.
+
+### DEV-9 amendment 1 (2026-10-07, after a launch failure, before any relaunch)
+**What happened.** The eleven AASIST-L runs were launched together at 09:26 (+07), six on GPU 0 and five on GPU 1.
+AASIST-L training needs 3.5-5 GB of GPU memory per run, not the 1-2 GB assumed, so the six runs on GPU 0 failed with CUDA
+out-of-memory within ten seconds, before completing a single epoch (empty `epochs.jsonl`, no weights). The five trimmed runs
+on GPU 1 were still counting trim statuses (no training step taken) and were stopped by hand to prevent the same failure.
+No dev score, checkpoint or training metric of any run exists.
+
+**Amendment.** Sec. 10's rule that a crashed run "is reported and not repeated" targets failures of the recipe (divergence,
+NaN loss, a crash during training). A run that fails from resource exhaustion before completing its first epoch, that is
+before any dev score exists, is relaunched once from scratch with the same seed, code and data, and the failure is reported.
+The eleven runs are relaunched by `scripts/sol1/round2/r2_train_sched.py`, which starts a run only when its GPU has room
+(each of our runs counted at 5 GB from launch, other processes at their measured use, 2 GB margin, at most four runs per
+GPU) and keeps the arms interleaved (r2 s1, trim s1, r2 s2, ...). The failed directories are kept, renamed, for the record.
+Nothing else changes.
+
+**Seen when written:** the out-of-memory tracebacks and the GPU memory figures above; no dev score or training metric.
