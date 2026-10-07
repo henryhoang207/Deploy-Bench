@@ -273,6 +273,19 @@ def e6():
     for k, v in out.items():
         say(f"   {k}: n {v['n']:6d}  EER {100 * v['eer']:5.1f}  FRR {100 * v['frr']:5.1f}  FAR {100 * v['far']:5.1f}  "
             f"TTG {100 * v['ttg']:5.2f}")
+    sil = R.R2 / "as5_silence.csv"
+    if sil.exists() or sil.with_name(sil.name + ".gz").exists():
+        import pandas as pd
+        df = pd.read_csv(sil if sil.exists() else sil.with_name(sil.name + ".gz"))
+        out["silence"] = {}
+        for (ds, lab), g in df.groupby(["dataset", "label"]):
+            lead, trail = g["lead35"] / 16000, g["trail35"] / 16000
+            out["silence"][f"{ds}|{'bona' if lab == 1 else 'spoof'}"] = {
+                "n": int(len(g)), "lead_median_s": float(lead.median()), "trail_median_s": float(trail.median()),
+                "lead_q25_q75_s": [float(lead.quantile(0.25)), float(lead.quantile(0.75))]}
+        for k, v in out["silence"].items():
+            say(f"   silence {k}: leading median {v['lead_median_s']:.2f} s (IQR {v['lead_q25_q75_s'][0]:.2f}-"
+                f"{v['lead_q25_q75_s'][1]:.2f}), trailing median {v['trail_median_s']:.2f} s")
     return out
 
 
