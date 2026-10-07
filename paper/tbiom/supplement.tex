@@ -31,9 +31,9 @@
 \renewcommand{\thefigure}{S\arabic{figure}}
 \newcommand{\wide}[1]{\begingroup\footnotesize\setlength{\tabcolsep}{3.5pt}\resizebox{\textwidth}{!}{\input{gen/#1}}\endgroup}
 
-\title{Supplementary Material for\\ ``Thresholded Once, Deployed Elsewhere: A Pre-Registered Audit of Threshold Transfer in Speech
-Deepfake Detection''}
-\author{Anonymous ICME Submission}
+\title{Supplementary Material for\\ ``Thresholded Once, Deployed Elsewhere: A Two-Round Pre-Registered Audit of Threshold Transfer in Speech
+Deepfake Detection'' (T-BIOM)}
+\author{Anonymous T-BIOM Submission}
 \date{}
 
 \begin{document}
@@ -422,6 +422,67 @@ verifies), class B (MD5 fails), the verified subset (evaluation minus B) and the
 \centering
 \wide{s_tab_df21}
 \end{table}
+
+% ============================ PART II: ROUND 2 ======================================
+\section{Round 2: registration, models and runs}
+\label{sec:r2design}
+\subsection{Registration and deviations}
+Round~2 was registered in \texttt{PREREGISTRATION\_ROUND2.md} and frozen at the git tag \texttt{round2-freeze} on
+7~October 2026, together with the analysis code that computes every registered quantity
+(\texttt{analysis/round2/r2\_registered.py}, \texttt{r2\_gates.py}, \texttt{r2\_taus.py}, \texttt{r2lib.py}). Before the tag no
+score of any round-2 model existed on any development, evaluation or target set; the pre-tag checks touched LA19
+\emph{training} clips only. The ported cluster-bootstrap code reproduces the round-1 speaker-level H2 and H5 results bit for
+bit. Two amendments were logged before the work they govern ran. Amendment~1: the eleven training runs were first launched
+together and the six on one GPU ran out of memory within ten seconds, before completing an epoch; they were relaunched once
+under a scheduler that runs one training run per GPU. Amendment~2: the exploratory calibration analysis (E9) uses an exact,
+unpenalised logistic fit instead of the harness's fixed-step \texttt{platt\_fit}, which a unit test showed does not converge
+and fails at the score scales of RawNet2 and Res-TSSDNet.
+
+\subsection{Models}
+\emph{AASIST trained on ASVspoof~5.} The ASVspoof~5 baseline B02 (asvspoof-challenge/asvspoof5 @ \texttt{fe23d30}) ships
+\texttt{models/weights/AASIST/best.pth}; its model code is byte-identical to clovaai's AASIST and its configuration's model
+part equals AASIST's. Bona fide is class 1 and the score is the bona fide logit, as for the round-1 AASIST. It was trained on
+the ASVspoof~5 training set, which the organisers did \emph{not} post-process, and its thresholds come from the
+post-processed ASVspoof~5 development set (140,950 trials) \cite{wang25_asvspoof5_db}; it therefore cannot test the silence
+explanation, which the trimmed AASIST-L runs do.
+
+\emph{Calibration-oriented detector.} Following Pascu et al.\ \cite{pascu24_calibrated} (code \texttt{danoneata/aletheia},
+re-implemented because it has no licence): the whole utterance through the frozen \texttt{wav2vec2-xls-r-2b}
+\cite{babu21_xlsr}, last hidden state averaged over time, scikit-learn logistic regression with \(C=10^6\) and at most 5,000
+iterations. The authors fit it on LA19 train \emph{and} dev; we refit on train only (25,380 clips; L-BFGS converged in 100
+iterations), so that LA19 dev stays a held-out threshold source. The score is \(-(w^\top x+b)\), the log-odds of bona fide,
+because their probability saturates at this \(C\). A pipeline gate refits their exact recipe (train + dev) and requires their
+published 0.6\% LA19-evaluation EER within 15\%.
+
+\emph{XLSR-Mamba.} The released DF model (HF \texttt{AustinXiao/XLSR-Mamba-DF} @ \texttt{8aed3da}; code @ \texttt{10ec738})
+\cite{xiao25_xlsrmamba}: XLS-R 300M front end and a dual-column bidirectional Mamba, trained on LA19 train with RawBoost
+\cite{tak22_rawboost} and selected on LA19 dev loss. Input 66,800 samples (the authors' training and ASVspoof evaluation
+length), score = bona fide logit. Gate: on the DF21 verified trials that also appear in the authors' released DF scores, our
+EER within 15\% of theirs.
+
+\subsection{Training runs}
+The clovaai AASIST-L recipe (\texttt{main.py} @ \texttt{a04c986}, \texttt{AASIST-L.conf}) is transcribed with six declared
+changes: no evaluation set anywhere (the recipe scores LA19 eval during training and writes \texttt{best.pth} by evaluation
+t-DCF); the run's model is the recipe's final stochastic-weight-averaged \texttt{swa.pth}; the dev EER is computed with the
+vendor's \texttt{compute\_eer}; the trimmed arm trims train and dev audio with the round-1 energy VAD; TF32 is off; paths and
+logs. The recipe's selection rule is kept exactly: its initial best dev EER of \texttt{1.} is compared with a dev EER in
+percent, so only epochs with dev EER \(\le 1\%\) are saved and averaged; each run's number of snapshots is reported. Seeds 1--5
+in each arm and the recipe's default seed 1234 as a pipeline check. All 25,380 trimmed training clips were shortened; none
+had exactly 64,600 samples, a length that would crash the recipe's random crop.
+
+\subsection{Channel conditions}
+The 1,000-clip H5 manifest is re-generated with a byte-identical clean copy and eight conditions: Opus 6 and 24\,kbps
+(libopus), AMR-NB 4.75\,kbps at 8\,kHz (libopencore\_amrnb), MP3 32\,kbps (libmp3lame), each decoded back to 16\,kHz by
+ffmpeg~7.0.2; MUSAN \texttt{noise/} \cite{snyder15_musan} at 20, 10 and 5\,dB SNR over the whole clip; and one of the 23 AIR
+mock-up-phone impulse responses \cite{jeub09_air} in RIRS\_NOISES \cite{ko17_rirs} (16\,kHz, two channels averaged), chosen per
+clip from a hash of its identifier. A defect found in review was fixed before the tag: the generator used to convolve an
+impulse response read at another sample rate as if it were 16\,kHz; it now refuses.
+
+\section{Round 2: results in detail}
+\label{sec:r2results}
+\todo{Generated tables r2s\_*: all policies and targets (E1, E8, E10), seed spread (E2, E3), channel effects for every model
+(E4), MLAAD-5 by language (E5), ASVspoof 5 by condition and its silence statistics (E6), three-zone policies (E7), actual vs
+minimum cost over priors (E9).}
 
 \section{Reproducibility}
 All inputs are committed: the fp32 score files of the five models on every surface, the frozen thresholds (never changed), the metadata files
