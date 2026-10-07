@@ -306,7 +306,15 @@ in narrow windows of bona fide priors (none for RawNet2).
 \todo{E2/E3 and R2-H2/H3.}
 
 \subsection{Channels, languages and ASVspoof 5}
-\todo{E4 (R2-H4), E5 (MLAAD-5, with the sample-rate confound), E6.}
+% src: results/round2/analysis/r2_registered.txt (R2-H4); numbers to be re-checked against the final run by the round-2 audit.
+\emph{Channels (R2-H4).} H5 generalises to some channels and not to others. Low-bitrate speech codecs push genuine speech
+far below the development threshold: Opus at 6\,kbps raises FRR by 40--69\,pp and AMR-NB at 4.75\,kbps by 77--92\,pp across
+the four primary models, while FAR falls, so both meet R2-H4 for four of four models; Opus at 24\,kbps does too, with
+shifts of at most 1\,pp in FRR. The phone impulse response raises FRR by 16--51\,pp (four of four). MP3 at 32\,kbps moves
+almost nothing (one of four). Additive noise splits the models: AASIST and AASIST-L reject 41--74\,pp more genuine speech
+at 10 and 5\,dB SNR, whereas RawNet2 and Res-TSSDNet accept more spoofs (Res-TSSDNet's FAR rises by 27--31\,pp), so the
+noise conditions meet R2-H4 for two of four models only. R2-H4 holds for four of the eight conditions. \todo{E4 for the
+round-2 detectors and the runs; E5 MLAAD-5; E6 ASVspoof~5.}
 
 \subsection{Three-zone review and calibration across priors}
 \todo{E7 and E9.}
