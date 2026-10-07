@@ -219,3 +219,163 @@ registered hypothesis test or replace an ORT result.
 - **Devices:** an ExecuTorch runner in the app. `executorch` cells stay refused (exit 3) until
   the runner exists and the desktop fp32 gate has passed. The device grid then becomes
   4 models x 3 precisions x 2 runtimes per phone.
+
+## DEV-8 (2026-10-04): reviewer-requested sensitivity analyses for the conference paper
+
+**Status:** post-hoc, **exploratory**, declared **before any of it was run**. Every result below is reported
+beside the registered ones and never instead of them. Requested by a simulated peer review (ARS
+academic-paper-reviewer v1.10.0, mode `full`, 2026-10-04; five reports and an editorial roadmap, venue IEEE ICME;
+files in `DFV_Conference/peer_review/`). The user asked for a revision based on it (`/ars-revision`) and approved on
+2026-10-04: the read-only copy of four metadata files from sol1, a silence-artefact arm with VAD-trimmed re-scoring,
+and this entry (D51).
+
+**Why.** The review found that (i) the registered H2 and H5 tests resample clips, although ITW and LA19 clips come
+from a few dozen speakers, and H2's resampling unit was fixed after the descriptive ITW rates had been seen
+(DEV-2 left it open); (ii) tau_eer's estimator is not named and its uncertainty is not propagated; (iii) the policy
+grid has no lenient (FAR-budget) point, so the direction of the error is partly built into where the thresholds sit;
+(iv) TTG and the SD-normalised safe band are not comparable across models; (v) the LA19 silence cue (Mueller et al.
+2021) is an untested alternative explanation for the ITW false rejections.
+
+**What was known when this was written:** every registered result and every descriptive table in the conference draft
+(`paper/conference/main.tex`, e73c675), including the ITW FRR/FAR at all three policies; the five review reports.
+Metadata copied from sol1 on 2026-10-04 (sha256 in `DFV_Conference/revision/meta/PROVENANCE.md`) and inspected for
+structure only, using labels and counts and never a threshold or a decision: ITW `meta.csv` has **54** distinct
+speaker labels (the dataset paper says 58 public figures; clips per speaker 14-3,636, the top five supply 50.5%),
+every speaker has both classes; the 1,000-clip H5 manifest covers all 67 LA19-eval speakers (3-29 clips each) and all
+13 eval attacks; DF21 eval has 93 speakers; every label in the metadata equals the label in the committed score files
+for all 5 models. **No result of any analysis below exists**: no cluster bootstrap, no new policy, no VAD score.
+
+**Inputs.** The committed fp32 PyTorch score files, the frozen taus (`tau_<model>.json`, never changed), the
+metadata above. Every script refuses to run unless the point estimates it recomputes equal the committed
+`results/analysis/{operating_points,h1_h4,h2_test,h5_test}.json` to 1e-12 (the harness rule: no plausible wrong number).
+
+**A. Speaker-cluster inference (R1, S1, S2, S4).**
+- **A1 H2, cluster version.** Resampling unit = ITW speaker label (54). Resample speakers with replacement, take all
+  of each speaker's clips of both classes. Statistic FRR - FAR at the frozen tau_eer, per ranked model. B = 10,000,
+  numpy `default_rng(0)`. One-sided p = (1 + #{stat <= 0}) / (B + 1), so p >= 1/(B+1). Holm within the 4 models,
+  alpha 0.05, supported if >= 3 of 4 reject (the registered rule, with only the unit changed). The registered
+  class-stratified clip-level result stays the registered H2 outcome.
+- **A2 H5, cluster version.** Unit = LA19-eval speaker id of the 1,000-clip manifest (67). Same statistic
+  (dFRR - dFAR at tau_eer, clean vs encodec6k, same clips in both conditions), B = 10,000, seed 0, same p and Holm
+  rule. Plus the two components, each one-sided and Holm-corrected within its own 4-model family: dFRR > 0 and
+  dFAR < 0.
+- **A3 TTG intervals.** Speaker-cluster bootstrap, B = 1,000, seed 0, percentile 95% interval of TTG at every
+  policy, on ITW (54 units), DF21 verified (93 speakers) and LA19 eval (67 speakers). Beside the existing
+  class-stratified intervals.
+- **A4 Per-speaker view (ITW).** Clips per speaker; per-speaker FRR and FAR at tau_eer; the share of FRR from the top
+  five speakers; worst-k speakers (reported as anonymous ranks in the paper).
+- **A5 "Cheap check" simulation.** ITW, per ranked model and the reference. For k in {50, 100, 500}, 1,000 random
+  splits of the 54 speakers into a calibration half (27) and a held-out half (27). Draw k genuine clips uniformly
+  from the calibration half. (i) Estimate FRR at the shipped tau_eer from the sample and compare with the held-out
+  genuine FRR. (ii) Set tau_new = the (floor(0.01 k) + 1)-th smallest sample score (the largest threshold whose
+  sample FRR is <= 1%, the `tau_at_frr` rule on the sample's bona fide scores); report held-out FRR and FAR (spoofs of
+  held-out speakers) at tau_new next to the same at tau_eer. Medians and 5-95% spread over splits. seed 0.
+
+**B. Threshold estimation (R2).**
+- **B1 Documentation.** The estimator is `metrics.eer`: the linear interpolation of the dev FRR = FAR crossing over
+  the unique dev scores (first grid point with FRR > FAR; interpolation between it and its predecessor). frr1/frr5 are
+  dev bona fide quantiles (`tau_at_frr`). Reported per model: dev EER, the three taus, dev margin (smallest dev bona
+  fide score minus largest dev spoof score), and the number of dev trials that pin tau_eer (bona fide below it, spoofs
+  at or above it).
+- **B2 Dev-set bootstrap.** Class-stratified clip resampling of the 24,844 dev trials (2,548 / 22,296), B = 1,000,
+  seed 0. In each replicate re-estimate all five policies (eer, frr1, frr5, far1, far5) with the harness functions
+  and evaluate FRR, FAR and TTG on the full ITW, DF21-verified and LA19-eval sets. Percentile 95% intervals. This
+  carries dev-threshold uncertainty only; the target sampling uncertainty is A3.
+- **B3 EER-equivalent interval.** Per model, the connected run of dev grid thresholds around tau_eer whose dev HTER is
+  at most HTER_dev(tau_eer) + 0.5 / 2,548 (one dev bona fide trial); target FRR and FAR at both ends and at tau_eer.
+- **B4 Reconciliation with Zhou and Wang (arXiv 2606.21584).** FRR and FAR on ITW for every model at a threshold set
+  by the same estimator on the LA19 **eval** scores (their convention), against the registered dev threshold. The
+  checkpoint and preprocessing differences cannot be tested.
+
+**C. FAR-budget policies (R3, DA M1).** tau_far1 and tau_far5 = `tau_at_far` on dev (the most lenient threshold whose
+dev FAR is <= 1% / 5%). FRR, FAR, HTER, TTG on all targets. Descriptive companion: the target-oracle FRR at FAR = 5%
+(the smallest target threshold with target FAR <= 5%, a BPCER20-style quantity), to split a lenient-policy FRR into
+discrimination and transfer.
+
+**D. Measures (R4, S3).** HTER(tau*) and oracle HTER beside TTG; the transfer share TTG / HTER(tau*) and the
+reviewer's TTG / (50 - oracle HTER). Rank-based band: the share of target clips (pooled and per class) whose score
+lies in the 1-pp-HTER band around the oracle, and the share whose decision differs between tau* and the oracle
+threshold. Both are invariant to monotone score transforms.
+
+**E. Cost sweep and stability (S5, R1).** Normalised cost on an effective-prior axis,
+C(p) = [p FRR + (1 - p) FAR] / min(p, 1 - p), p in [0.01, 0.99] on a log-odds grid, at the five frozen thresholds
+and at the oracle (minimum over thresholds and the two trivial systems). The registered points are screening
+p = 0.95 and forensic p = 1/11 (pi = 0.5, c_far = 10). Break-even for screening: C < 1 iff FRR < (1 - FAR) / 19.
+Stability: B = 1,000 (seed 0) speaker-cluster replicates for ITW and DF21 verified; per replicate, the model with the
+largest HTER gap, screening cost gap and forensic cost gap at tau_eer; report how often the point-estimate's
+argmax is the argmax.
+
+**F. Silence artefact (R7).** On sol1, in a new scratch directory `/mnt/data8tb/henry/dfv_rev/`. The harness is
+imported read-only from `/mnt/data8tb/henry/deploybench` with bytecode writing off; nothing in that clone, its
+results or the running MLAAD scoring is touched; CPU jobs run under `nice`; scoring uses the less loaded GPU.
+- **F1 Statistics (CPU).** For LA19 dev (24,844), LA19 eval (71,237) and ITW (31,779): leading and trailing silence
+  at 16 kHz after the harness's `load_wav`. Energy VAD: 25 ms frames, 10 ms hop, only full frames,
+  E = 10 log10(mean x^2 + 1e-12) dB, a frame is active if within T dB of the clip's loudest frame, T in {25, 35, 45}.
+  Leading silence = start of the first active frame, trailing = samples after the end of the last. Clips shorter than
+  one frame have 0 / 0. Relation to the per-clip decisions already held: Spearman(score, leading silence) per class,
+  and FRR at tau_eer by leading-silence quintile among ITW genuine clips.
+- **F2 VAD-trimmed re-scoring (GPU).** Trim both ends at **T = 35 dB** (fixed here as the primary, with zero margin),
+  using the bounds from F1. If the trimmed clip would be shorter than 0.25 s the clip is left untrimmed and counted.
+  Sets: LA19 dev, LA19 eval, ITW. All 5 models, fp32 PyTorch on GPU, TF32 off via `load_model`, checkpoints exactly
+  as in `scripts/sol1/mlaad_scoring.sh`, path `load_wav -> trim -> fix_length -> model` (only the trim is new).
+  **Gate before any trimmed run:** a no-trim run on the first 200 utterances of each set must equal the committed
+  scores (|d| <= 1e-4); otherwise stop. DF21 is not re-scored (its eval subset is untrimmed audio, and re-scoring
+  455,508 clips would not change the question).
+- **F3 Thresholds and reporting.** tau_trim = the five estimators of B/C on the **trimmed dev** scores of each model,
+  computed from dev only. Reported, descriptively and with no test: EER on LA19 eval and ITW, trimmed vs untrimmed;
+  FRR, FAR, TTG on ITW and LA19 eval at (a) the registered untrimmed taus and (b) tau_trim. Reading rule fixed now: if
+  the ITW false-rejection pattern were mainly a silence artefact, trimming both dev and target should shrink ITW
+  FRR at tau_trim relative to the untrimmed baseline; if FRR stays above FAR at a similar size the artefact does not
+  explain it; mixed outcomes are reported as mixed. Sanity check, descriptive: Mueller et al. report RawNet2's LA19
+  EER rising from 3.6% to 15.5% when silence is trimmed; if ours do not degrade the trimming is not biting, and that
+  is stated.
+
+**G. Documentation (S6).** Per-condition and per-class counts of DF21 eval (533,928), integrity class A (149,983),
+class B (78,420), the verified surface (455,508) and the clean surface (305,525), from `configs/df21_class{A,B}.txt`
+joined to `trial_metadata.txt`. H5 manifest composition (attacks, speakers). The ITW speaker table.
+
+**Not done, by decision.** (i) A new or modern detector (S9): the roster is frozen (D1, D30); the paper scopes its
+claims instead. (ii) Two-way speaker x recording clustering: ITW `meta.csv` has no recording id. (iii) DF21
+`hidden` (18,576 trimmed trials) and `progress` (59,325) subsets: not part of the registered surface, their FLAC
+integrity is unclassified, and scoring them would be a further deviation. (iv) Re-running any registered analysis with
+other settings.
+
+**Reporting rules, fixed now.** The registered clip-level H2 and H5 remain the registered outcomes. The cluster
+versions are reported beside them and labelled as this deviation. If H2 or H5 is supported under one resampling unit
+and not under the other, the abstract and the conclusion say so. Every other quantity here is labelled exploratory,
+with effect sizes and intervals and no confirm/refute language. Code lives in `DFV_Conference/revision/analysis/`;
+it is not committed by Claude, and the user decides what moves into `analysis/`.
+
+### DEV-8 amendment 1 (2026-10-04, after the F2 gate result, before any trimmed run)
+- The F2 gate (no-trim scoring of the first 200 utterances per set, |d| <= 1e-4 against the committed scores) passed
+  for AASIST (max 4.8e-6), AASIST-L (3.8e-6) and RawNet2 (1.7e-5). It **failed for Res-TSSDNet on LA19 eval: 1.16e-4**
+  (LA19 dev 7.4e-5, ITW 0.0).
+- **Cause, checked in the committed files:** `scores_repro_tssdnet.csv` was computed on the Windows laptop; the
+  committed sol1 copy `scores_repro_tssdnet_linux.csv` differs from it by up to 3.7e-4 (mean 1.2e-5; the scores span -42
+  to +26). So the 1e-4 bound was tighter than cross-platform float32 noise for this model. Its ITW reference was
+  computed on sol1 and is reproduced exactly (0.0), so the scoring path itself is identical.
+- **Amended gate, Res-TSSDNet LA19 eval only:** the platform-matched reference `scores_repro_tssdnet_linux.csv`, same
+  1e-4 bound. Every other check and bound is unchanged. If this check also fails, the Res-TSSDNet trimmed run does not
+  start (the other models are unaffected).
+
+### DEV-8 amendment 2 (2026-10-05, after the F3 scores were collected; adds no analysis, threshold or test)
+- **F2/F3 ran as declared.** The VAD-trimmed fp32 scores of all five models on LA19 dev, LA19 eval and ITW (15 files) were
+  copied read-only from `/mnt/data8tb/henry/dfv_rev/scores/` (sha256 equal on both sides) to
+  `DFV_Conference/revision/results/vad/`. `f_vad_analysis.py scores` wrote `f_taus_trim.json` (taus from trimmed dev scores
+  only, written before any trimmed target was opened) and `f_vad_scores_analysis.{txt,json}`.
+- **Sanity check of F3: trimming bites.** LA19-eval EER rises for all five models (0.83 -> 21.31, 0.99 -> 20.43,
+  4.60 -> 27.53, 1.62 -> 23.49, 0.15 -> 5.08%).
+- **F3 reading rule: mixed, reported as mixed.** At tau_trim on trimmed ITW, FRR falls for all five models (by 9-38 pp)
+  but FAR rises (by 3-34 pp); FRR > FAR disappears for AASIST, Res-TSSDNet and XLS-R and persists barely for AASIST-L
+  (41.5 vs 39.3%); ITW EER moves by -4.0 to +3.1 pp. A more lenient threshold from any harder dev set would also lower
+  FRR, and this single contrast cannot separate that from the silence cue. Descriptive, no test.
+- **Correction to the F3 text.** F3 attributes Mueller et al.'s 3.6% -> 15.5% to RawNet2. Their abstract does not name the
+  model ("established antispoofing models using signal-based features") and their intervention retrains on trimmed audio.
+  The paper describes the result without naming a model and says the two interventions differ.
+- **Descriptive quantities added for the text** (no test, no threshold, committed scores only):
+  `revision/analysis/facts_extra.py` -> `results/extra_facts.{txt,json}`: ITW AUC per model; score-saturation percentiles
+  (XLS-R on LA19 eval and ITW; RawNet2's score ceiling); the share of ITW and DF21 clips, per class, whose score lies inside the
+  B3 dev-equivalent interval (the triage illustration for S8). `supp_tables.py` prints the registered cost check at tau_eer
+  split into the oracle cost and the remainder, read from the committed `results/analysis/operating_points.json`.
+- **Number audit.** `audit_claims.py` rebuilds 77 numerical statements of the revised paper from the result files: 0 failures.
+- Nothing in the sol1 clone, its results or the MLAAD scoring was touched.
