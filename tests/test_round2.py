@@ -202,3 +202,56 @@ def test_score_py_paths_for_round2():
     s = _src("score.py")
     assert "fix_length(wave, n) if n else wave" in s
     assert 'if spec.preproc == "vad35":' in s
+
+
+# --------------------------------------------------------------------------- exploratory building blocks
+def test_three_zone_budget_and_apply():
+    import r2_explore as X
+    rng = np.random.default_rng(0)
+    s = rng.standard_normal(10000)
+    lo, hi = X.three_zone_edges(s, 0.0, 0.10)
+    q = np.mean(s < 0.0)
+    assert np.mean((s >= lo) & (s < hi)) == pytest.approx(0.10, abs=0.002)
+    assert np.mean(s < lo) == pytest.approx(q - 0.05, abs=0.002)
+    y = (s > 0).astype(int)
+    r = X.three_zone_apply(s, y, lo, hi)
+    assert r["bona_auto_rejected"] == 0.0 and r["spoof_auto_accepted"] == 0.0     # perfectly separated at 0
+    assert r["review_pooled"] == pytest.approx(0.10, abs=0.002)
+
+
+def test_bayes_thresholds_recover_the_llr():
+    """Scores that ARE log-likelihood ratios, at a 10% bona fide prior: the prior-corrected Platt map is ~identity, so the
+    Bayes threshold for logit(pi) = L is ~ -L."""
+    import r2_explore as X
+    rng = np.random.default_rng(1)
+    n_b, n_s = 2000, 18000
+    sb, ss = rng.normal(1.0, np.sqrt(2.0), n_b), rng.normal(-1.0, np.sqrt(2.0), n_s)   # LLR = s for this pair
+    s = np.concatenate([sb, ss]); y = np.concatenate([np.ones(n_b, int), np.zeros(n_s, int)])
+    a, b, th = X.bayes_thresholds(s, y)
+    assert a == pytest.approx(1.0, abs=0.1)
+    for L in (-2.0, 0.0, 2.0):
+        assert th[L] == pytest.approx(-L, abs=0.25)
+
+
+def test_window_matches_the_closed_form():
+    import r2_explore as X
+    w = X.window(0.2, 0.1)
+    for p in np.linspace(0.01, 0.99, 99):
+        inside = w is not None and w[0] < p < w[1]
+        assert inside == (X.norm_cost(p, 0.2, 0.1) < 1 - 1e-12) or abs(X.norm_cost(p, 0.2, 0.1) - 1) < 1e-9
+    assert X.window(0.6, 0.6) is None                                                   # worse than chance: never
+
+
+def test_platt_fit_is_not_used_for_e9_because_it_does_not_converge():
+    """DEV-9 amendment 2: the harness platt_fit (200 fixed-step iterations) misses the ML fit; at a x20 score scale it
+    settles on a wrong slope. E9 uses the exact fit, which is scale-equivariant."""
+    import r2_explore as X
+    from deploybench.metrics import platt_fit
+    rng = np.random.default_rng(1)
+    s = np.concatenate([rng.normal(1.0, np.sqrt(2.0), 2000), rng.normal(-1.0, np.sqrt(2.0), 18000)])
+    y = np.concatenate([np.ones(2000, int), np.zeros(18000, int)])
+    a1, _, _ = X.bayes_thresholds(s, y)
+    a20, _, _ = X.bayes_thresholds(20 * s, y)
+    assert a20 * 20 == pytest.approx(a1, rel=1e-3)
+    assert abs(platt_fit(s, y)[0] - a1) > 0.05
+    assert abs(platt_fit(20 * s, y, n_iter=20000)[0] * 20 - a1) > 0.2

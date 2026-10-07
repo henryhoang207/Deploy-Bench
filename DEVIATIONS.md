@@ -429,3 +429,11 @@ Nothing else changes.
   directory was set aside like the first ones. The scheduler now counts each run at 16 GB and skips runs already started,
   which in practice means one run per GPU beside the scoring jobs. Still nothing else changes, and still no dev score or
   training metric had been seen.
+
+### DEV-9 amendment 2 (2026-10-07, while writing E9, before E9 ran on any data)
+E9 was registered with "logistic calibration on source dev (`deploybench.metrics.platt_fit`)". A unit test written for E9
+showed that `platt_fit` (fixed-step gradient descent, 200 iterations) does not reach the maximum-likelihood fit even on
+unit-scale scores (slope 0.889 against 1.001) and settles on a wrong fit at a x20 score scale (slope 0.028 against 0.050)
+that RawNet2 and Res-TSSDNet scores have. E9 therefore uses the exact unpenalised logistic fit (scikit-learn), which is
+scale-equivariant; the rest of E9 (prior correction, Bayes thresholds over logit(prior) in [-4, 4], actual vs minimum
+cost) is unchanged. E9 is exploratory, and no E9 quantity had been computed on any score file.
