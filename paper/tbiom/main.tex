@@ -105,7 +105,7 @@ costs with actual costs near 1 \cite{wang24_asvspoof5}, a calibration failure th
 and minimum cost is the calibration loss of speaker recognition \cite{brummer06_calibration,vanleeuwen07_intro}. In PAD,
 HTER at a development threshold is the standard protocol for face \cite{chingovska12_lbp} and voice
 \cite{korshunov16_crossdb}, including across databases, where HTER reaches 50\% \cite{korshunov16_crossdb}; ISO/IEC 30107-3
-names the two error rates APCER and BPCER \todo{cite ISO/IEC 30107-3}.
+names the two error rates APCER and BPCER \cite{iso30107_3}.
 
 \emph{Generalization and artefacts.} In-the-Wild (ITW) \cite{muller22_in_the_wild} showed that CMs trained on ASVspoof data
 degrade sharply on public figures' speech from online media. M\"uller et al.\ \cite{muller21_silence} found that the
@@ -222,12 +222,12 @@ Round~2 was registered, with its analysis code, before any of its scores existed
 entry DEV-9 with two amendments made before the analyses they govern ran). It adds three detectors outside every round-1
 count: the ASVspoof~5 baseline AASIST (B02), trained on the un-post-processed ASVspoof~5 training set and thresholded on its
 post-processed development set \cite{wang25_asvspoof5_db}; the calibration-oriented detector of Pascu et
-al.\ \cite{pascu24_calibrated} (frozen XLS-R~2B features, logistic regression), refit on LA19 train only so that LA19 dev
-stays held out; and XLSR-Mamba \todo{cite Xiao and Das, SPL 2025}, an LA19-trained SSL model. It trains the round-1
+al.\ \cite{pascu24_calibrated} (frozen XLS-R~2B \cite{babu21_xlsr} features, logistic regression), refit on LA19 train only so that LA19 dev
+stays held out; and XLSR-Mamba \cite{xiao25_xlsrmamba}, an LA19-trained SSL model. It trains the round-1
 AASIST-L recipe five times (seeds 1--5) as released and five times on audio whose leading and trailing non-speech is
 removed by an energy VAD, keeping the recipe's final weight-averaged model. It adds eight channel conditions on the 1,000
-H5 clips: Opus at 6 and 24 kbps, AMR-NB at 4.75 kbps, MP3 at 32 kbps, MUSAN noise \todo{cite MUSAN} at 20, 10 and 5 dB SNR,
-and a phone microphone impulse response \todo{cite AIR / RIRS\_NOISES}. ITW, DF21, MLAAD-5 \cite{mlaad24} and the
+H5 clips: Opus at 6 and 24 kbps, AMR-NB at 4.75 kbps, MP3 at 32 kbps, MUSAN noise \cite{snyder15_musan} at 20, 10 and 5 dB SNR,
+and a mock-up phone impulse response \cite{jeub09_air,ko17_rirs}. ITW, DF21, MLAAD-5 \cite{mlaad24} and the
 ASVspoof~5 evaluation set (for the ASVspoof~5 model) are targets. The confirmatory hypotheses are:
 \begin{itemize}
 \item \emph{R2-H1}, the policy sets the direction: on ITW, FRR > FAR at \(\tauF{1}\) and FAR > FRR at \(\tauA{5}\), for at
