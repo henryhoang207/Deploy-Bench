@@ -114,7 +114,7 @@ def window(frr, far):
 # --------------------------------------------------------------------------- E1 / E8 / E10
 def e1(models, B):
     out = {}
-    say("== E1 operating behaviour (five policies; TTG with a speaker-cluster 95% interval, B = %d) + E8 + E10" % B)
+    say(f"== E1 operating behaviour (five policies; TTG with a speaker-cluster 95% interval, B = {B}) + E8 + E10")
     for m in models:
         for surf in SURFACES:
             if surf == "as5_eval" and m != "as5_aasist":
@@ -203,7 +203,7 @@ def e2_e3():
 # --------------------------------------------------------------------------- E4
 def e4(B):
     out = {}
-    say("\n== E4 channel effects at tau_eer (dFRR, dFAR vs clean; speaker-cluster 95% intervals, B = %d)" % B)
+    say(f"\n== E4 channel effects at tau_eer (dFRR, dFAR vs clean; speaker-cluster 95% intervals, B = {B})")
     conds = list(R.STRESS_NEW) + ["encodec6k"]
     entries = [(m, 0) for m in R.ROUND1 + R.DETECTORS_R2] + \
               [("aasist_l_r2", k) for k in R.RUN_SEEDS] + [("aasist_l_trim", k) for k in R.RUN_SEEDS]
