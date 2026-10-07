@@ -25,6 +25,43 @@ def fix_length(wave: np.ndarray, n: int) -> np.ndarray:
 
 #: files decoded through _flac_md5_verified in this process (reported by callers)
 FLAC_FALLBACKS = 0
+#: 16-bit mono FLAC decoded natively and accepted only because the int16 samples match the STREAMINFO MD5
+FLAC_VERIFIED = 0
+#: FLAC files that cannot be verified (MD5 unset, or not 16-bit mono): decoded natively as before
+FLAC_UNVERIFIED = 0
+
+
+def _flac_streaminfo(path: Path):
+    """(sample rate, channels, bits per sample, MD5) from a FLAC file's STREAMINFO block, or None."""
+    head = open(path, "rb").read(42)
+    if head[:4] != b"fLaC" or (head[4] & 0x7F) != 0:
+        return None
+    si = head[8:42]
+    x = int.from_bytes(si[10:18], "big")
+    return x >> 44, ((x >> 41) & 7) + 1, ((x >> 36) & 31) + 1, si[18:34]
+
+
+def _flac_read_verified(path: Path):
+    """Native FLAC decode, verified where the file allows it (round 2, DEV-9 amendment 3).
+
+    16-bit mono with its STREAMINFO MD5 set: decode as int16, accept the samples only if they match the MD5, and convert
+    to float32 here (x / 32768, bit-identical to libsndfile's own float output wherever that output is right). Found
+    2026-10-07: libsndfile 1.2.0 (soundfile 0.12.1, envs/r2) decodes the DF21 class-A files without an error but its
+    float conversion returns +1.0 for the sample -32768, a silent sign flip on 149,983 files; its int16 output is right
+    and verifies. An MD5 mismatch goes to the ffmpeg decoder, which is verified too or refuses. Anything else (MD5 unset,
+    not 16-bit mono) is decoded as before and counted as unverified."""
+    import hashlib
+    import soundfile as sf
+    global FLAC_VERIFIED, FLAC_UNVERIFIED
+    info = _flac_streaminfo(path)
+    if info is None or info[1] != 1 or info[2] != 16 or info[3] == bytes(16):
+        FLAC_UNVERIFIED += 1
+        return sf.read(str(path), dtype="float32", always_2d=False)
+    pcm, sr = sf.read(str(path), dtype="int16", always_2d=False)
+    if hashlib.md5(np.ascontiguousarray(pcm, dtype="<i2").tobytes()).digest() != info[3]:
+        return _flac_md5_verified(path)
+    FLAC_VERIFIED += 1
+    return pcm.astype(np.float32) / np.float32(32768.0), sr
 
 
 def _flac_md5_verified(path: Path):
@@ -74,12 +111,16 @@ def load_wav(path: Path, target_sr: int = 16000, _retries: int = 4) -> np.ndarra
     # A FLAC *decode* error (anything but SF_ERR_SYSTEM = 2) is deterministic,
     # not transient: go straight to the MD5-verified decoder instead of retrying.
     import time
+    is_flac = str(path).lower().endswith(".flac")
     for attempt in range(_retries + 1):
         try:
-            wave, sr = sf.read(str(path), dtype="float32", always_2d=False)
+            if is_flac:
+                wave, sr = _flac_read_verified(Path(path))
+            else:
+                wave, sr = sf.read(str(path), dtype="float32", always_2d=False)
             break
         except sf.LibsndfileError as e:
-            if str(path).lower().endswith(".flac") and getattr(e, "code", 2) != 2:
+            if is_flac and getattr(e, "code", 2) != 2:
                 wave, sr = _flac_md5_verified(Path(path))
                 break
             if attempt == _retries:
@@ -256,6 +297,8 @@ def main():
                         args.precision, args.runtime, cond, args.seed])
     print(f"wrote {len(rows)} scores -> {out}")
     print(f"FLAC files decoded via the MD5-verified fallback (D34): {FLAC_FALLBACKS}")
+    print(f"FLAC files decoded natively and MD5-verified: {FLAC_VERIFIED}; unverifiable (MD5 unset or not "
+          f"16-bit mono): {FLAC_UNVERIFIED}")
     if spec.preproc:
         print(f"{spec.preproc} trim: {trim_counts}")
 

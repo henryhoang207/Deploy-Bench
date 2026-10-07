@@ -437,3 +437,23 @@ unit-scale scores (slope 0.889 against 1.001) and settles on a wrong fit at a x2
 that RawNet2 and Res-TSSDNet scores have. E9 therefore uses the exact unpenalised logistic fit (scikit-learn), which is
 scale-equivariant; the rest of E9 (prior correction, Bayes thresholds over logit(prior) in [-4, 4], actual vs minimum
 cost) is unchanged. E9 is exploratory, and no E9 quantity had been computed on any score file.
+
+### DEV-9 amendment 3 (2026-10-07, after XLSR-Mamba's DF21 scoring, before any round-2 DF21 score was analysed)
+**What happened.** envs/r2 (soundfile 0.12.1, libsndfile 1.2.0) decodes the 149,983 DF21 class-A files (D34: libFLAC >= 1.4
+rejects them; libFLAC 1.3.4 and ffmpeg decode them bit-identically and the MD5 verifies) without an error, so the harness's
+MD5-verified fallback never ran: 0 fallbacks, against 149,983 in every round-1 DF21 run. Its int16 output is right (it
+matches the STREAMINFO MD5), but its float conversion returns +1.0 for the sample -32768, which these files contain: a
+silent sign flip, found in 300 of 300 sampled class-A files. XLSR-Mamba's DF21 verified scores (finished 13:42) were
+computed on that audio for the class-A trials. Checked the same day: no flip in 2,910 LA19 train/dev/eval files that contain
+-32768, none in non-class-A DF21 files, none in envs/db310 (libsndfile 1.2.2 refuses class-A files and the verified fallback
+decodes them), and WAV reads are unaffected. The training runs, the Pascu fit and every LA19, ITW, MLAAD and stress score
+are therefore unaffected.
+
+**Amendment.** `score.load_wav` decodes 16-bit mono FLAC as int16, accepts the samples only if they match the STREAMINFO
+MD5 (otherwise the ffmpeg path, which is verified too or refuses), and converts to float32 itself (x / 32768, bit-identical
+to libsndfile's float output wherever that output is right; tests/test_flac_fallback.py). Every run reports the natively
+verified, fallback-verified and unverifiable FLAC counts; on the DF21 verified surface the first two must sum to 455,508.
+XLSR-Mamba's DF21 scores are quarantined (kept, not used) and re-scored with the fix; Pascu's DF21 scoring had not started.
+
+**Seen when written:** the decode comparisons above. The faulty XLSR-Mamba DF21 score file exists, but no quantity (EER,
+gate, rate) had been computed from it.
