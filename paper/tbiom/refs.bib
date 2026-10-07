@@ -1,0 +1,395 @@
+% Bibliography for the conference paper. Every entry was checked against a Crossref record, the arXiv API, the ISCA archive or the
+% paper's own text (the evidence is kept with the revision materials). Entries completed in the revision: jung22_aasist, tak21_rawnet2,
+% hua21_res_tssdnet, tak22_xlsr_aasist, bengio04_hter. Entries added in the revision: korshunov16_crossdb ... chesney19_deepfakes.
+
+% ---- datasets / challenges -------------------------------------------------
+@article{wang20_asvspoof2019,
+  author  = {Wang, Xin and Yamagishi, Junichi and Todisco, Massimiliano and
+             Delgado, H\'{e}ctor and Nautsch, Andreas and Evans, Nicholas and
+             Sahidullah, Md and Vestman, Ville and Kinnunen, Tomi and Lee, Kong Aik and others},
+  title   = {{ASVspoof} 2019: A Large-Scale Public Database of Synthesized,
+             Converted and Replayed Speech},
+  journal = {Computer Speech \& Language},
+  volume  = {64},
+  pages   = {101114},
+  year    = {2020},
+  doi     = {10.1016/j.csl.2020.101114}
+}
+
+@article{liu23_asvspoof2021,
+  author  = {Liu, Xuechen and Wang, Xin and Sahidullah, Md and Patino, Jose and
+             Delgado, H\'{e}ctor and Kinnunen, Tomi and Todisco, Massimiliano and
+             Yamagishi, Junichi and Evans, Nicholas and Nautsch, Andreas and Lee, Kong Aik},
+  title   = {{ASVspoof} 2021: Towards Spoofed and Deepfake Speech Detection in the Wild},
+  journal = {IEEE/ACM Trans. Audio, Speech, Lang. Process.},
+  volume  = {31},
+  pages   = {2507--2522},
+  year    = {2023},
+  doi     = {10.1109/TASLP.2023.3285283}
+}
+
+@inproceedings{muller22_in_the_wild,
+  author    = {M\"{u}ller, Nicolas M. and Czempin, Pavel and Dieckmann, Franziska
+               and Froghyar, Adam and B\"{o}ttinger, Konstantin},
+  title     = {Does Audio Deepfake Detection Generalize?},
+  booktitle = {Proc. Interspeech},
+  pages     = {2783--2787},
+  year      = {2022},
+  doi       = {10.21437/Interspeech.2022-108}
+}
+
+@inproceedings{wang24_asvspoof5,
+  author    = {Wang, Xin and Delgado, H\'{e}ctor and Tak, Hemlata and others},
+  title     = {{ASVspoof} 5: Crowdsourced Speech Data, Deepfakes, and
+               Adversarial Attacks at Scale},
+  booktitle = {Proc. ASVspoof Workshop},
+  year      = {2024},
+  note      = {arXiv:2408.08739}
+}
+
+@article{wang25_asvspoof5_db,
+  author  = {Wang, Xin and Delgado, H\'{e}ctor and Tak, Hemlata and Jung, Jee-weon and
+             Shim, Hye-jin and Todisco, Massimiliano and Kukanov, Ivan and Liu, Xuechen and others},
+  title   = {{ASVspoof} 5: Design, Collection and Validation of Resources for Spoofing,
+             Deepfake, and Adversarial Attack Detection Using Crowdsourced Speech},
+  journal = {arXiv preprint arXiv:2502.08857},
+  year    = {2025}
+}
+
+@inproceedings{mlaad24,
+  author    = {M\"{u}ller, Nicolas M. and Kawa, Piotr and Choong, Wei Herng and others},
+  title     = {{MLAAD}: The Multi-Language Audio Anti-Spoofing Dataset},
+  booktitle = {Proc. IJCNN},
+  year      = {2024},
+  note      = {arXiv:2401.09512}
+}
+
+@inproceedings{muller21_silence,
+  author    = {M\"{u}ller, Nicolas M. and Dieckmann, Franziska and Czempin, Pavel and
+               Canals, Roman and B\"{o}ttinger, Konstantin and Williams, Jennifer},
+  title     = {Speech is Silver, Silence is Golden: What do {ASVspoof}-trained Models Really Learn?},
+  booktitle = {Proc. ASVspoof 2021 Workshop},
+  pages     = {55--60},
+  year      = {2021},
+  doi       = {10.21437/ASVspoof.2021-9}
+}
+
+@inproceedings{li20_celebdf,
+  author    = {Li, Y. and Yang, X. and Sun, P. and Qi, H. and Lyu, S.},
+  title     = {{Celeb-DF}: A Large-Scale Challenging Dataset for {DeepFake} Forensics},
+  booktitle = {Proc. IEEE/CVF Conf. Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {3204--3213},
+  year      = {2020},
+  doi       = {10.1109/CVPR42600.2020.00327}
+}
+
+@misc{dolhansky20_dfdc,
+  author       = {Dolhansky, Brian and Bitton, Joanna and Pflaum, Ben and Lu, Jikuo and
+                  Howes, Russ and Wang, Menglin and Canton Ferrer, Cristian},
+  title        = {The {DeepFake} Detection Challenge ({DFDC}) Dataset},
+  howpublished = {arXiv:2006.07397},
+  year         = {2020}
+}
+
+% ---- countermeasures (the roster) -------------------------------------------
+@inproceedings{jung22_aasist,
+  author    = {Jung, Jee-weon and Heo, Hee-Soo and Tak, Hemlata and others},
+  title     = {{AASIST}: Audio Anti-Spoofing Using Integrated Spectro-Temporal
+               Graph Attention Networks},
+  booktitle = {Proc. IEEE ICASSP},
+  pages     = {6367--6371},
+  year      = {2022},
+  doi       = {10.1109/ICASSP43922.2022.9747766}
+}
+
+@inproceedings{tak21_rawnet2,
+  author    = {Tak, Hemlata and Patino, Jose and Todisco, Massimiliano and
+               Nautsch, Andreas and Evans, Nicholas and Larcher, Anthony},
+  title     = {End-to-End Anti-Spoofing with {RawNet2}},
+  booktitle = {Proc. IEEE ICASSP},
+  pages     = {6369--6373},
+  year      = {2021},
+  doi       = {10.1109/ICASSP39728.2021.9414234}
+}
+
+@article{hua21_res_tssdnet,
+  author  = {Hua, Guang and Teoh, Andrew Beng Jin and Zhang, Haijian},
+  title   = {Towards End-to-End Synthetic Speech Detection},
+  journal = {IEEE Signal Process. Lett.},
+  volume  = {28},
+  pages   = {1265--1269},
+  year    = {2021},
+  doi     = {10.1109/LSP.2021.3089437}
+}
+
+@inproceedings{tak22_xlsr_aasist,
+  author    = {Tak, Hemlata and Todisco, Massimiliano and Wang, Xin and
+               Jung, Jee-weon and Yamagishi, Junichi and Evans, Nicholas},
+  title     = {Automatic Speaker Verification Spoofing and Deepfake Detection
+               Using {wav2vec} 2.0 and Data Augmentation},
+  booktitle = {Proc. Odyssey: The Speaker and Language Recognition Workshop},
+  pages     = {112--119},
+  year      = {2022},
+  doi       = {10.21437/Odyssey.2022-16}
+}
+
+@inproceedings{tak22_rawboost,
+  author    = {Tak, Hemlata and Kamble, Madhu and Patino, Jose and Todisco, Massimiliano and Evans, Nicholas},
+  title     = {{RawBoost}: A Raw Data Boosting and Augmentation Method Applied to Automatic
+               Speaker Verification Anti-Spoofing},
+  booktitle = {Proc. IEEE ICASSP},
+  year      = {2022},
+  note      = {arXiv:2111.04433}
+}
+
+@inproceedings{wang21_comparative,
+  author    = {Wang, Xin and Yamagishi, Junichi},
+  title     = {A Comparative Study on Recent Neural Spoofing Countermeasures for Synthetic Speech Detection},
+  booktitle = {Proc. Interspeech},
+  pages     = {4259--4263},
+  year      = {2021},
+  doi       = {10.21437/Interspeech.2021-702}
+}
+
+@inproceedings{pascu24_calibrated,
+  author    = {Pascu, O. and Stan, A. and Oneata, D. and Oneata, E. and Cucu, H.},
+  title     = {Towards Generalisable and Calibrated Audio Deepfake Detection with
+               Self-Supervised Representations},
+  booktitle = {Proc. Interspeech},
+  pages     = {4828--4832},
+  year      = {2024},
+  doi       = {10.21437/Interspeech.2024-1302}
+}
+
+% ---- thresholds, calibration, costs -----------------------------------------
+@article{zhou26_eer_hides,
+  author  = {Zhou, Jingwen and Wang, Mingzhe},
+  title   = {When {EER} Hides Deployment Failure: Auditing Threshold Transfer
+             and Unlabeled Score Calibration for Speech Deepfake Detectors},
+  journal = {arXiv preprint arXiv:2606.21584},
+  year    = {2026}
+}
+
+@inproceedings{bengio04_hter,
+  author    = {Bengio, Samy and Mari\'{e}thoz, Johnny},
+  title     = {A Statistical Significance Test for Person Authentication},
+  booktitle = {Proc. Odyssey: The Speaker and Language Recognition Workshop},
+  pages     = {237--244},
+  year      = {2004}
+}
+
+@inproceedings{korshunov16_crossdb,
+  author    = {Korshunov, P. and Marcel, S.},
+  title     = {Cross-Database Evaluation of Audio-Based Spoofing Detection Systems},
+  booktitle = {Proc. Interspeech},
+  pages     = {1705--1709},
+  year      = {2016},
+  doi       = {10.21437/Interspeech.2016-1326}
+}
+
+@inproceedings{chingovska12_lbp,
+  author    = {Chingovska, I. and Anjos, A. and Marcel, S.},
+  title     = {On the Effectiveness of Local Binary Patterns in Face Anti-spoofing},
+  booktitle = {Proc. Int. Conf. Biometrics Special Interest Group (BIOSIG)},
+  series    = {Lecture Notes in Informatics},
+  volume    = {P-196},
+  pages     = {183--194},
+  year      = {2012}
+}
+
+@incollection{vanleeuwen07_intro,
+  author    = {van Leeuwen, D. and Br\"{u}mmer, N.},
+  title     = {An Introduction to Application-Independent Evaluation of Speaker Recognition Systems},
+  booktitle = {Speaker Classification I},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {4343},
+  pages     = {330--353},
+  publisher = {Springer},
+  year      = {2007},
+  doi       = {10.1007/978-3-540-74200-5_19}
+}
+
+@inproceedings{kinnunen18_tdcf,
+  author    = {Kinnunen, Tomi and Lee, Kong Aik and Delgado, H\'{e}ctor and
+               Evans, Nicholas and Todisco, Massimiliano and Sahidullah, Md and
+               Yamagishi, Junichi and Reynolds, Douglas A.},
+  title     = {{t-DCF}: A Detection Cost Function for the Tandem Assessment of
+               Spoofing Countermeasures and Automatic Speaker Verification},
+  booktitle = {Proc. Odyssey: The Speaker and Language Recognition Workshop},
+  year      = {2018},
+  note      = {arXiv:1804.09618}
+}
+
+@article{brummer06_calibration,
+  author  = {Br\"{u}mmer, Niko and du Preez, Johan},
+  title   = {Application-Independent Evaluation of Speaker Detection},
+  journal = {Computer Speech \& Language},
+  volume  = {20},
+  number  = {2--3},
+  pages   = {230--275},
+  year    = {2006},
+  doi     = {10.1016/j.csl.2005.08.001}
+}
+
+@article{berisha25_coverage_debt,
+  author  = {Berisha, Visar and Kadambi, Prad and Lenz, Isabella},
+  title   = {Why Speech Deepfake Detectors Won't Generalize:
+             The Limits of Detection in an Open World},
+  journal = {arXiv preprint arXiv:2509.20405},
+  year    = {2025}
+}
+
+@misc{chesney19_deepfakes,
+  author       = {Chesney, R. and Citron, D.},
+  title        = {Deep Fakes: A Looming Challenge for Privacy, Democracy, and National Security},
+  howpublished = {SSRN 3213954},
+  year         = {2018},
+  doi          = {10.2139/ssrn.3213954}
+}
+
+% ---- channels, codecs ---------------------------------------------------------
+@article{defossez23_encodec,
+  author  = {D\'{e}fossez, Alexandre and Copet, Jade and Synnaeve, Gabriel and Adi, Yossi},
+  title   = {High Fidelity Neural Audio Compression},
+  journal = {Trans. Mach. Learn. Res.},
+  year    = {2023},
+  note    = {arXiv:2210.13438}
+}
+
+@inproceedings{wu24_codecfake,
+  author    = {Wu, Haibin and Tseng, Yuan and Lee, Hung-yi},
+  title     = {{CodecFake}: Enhancing Anti-Spoofing Models Against Deepfake Audios
+               from Codec-Based Speech Synthesis Systems},
+  booktitle = {Proc. Interspeech},
+  year      = {2024},
+  note      = {arXiv:2406.07237}
+}
+
+@inproceedings{xiao26_resynth,
+  author    = {Xiao, Yixuan and Lux, Florian and P\'{e}rez-Gonz\'{a}lez-de-Martos, Alejandro and Vu, Ngoc Thang},
+  title     = {How to Label Resynthesized Audio: The Dual Role of Neural Audio Codecs
+               in Audio Deepfake Detection},
+  booktitle = {Proc. IEEE ICASSP},
+  year      = {2026},
+  note      = {arXiv:2602.16343}
+}
+
+@inproceedings{realworld_comms24,
+  author    = {Shi, Haohan and Shi, Xiyu and Dogan, Safak and Alzubi, Saif and
+               Huang, Tianjin and Zhang, Yunxiao},
+  title     = {Benchmarking Audio Deepfake Detection Robustness in Real-world
+               Communication Scenarios},
+  booktitle = {Proc. European Signal Processing Conf. (EUSIPCO)},
+  year      = {2025},
+  note      = {arXiv:2504.12423}
+}
+
+@misc{radar26,
+  author       = {Luong, Hieu-Thi and Liu, Xuechen and Kukanov, Ivan and
+                  Chai, Zheng Xin and Lee, Kong Aik},
+  title        = {{RADAR} Challenge 2026: Robust Audio Deepfake Recognition under
+                  Media Transformations},
+  howpublished = {arXiv:2605.09568},
+  year         = {2026}
+}
+
+% ---- deployment context --------------------------------------------------------
+@inproceedings{pascu25_edge_plugin,
+  author    = {Pascu, Octavian and Oneata, Dan and Cucu, Horia and M\"{u}ller, Nicolas M.},
+  title     = {Detecting Audio Deepfakes on the Edge: Lightweight {SSL}-Based
+               Detection in a Browser Plugin},
+  booktitle = {Proc. Int. Conf. Speech Technology and Human-Computer Dialogue (SpeD)},
+  year      = {2025},
+  doi       = {10.1109/SpeD67700.2025.11252312}
+}
+
+% ---- statistics and registration ----------------------------------------------------
+@inproceedings{koehn04_bootstrap,
+  author    = {Koehn, Philipp},
+  title     = {Statistical Significance Tests for Machine Translation Evaluation},
+  booktitle = {Proc. EMNLP},
+  pages     = {388--395},
+  year      = {2004}
+}
+
+@article{holm79_holm,
+  author  = {Holm, Sture},
+  title   = {A Simple Sequentially Rejective Multiple Test Procedure},
+  journal = {Scandinavian Journal of Statistics},
+  volume  = {6},
+  number  = {2},
+  pages   = {65--70},
+  year    = {1979}
+}
+
+@article{bolle04_subsets,
+  author  = {Bolle, R. and Ratha, N. and Pankanti, S.},
+  title   = {Error Analysis of Pattern Recognition Systems---the Subsets Bootstrap},
+  journal = {Comput. Vis. Image Underst.},
+  volume  = {93},
+  number  = {1},
+  pages   = {1--33},
+  year    = {2004},
+  doi     = {10.1016/j.cviu.2003.08.002}
+}
+
+@article{field07_boot,
+  author  = {Field, C. and Welsh, A.},
+  title   = {Bootstrapping Clustered Data},
+  journal = {J. Roy. Statist. Soc. Ser. B},
+  volume  = {69},
+  number  = {3},
+  pages   = {369--390},
+  year    = {2007},
+  doi     = {10.1111/j.1467-9868.2007.00593.x}
+}
+
+@article{nosek18_prereg,
+  author  = {Nosek, B. and Ebersole, C. and DeHaven, A. and Mellor, D.},
+  title   = {The Preregistration Revolution},
+  journal = {Proc. Natl. Acad. Sci. USA},
+  volume  = {115},
+  number  = {11},
+  pages   = {2600--2606},
+  year    = {2018},
+  doi     = {10.1073/pnas.1708274114}
+}
+
+% ---- supplement only -------------------------------------------------------------------
+@article{drummond06_costcurves,
+  author  = {Drummond, C. and Holte, R.},
+  title   = {Cost Curves: An Improved Method for Visualizing Classifier Performance},
+  journal = {Machine Learning},
+  volume  = {65},
+  number  = {1},
+  pages   = {95--130},
+  year    = {2006},
+  doi     = {10.1007/s10994-006-8199-5}
+}
+
+@misc{geifman17_selective,
+  author       = {Geifman, Yonatan and El-Yaniv, Ran},
+  title        = {Selective Classification for Deep Neural Networks},
+  howpublished = {arXiv:1705.08500},
+  year         = {2017}
+}
+
+@inproceedings{wang23_vocoded,
+  author    = {Wang, Xin and Yamagishi, Junichi},
+  title     = {Spoofed Training Data for Speech Spoofing Countermeasure Can Be
+               Efficiently Created Using Neural Vocoders},
+  booktitle = {Proc. IEEE ICASSP},
+  pages     = {1--5},
+  year      = {2023},
+  doi       = {10.1109/ICASSP49357.2023.10094779}
+}
+
+@article{zhang21_oneclass,
+  author  = {Zhang, Y. and Jiang, F. and Duan, Z.},
+  title   = {One-Class Learning Towards Synthetic Voice Spoofing Detection},
+  journal = {IEEE Signal Process. Lett.},
+  volume  = {28},
+  pages   = {937--941},
+  year    = {2021},
+  doi     = {10.1109/LSP.2021.3076358}
+}
