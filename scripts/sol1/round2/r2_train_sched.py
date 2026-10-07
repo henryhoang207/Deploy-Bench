@@ -1,7 +1,8 @@
 """W2 launcher, version 2 (DEV-9 amendment 1): start the eleven AASIST-L runs as GPU memory allows.
 
 Each of our runs is counted at RUN_GB from launch to exit (the trimmed runs allocate little during their ~13-minute
-trim-status pre-count, then 3.5-5 GB while training); every other process on the GPU at its measured use; MARGIN_GB kept
+trim-status pre-count; a run alone on a GPU reserves ~15.5 GB while training); runs already started (their directory
+exists) are skipped; every other process on the GPU at its measured use; MARGIN_GB kept
 free; at most CAP runs per GPU. Runs start in the interleaved order below, one start per minute at most. Each run refuses
 an existing directory (train/aasist_r2_train.py); none is restarted or relaunched by this script. Run from the clone:
 
@@ -18,7 +19,7 @@ import time
 H = "/mnt/data8tb/henry"
 ORDER = [("r2", 1), ("trim", 1), ("r2", 2), ("trim", 2), ("r2", 3), ("trim", 3), ("r2", 4), ("trim", 4),
          ("r2", 5), ("trim", 5), ("r2", 1234)]
-RUN_GB, MARGIN_GB, CAP, START_GAP_S = 5.0, 2.0, 4, 60
+RUN_GB, MARGIN_GB, CAP, START_GAP_S = 16.0, 2.0, 4, 60   # 16 GB: a run alone on a GPU reserved 15.5 GB
 OUT = f"{H}/r2_runs"
 
 
@@ -72,7 +73,10 @@ def main():
                 n_ours = sum(1 for _, gg in ours.values() if gg == g)
                 other = sum(m for pid, m in used.get(g, []) if pid not in our_pids)
                 free = total[g] - other - RUN_GB * n_ours - MARGIN_GB
-                if n_ours < CAP and free >= RUN_GB:
+                while queue and os.path.exists(f"{OUT}/aasist_l_{queue[0][0]}_s{queue[0][1]}"):
+                    print(f"skip aasist_l_{queue[0][0]}_s{queue[0][1]} (directory exists: started earlier)", flush=True)
+                    queue.pop(0)
+                if queue and n_ours < CAP and free >= RUN_GB:
                     arm, seed = queue.pop(0)
                     name = f"aasist_l_{arm}_s{seed}"
                     cmd = [py, "-B", "train/aasist_r2_train.py", "--seed", str(seed),

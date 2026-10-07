@@ -423,3 +423,9 @@ GPU) and keeps the arms interleaved (r2 s1, trim s1, r2 s2, ...). The failed dir
 Nothing else changes.
 
 **Seen when written:** the out-of-memory tracebacks and the GPU memory figures above; no dev score or training metric.
+- *Same day, 09:31-09:33 (+07):* the scheduler's 5 GB per run was wrong too. The first relaunched run
+  (`aasist_l_r2_s1`, GPU 0) reserved 15.5 GB once alone, and the scheduler had already started `aasist_l_trim_s1` on the
+  same GPU; that run was stopped during its trim-status pre-count (no training step) to keep `aasist_l_r2_s1` safe, and its
+  directory was set aside like the first ones. The scheduler now counts each run at 16 GB and skips runs already started,
+  which in practice means one run per GPU beside the scoring jobs. Still nothing else changes, and still no dev score or
+  training metric had been seen.
