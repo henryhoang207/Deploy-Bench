@@ -29,6 +29,8 @@ class ModelSpec:
     params_approx: str
     wrapper: str           # module path under models/
     in_roster: bool = True  # False = kept for harness generality, NOT studied
+    preproc: str = ""      # applied by score.py after load_wav, before fix_length: "" | "vad35" (deploybench.vad)
+    round: int = 1         # 1 = the frozen D30 roster (PREREGISTRATION.md); 2 = PREREGISTRATION_ROUND2.md (D54)
 
 
 # ---------------------------------------------------------------- ROSTER (D30)
@@ -52,6 +54,14 @@ SPECS = {
     "lcnn_lfcc":   ModelSpec("lcnn_lfcc", "cohort19", 64600, "lfcc", "~0.4M", "models.wrap_lcnn", in_roster=False),
     "wavlm_trunc": ModelSpec("wavlm_trunc", "cohort_ssl", 64600, "raw", "~51.9M", "models.wrap_wavlm", in_roster=False),
     "wavlm_mhfa":  ModelSpec("wavlm_mhfa", "cohort_ssl", 64600, "raw", "~97M", "models.wrap_wavlm", in_roster=False),
+    # ---- ROUND 2 (D54, D55; PREREGISTRATION_ROUND2.md). Outside every round-1 count. ----
+    # tau source per D16: cohort19 -> LA19 dev; cohort_as5 -> ASVspoof 5 dev.
+    "as5_aasist":    ModelSpec("as5_aasist", "cohort_as5", 64600, "raw", "297K", "models.wrap_aasist", round=2),      # ASVspoof 5 baseline B02, released best.pth
+    "pascu_lr":      ModelSpec("pascu_lr", "cohort19", 0, "raw", "2.2B", "models.wrap_pascu", round=2),              # input 0 = whole utterance (authors' recipe)
+    "xlsr_mamba":    ModelSpec("xlsr_mamba", "cohort19", 66800, "raw", "319M", "models.wrap_xlsr_mamba", round=2),   # authors' train / ASVspoof eval length
+    "aasist_l_r2":   ModelSpec("aasist_l_r2", "cohort19", 64600, "raw", "85K", "models.wrap_aasist", round=2),      # our runs of the released recipe; seed column = training seed
+    "aasist_l_trim": ModelSpec("aasist_l_trim", "cohort19", 64600, "raw", "85K", "models.wrap_aasist", preproc="vad35", round=2),
+    "pascu_lr_gate": ModelSpec("pascu_lr_gate", "cohort19", 0, "raw", "2.2B", "models.wrap_pascu", round=2),     # pipeline gate only (LA19 train + dev head); in no analysis
 }
 
 #: The frozen study roster, in reporting order. Anything iterating "the roster"
@@ -59,6 +69,9 @@ SPECS = {
 ROSTER = ["aasist", "aasist_l", "rawnet2", "tssdnet", "xlsr_aasist"]
 #: Models that enter ranking claims (xlsr_aasist is an unranked reference, D16).
 RANKED = ["aasist", "aasist_l", "rawnet2", "tssdnet"]
+#: Round 2 (D54/D55), registered in PREREGISTRATION_ROUND2.md before any of its scores existed. The round-1 ROSTER
+#: above is unchanged and stays the only roster of the round-1 hypotheses.
+ROUND2 = ["as5_aasist", "pascu_lr", "xlsr_mamba", "aasist_l_r2", "aasist_l_trim"]
 
 
 def load_vendor_module(alias: str, file_path, extra_sys_path=None):

@@ -2,12 +2,26 @@
 Verified against clovaai/aasist@main (Jul 2026): models/AASIST.py class Model,
 Model(config["model_config"]), forward returns (hidden, logits), eval score =
 logits[:, 1] (bona fide logit — main.py produce_evaluation_file), eval padding =
-repeat-tile short / truncate-from-start long (data_utils.pad, 64600)."""
+repeat-tile short / truncate-from-start long (data_utils.pad, 64600).
+
+Round 2 (D54/D55): as5_aasist is the ASVspoof 5 baseline B02 (asvspoof-challenge/asvspoof5 @ fe23d30,
+Baseline-AASIST): its models/AASIST.py is byte-identical to clovaai's, its config's model_config equals AASIST.conf's,
+bonafide = 1 (data_utils.genSpoof_list) and the eval score is batch_out[:, 1] (main.py), so the same _Wrap applies;
+it is loaded from its own vendor dir with the released models/weights/AASIST/best.pth. aasist_l_r2 / aasist_l_trim are
+our training runs of the clovaai AASIST-L recipe (train/aasist_r2_train.py): one file per run, so a checkpoint is
+REQUIRED (no default; refusing beats silently scoring the released AASIST-L under a run's name)."""
 import json
 import numpy as np
 from .base import VENDOR, load_vendor_module
 
-_CONF = {"aasist": "AASIST.conf", "aasist_l": "AASIST-L.conf"}
+# name -> (vendor dir, config, default checkpoint; None = a checkpoint must be given)
+_CONF = {
+    "aasist":        ("aasist", "config/AASIST.conf", "models/weights/AASIST.pth"),
+    "aasist_l":      ("aasist", "config/AASIST-L.conf", "models/weights/AASIST-L.pth"),
+    "as5_aasist":    ("asvspoof5/Baseline-AASIST", "config/AASIST_ASVspoof5.conf", "models/weights/AASIST/best.pth"),
+    "aasist_l_r2":   ("aasist", "config/AASIST-L.conf", None),
+    "aasist_l_trim": ("aasist", "config/AASIST-L.conf", None),
+}
 
 
 class _Wrap:
@@ -44,13 +58,16 @@ class _ExportModule:
 
 def load(spec, checkpoint, device):
     import torch
+    vdir, conf_rel, ck_rel = _CONF[spec.name]
+    base = VENDOR / vdir
+    if checkpoint is None and ck_rel is None:
+        raise ValueError(f"{spec.name}: a checkpoint is required (one training run per file)")
     # spec-load: vendor package is ALSO named `models` -> clashes with ours.
-    mod = load_vendor_module("vendor_aasist_AASIST",
-                             VENDOR / "aasist" / "models" / "AASIST.py")
-    conf = json.load(open(VENDOR / "aasist" / "config" / _CONF[spec.name]))
+    alias = "vendor_aasist_AASIST" if vdir == "aasist" else "vendor_as5_AASIST"
+    mod = load_vendor_module(alias, base / "models" / "AASIST.py")
+    conf = json.load(open(base / conf_rel))
     model = mod.Model(conf["model_config"])
-    ckpt = checkpoint or str(VENDOR / "aasist" / "models" / "weights" /
-                             ("AASIST.pth" if spec.name == "aasist" else "AASIST-L.pth"))
+    ckpt = checkpoint or str(base / ck_rel)
     model.load_state_dict(torch.load(ckpt, map_location=device))
     model.to(device).eval()
     w = _Wrap(model, torch)

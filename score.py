@@ -202,7 +202,16 @@ def main():
 
     from models.base import load_model, SPECS
     model = load_model(args.model, args.checkpoint, args.device)
-    n = SPECS[args.model].input_samples
+    spec = SPECS[args.model]
+    n = spec.input_samples          # 0 = the whole utterance, scored one clip at a time (pascu_lr)
+    if n == 0 and args.batch != 1:
+        print(f"{args.model} scores whole utterances: batch size forced to 1 (was {args.batch})")
+        args.batch = 1
+    trim_counts = {}
+    if spec.preproc not in ("", "vad35"):
+        raise SystemExit(f"{args.model}: unknown preproc {spec.preproc!r}")
+    if spec.preproc == "vad35":
+        from deploybench.vad import trim as vad_trim
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -211,7 +220,7 @@ def main():
     def flush():
         if not batch_waves:
             return
-        scores = model.score_batch(np.stack(batch_waves))
+        scores = model.score_batch(np.stack(batch_waves) if n else list(batch_waves))
         for uid, lab, sc in zip(batch_ids, batch_labels, scores):
             rows.append((uid, lab, float(sc)))
         batch_ids.clear(); batch_waves.clear(); batch_labels.clear()
@@ -223,7 +232,11 @@ def main():
             break
         batch_ids.append(uid)
         batch_labels.append(label)
-        batch_waves.append(fix_length(load_wav(Path(path)), n))
+        wave = load_wav(Path(path))
+        if spec.preproc == "vad35":          # D55: the trimmed runs see trimmed audio everywhere (DEV-8 rule)
+            wave, st = vad_trim(wave)
+            trim_counts[st] = trim_counts.get(st, 0) + 1
+        batch_waves.append(fix_length(wave, n) if n else wave)
         seen += 1
         if len(batch_waves) >= args.batch:
             flush()
@@ -243,6 +256,8 @@ def main():
                         args.precision, args.runtime, cond, args.seed])
     print(f"wrote {len(rows)} scores -> {out}")
     print(f"FLAC files decoded via the MD5-verified fallback (D34): {FLAC_FALLBACKS}")
+    if spec.preproc:
+        print(f"{spec.preproc} trim: {trim_counts}")
 
 
 if __name__ == "__main__":

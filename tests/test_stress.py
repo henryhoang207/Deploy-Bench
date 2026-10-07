@@ -73,3 +73,13 @@ def test_ir_convolution(wav, tmp_path):
     out, _ = sf.read(str(dst))
     ref, _ = sf.read(str(wav))
     assert not np.allclose(ref, out[:len(ref)], atol=1e-4)
+
+
+def test_ir_at_another_sample_rate_is_refused(wav, tmp_path):
+    """Round-2 review (2026-10-07): an IR read at 48 kHz used to be convolved as if it were 16 kHz."""
+    ird = tmp_path / "irs48"
+    ird.mkdir()
+    ir = np.zeros(2400, dtype="float32"); ir[0] = 1.0
+    sf.write(str(ird / "ir48.wav"), ir, 48000)
+    with pytest.raises(ValueError, match="IR sampled at 48000"):
+        apply_condition(wav, tmp_path / "mic_ir" / "utt1.wav", "mic_ir", ir_dir=ird)

@@ -68,6 +68,9 @@ def main():
     from executorch.runtime import Runtime
     from deploybench.data import native_conditions, protocol_iter
     from models.base import SPECS
+    if SPECS[a.model].round != 1:
+        raise SystemExit(f"{a.model} is a round-2 model (D54): scored by score.py (PyTorch fp32) only; "
+                         "conversion is outside the audit paper")
     n = SPECS[a.model].input_samples
     if log.get("model") != a.model or log.get("input_samples") != n:
         raise SystemExit(f"sidecar is {log.get('model')}/{log.get('input_samples')}, "

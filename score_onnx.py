@@ -81,6 +81,9 @@ def main():
 
     import onnxruntime as ort
     from models.base import SPECS
+    if SPECS[a.model].round != 1:
+        raise SystemExit(f"{a.model} is a round-2 model (D54): scored by score.py (PyTorch fp32) only; "
+                         "conversion is outside the audit paper")
     n = SPECS[a.model].input_samples
 
     so = ort.SessionOptions()

@@ -2,7 +2,7 @@
 public documentation; step 0.3 'Done when' adjusts them to the real
 downloaded trees (run `python -m deploybench.data --check`)."""
 from __future__ import annotations
-import os, sys
+import os, re, sys
 from pathlib import Path
 
 DATA_ROOT = Path(os.environ.get("DATA_ROOT", "~/data/deepfake")).expanduser()
@@ -16,9 +16,11 @@ REGISTRY = {
     # integrity classes are excluded (D34, see DF21_SURFACES). Count = flac files.
     "asvspoof21_df_eval": ("ASVspoof2021_DF_eval", "trial_metadata.txt", 611829),
     "asvspoof21_df_eval_clean": ("ASVspoof2021_DF_eval", "trial_metadata.txt", 611829),
-    "asvspoof5_train":  ("ASVspoof5/train", None, None),
-    "asvspoof5_dev":    ("ASVspoof5/dev", None, None),
-    "asvspoof5_eval":   ("ASVspoof5/eval", None, None),
+    # ASVspoof 5 (round 2, D54): Zenodo record 14498691, track-1 protocols. Audio: asvspoof5/flac_D, flac_E.
+    # Train is registered but not loadable: nothing trains on AS5 here, and it was not downloaded.
+    "asvspoof5_train":  ("asvspoof5/flac_T", "ASVspoof5.train.tsv", 182357),
+    "asvspoof5_dev":    ("asvspoof5/flac_D", "ASVspoof5.dev.track_1.tsv", 140950),
+    "asvspoof5_eval":   ("asvspoof5/flac_E", "ASVspoof5.eval.track_1.tsv", 680774),
     "itw":              ("release_in_the_wild", "meta.csv", 31779),
     # MLAAD-5 (D47/DEV-6): the frozen protocol from scripts/build_mlaad_protocol.py
     # (MLAAD spoof + count-matched M-AILABS bona fide), not MLAAD's own meta files.
@@ -204,6 +206,8 @@ def native_conditions(dataset: str, root: Path = None):
     root = Path(root) if root else DATA_ROOT
     if dataset in DF21_SURFACES:
         return {r["trial"]: r["compr"] for _, r in _df21_rows(root, dataset)}
+    if dataset == "asvspoof5_eval":           # D24: AS5 eval is reported by codec condition
+        return {r["utt"]: asvspoof5_condition(r) for r in asvspoof5_rows("eval", root)}
     return None
 
 
@@ -241,6 +245,53 @@ def _iter_mlaad(root: Path):
             yield row["utt_id"], root / row["path"], int(row["label"])
 
 
+# ASVspoof 5 track-1 protocol (Zenodo 14498691, ASVspoof5_protocols.tar.gz, md5 865d0e89...): 10 space-separated
+# columns, SPEAKER_ID FLAC_FILE_NAME SPEAKER_GENDER CODEC CODEC_Q CODEC_SEED ATTACK_TAG ATTACK_LABEL KEY TMP
+# (read on the release 2026-10-07: dev 140,950 rows, eval 680,774). KEY is bonafide|spoof. CODEC is "-" when no
+# codec was applied (condition C00, the only channel-matched eval subset, D24) and C01..C11 otherwise. Dev and eval
+# were post-processed by the organisers (peak normalisation, random trimming of leading/trailing non-speech,
+# random 4-10 s chunk); train was not (ASVspoof 5 database paper, Sec. 4.2).
+AS5_COLS = ("speaker", "utt", "gender", "codec", "codec_q", "codec_seed", "attack_tag", "attack", "key", "tmp")
+
+
+def asvspoof5_rows(part: str, root: Path = None):
+    """Validated rows of one ASVspoof 5 track-1 protocol, as dicts keyed by AS5_COLS. Refuses a wrong column
+    count, an unknown KEY or CODEC, and a row count other than the release's."""
+    if part not in ("dev", "eval"):
+        raise NotImplementedError(f"asvspoof5_{part}: only dev and eval are used (D54); "
+                                  "nothing trains on ASVspoof 5 here and train was not downloaded")
+    root = Path(root) if root else DATA_ROOT
+    sub, proto, n_expected = REGISTRY[f"asvspoof5_{part}"]
+    path = (root / sub).parent / proto
+    rows = []
+    with open(path, encoding="utf-8") as f:
+        for i, line in enumerate(f, 1):
+            p = line.split()
+            if len(p) != len(AS5_COLS):
+                raise ValueError(f"{path}:{i}: expected {len(AS5_COLS)} columns, got {len(p)}")
+            r = dict(zip(AS5_COLS, p))
+            if r["key"] not in ("bonafide", "spoof"):
+                raise ValueError(f"{path}:{i}: unknown KEY {r['key']!r}")
+            if r["codec"] != "-" and not re.fullmatch(r"C\d\d", r["codec"]):
+                raise ValueError(f"{path}:{i}: unknown CODEC {r['codec']!r}")
+            rows.append(r)
+    if len(rows) != n_expected:
+        raise ValueError(f"{path}: {len(rows)} rows, expected {n_expected}")
+    return rows
+
+
+def asvspoof5_condition(row) -> str:
+    """C00 for no codec, else the protocol's codec ID (C01..C11)."""
+    return "C00" if row["codec"] == "-" else row["codec"]
+
+
+def _iter_asvspoof5(part: str, root: Path):
+    sub, _, _ = REGISTRY[f"asvspoof5_{part}"]
+    base = root / sub
+    for r in asvspoof5_rows(part, root):
+        yield r["utt"], base / f"{r['utt']}.flac", int(r["key"] == "bonafide")
+
+
 def protocol_iter(dataset: str, root: Path = None):
     """Yield (utt_id, wav_path, label) with label 1 = bona fide, 0 = spoof
     (project-wide convention, matches wrapper score contract), -1 = unlabeled.
@@ -254,18 +305,13 @@ def protocol_iter(dataset: str, root: Path = None):
         yield from _iter_itw(root)
     elif dataset == "mlaad":
         yield from _iter_mlaad(root)
-    elif dataset.startswith("asvspoof5_"):
-        raise NotImplementedError(
-            "ASVspoof5 is OUT OF SCOPE as of decision D30 (2026-07-29). The "
-            "roster froze at 5 models, all Cohort-19, so every tau calibrates "
-            "on ASVspoof19 LA dev and nothing trains on AS5. This is now a "
-            "DECISION, not the deferred-implementation gap it used to be "
-            "(D15). Re-adding AS5 as a transfer target is an open call in D30 "
-            "and would be a logged deviation from PREREGISTRATION.md — if you "
-            "do it, D24 applies unchanged (shifted target, report split by "
-            "condition C00-C11, C00 only channel-matched, resolve the "
-            "silence-trim mismatch first) and you add a TSV parser here "
-            "mirroring _iter_asvspoof19.")
+    elif dataset in ("asvspoof5_dev", "asvspoof5_eval"):
+        # Round 2 (D54, PREREGISTRATION_ROUND2.md): the ASVspoof 5-trained detector's source dev and eval. D24
+        # applies to AS5 eval: shifted target, reported by condition C00-C11, C00 the only channel-matched subset.
+        yield from _iter_asvspoof5(dataset.split("_")[1], root)
+    elif dataset == "asvspoof5_train":
+        raise NotImplementedError("asvspoof5_train is not used (D54: nothing trains on ASVspoof 5 here) "
+                                  "and was not downloaded")
     else:
         raise KeyError(f"unknown dataset {dataset!r}; known: {list(REGISTRY)}")
 

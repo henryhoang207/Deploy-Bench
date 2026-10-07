@@ -120,8 +120,12 @@ def _conv_ir(src: Path, dst: Path, ir_dir: Path) -> None:
     if not irs:
         raise FileNotFoundError(f"no IR wavs under {ir_dir}")
     rng = np.random.default_rng(_det_seed(src.stem))
-    ir, _ = sf.read(str(irs[rng.integers(len(irs))]), dtype="float32",
-                    always_2d=False)
+    ir_path = irs[rng.integers(len(irs))]
+    ir, ir_sr = sf.read(str(ir_path), dtype="float32", always_2d=False)
+    # An IR sampled at another rate would be applied as if it were at `sr` (stretched or squeezed in time):
+    # refuse rather than record a wrong channel (round-2 review, 2026-10-07).
+    if ir_sr != sr:
+        raise ValueError(f"{ir_path}: IR sampled at {ir_sr} Hz, audio at {sr} Hz; refusing")
     if ir.ndim > 1:
         ir = ir.mean(axis=1)
     out = fftconvolve(wave, ir / (np.abs(ir).max() + 1e-9))[:len(wave)]
