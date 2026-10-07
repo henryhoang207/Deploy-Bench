@@ -61,6 +61,8 @@ SPECS = {
     "xlsr_mamba":    ModelSpec("xlsr_mamba", "cohort19", 66800, "raw", "319M", "models.wrap_xlsr_mamba", round=2),   # authors' train / ASVspoof eval length
     "aasist_l_r2":   ModelSpec("aasist_l_r2", "cohort19", 64600, "raw", "85K", "models.wrap_aasist", round=2),      # our runs of the released recipe; seed column = training seed
     "aasist_l_trim": ModelSpec("aasist_l_trim", "cohort19", 64600, "raw", "85K", "models.wrap_aasist", preproc="vad35", round=2),
+    "aasist_l_r2_last":   ModelSpec("aasist_l_r2_last", "cohort19", 64600, "raw", "85K", "models.wrap_aasist", round=2),   # last.pth of the same runs (E3 only)
+    "aasist_l_trim_last": ModelSpec("aasist_l_trim_last", "cohort19", 64600, "raw", "85K", "models.wrap_aasist", preproc="vad35", round=2),
     "pascu_lr_gate": ModelSpec("pascu_lr_gate", "cohort19", 0, "raw", "2.2B", "models.wrap_pascu", round=2),     # pipeline gate only (LA19 train + dev head); in no analysis
 }
 

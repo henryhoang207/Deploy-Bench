@@ -379,3 +379,30 @@ it is not committed by Claude, and the user decides what moves into `analysis/`.
   split into the oracle cost and the remainder, read from the committed `results/analysis/operating_points.json`.
 - **Number audit.** `audit_claims.py` rebuilds 77 numerical statements of the revised paper from the result files: 0 failures.
 - Nothing in the sol1 clone, its results or the MLAAD scoring was touched.
+
+## DEV-9 (2026-10-07): round 2, registered before any of its scores existed
+
+**Status:** a registered extension, frozen at tag `round2-freeze` together with `PREREGISTRATION_ROUND2.md`, which holds
+the full design (models, training runs, data, gates, thresholds, four confirmatory hypotheses R2-H1 to R2-H4, a reading
+rule fixed in advance, exploratory analyses E1-E11, failure rules). It departs from `PREREGISTRATION.md` in three ways, all
+governed by the addendum, and changes nothing in round 1 (roster, H1-H6, tests and outcomes stand as reported):
+1. The frozen five-model roster (D30) is extended, outside every round-1 count, by two released detectors
+   (`as5_aasist`, the ASVspoof 5 baseline B02; `xlsr_mamba`, XLSR-Mamba-DF) and one re-implemented calibration-oriented
+   detector (`pascu_lr`, refit on LA19 train only). ASVspoof 5 returns as the source corpus of `as5_aasist` (D30 had
+   deferred it); its eval set is a target for that model only and is reported by condition (D24).
+2. The project trains models again (D55): the clovaai AASIST-L recipe, seeds 1-5 untrimmed and 1-5 on VAD-trimmed audio
+   (the DEV-8 rule), plus the default seed 1234 as a pipeline check; and the Pascu logistic-regression head.
+3. The stress suite runs eight more conditions on the 1,000-clip H5 manifest (D56).
+
+Requested by the user on 2026-10-06 ("push it to the IEEE T-BIOM", then "Add it to the current plan and next step") and
+frozen on 2026-10-07 under "go ahead from end to end with review check between each step": the registration was frozen
+after Claude's review check, without a separate approval step. Decisions D53-D58.
+
+**What had been seen:** `PREREGISTRATION_ROUND2.md` Sec. 2: every round-1 and DEV-8 result, the published figures it
+names, and pre-tag smoke tests on LA19 training clips only. No score of a round-2 model on any dev, evaluation or target
+set existed, and no stressed audio for the eight new conditions.
+
+**Code fixed before the tag** (`7592468` and the registration commit): the ASVspoof 5 loader, the round-2 wrappers,
+`score.py`'s whole-utterance and `vad35` paths, the training and fitting scripts, the registered analysis scripts, and one
+defect found in review: `deploybench/stress.py` convolved an impulse response read at another sample rate as if it were
+16 kHz; it now refuses the mismatch.

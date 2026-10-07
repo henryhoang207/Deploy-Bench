@@ -162,10 +162,11 @@ def test_round2_specs_and_roster():
     from models.base import ROSTER, ROUND2, SPECS
     assert ROSTER == ["aasist", "aasist_l", "rawnet2", "tssdnet", "xlsr_aasist"]
     assert ROUND2 == ["as5_aasist", "pascu_lr", "xlsr_mamba", "aasist_l_r2", "aasist_l_trim"]
-    for m in ROUND2 + ["pascu_lr_gate"]:
+    for m in ROUND2 + ["pascu_lr_gate", "aasist_l_r2_last", "aasist_l_trim_last"]:
         assert SPECS[m].round == 2, m
     assert SPECS["as5_aasist"].cohort == "cohort_as5"                     # tau on AS5 dev (D16)
     assert SPECS["aasist_l_trim"].preproc == "vad35" and SPECS["aasist_l_r2"].preproc == ""
+    assert SPECS["aasist_l_trim_last"].preproc == "vad35" and SPECS["aasist_l_r2_last"].preproc == ""
     assert SPECS["pascu_lr"].input_samples == 0 and SPECS["xlsr_mamba"].input_samples == 66800
     assert all(SPECS[m].round == 1 for m in ROSTER)
 

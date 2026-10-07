@@ -21,6 +21,8 @@ _CONF = {
     "as5_aasist":    ("asvspoof5/Baseline-AASIST", "config/AASIST_ASVspoof5.conf", "models/weights/AASIST/best.pth"),
     "aasist_l_r2":   ("aasist", "config/AASIST-L.conf", None),
     "aasist_l_trim": ("aasist", "config/AASIST-L.conf", None),
+    "aasist_l_r2_last":   ("aasist", "config/AASIST-L.conf", None),
+    "aasist_l_trim_last": ("aasist", "config/AASIST-L.conf", None),
 }
 
 
