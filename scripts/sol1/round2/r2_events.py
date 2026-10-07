@@ -8,6 +8,7 @@ Prints every event since the previous call and exits 10 if one needs attention, 
 current state and exits 0).
   FAIL      a new line with FAIL, REJECTED, REFUSED or Traceback in a watched log
   DL        the ASVspoof 5 download and extraction script ended (R2_DL_DONE)
+  E6        the ASVspoof 5 silence statistics ended (AS5_SILENCE_DONE)
   QUEUE     queue B or the W1-finish chain reported a result
   RUN_END   a training run wrote run_final.json
   SCHED_END a scheduler printed its DONE line
@@ -31,16 +32,18 @@ SC, TAUS = C / "results/round2/scores", C / "results/round2/taus"
 RUNS = H / "r2_runs"
 STATE, HIST = H / "xfer/r2_events.state.json", H / "xfer/r2_events.log"
 LOGS = {"downloads": "r2_downloads.log", "queueB": "r2_queueB.log", "w1_finish": "r2_w1_finish.log",
-        "train_sched": "r2_train_sched.log", "score_sched": "r2_score_sched.log"}
+        "train_sched": "r2_train_sched.log", "score_sched": "r2_score_sched.log",
+        "as5_silence": "r2_as5_silence.log"}
 WAKE = {"downloads": re.compile(r"R2_DL_DONE"), "queueB": re.compile(r"\] done |QUEUE_B_DONE"),
         "w1_finish": re.compile(r"."), "train_sched": re.compile(r"TRAIN_RUNS_DONE"),
-        "score_sched": re.compile(r"SCORING_DONE")}
+        "score_sched": re.compile(r"SCORING_DONE"), "as5_silence": re.compile(r"AS5_SILENCE_DONE")}
 FAILRE = re.compile(r"FAIL|REJECTED|REFUSED|Traceback")
 # process (args regex) that must be alive until its log shows the end mark
 PROCS = {"train_sched": (r"r2_train_sched\.py", "TRAIN_RUNS_DONE"),
          "score_sched": (r"r2_score_sched\.py", "SCORING_DONE"),
          "queueB": (r"r2_score_detectors\.sh", "QUEUE_B_DONE"),
-         "w1_finish": (r"r2_w1_finish\.sh", "W1_FINISH_DONE")}
+         "w1_finish": (r"r2_w1_finish\.sh", "W1_FINISH_DONE"),
+         "as5_silence": (r"r2_as5_silence\.py", "AS5_SILENCE_DONE")}
 CONDS = ["clean", "opus6k", "opus24k", "amr4.75", "mp3_32", "snr20", "snr10", "snr5", "mic_ir", "encodec6k"]
 STRESS = [f"stress_{c}" for c in CONDS]
 DET = {"as5_aasist": ["as5_dev", "as5_eval", "la19_eval", "itw", "df21_verified", "mlaad5"] + STRESS,
@@ -96,7 +99,7 @@ def main():
             if FAILRE.search(line):
                 wake.append(f"FAIL [{key}] {line}")
             elif WAKE[key].search(line):
-                kind = {"downloads": "DL", "queueB": "QUEUE", "w1_finish": "QUEUE"}.get(key, "SCHED_END")
+                kind = {"downloads": "DL", "queueB": "QUEUE", "w1_finish": "QUEUE", "as5_silence": "E6"}.get(key, "SCHED_END")
                 wake.append(f"{kind} [{key}] {line}")
             else:
                 info.append(f"[{key}] {line}")

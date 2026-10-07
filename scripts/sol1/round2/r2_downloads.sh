@@ -59,6 +59,8 @@ for t in zenodo_14498691/ASVspoof5_protocols.tar.gz zenodo_14498691/flac_D_*.tar
   [ -e "$m" ] && continue
   if tar -xf "$t" -C "$AS5"; then touch "$m"; echo "extracted $(basename "$t")"; else echo "EXTRACT_FAIL $t"; FAILS=$((FAILS+1)); fi
 done
+# the eval tars unpack to flac_E_eval/; the loader (deploybench/data.py REGISTRY) reads asvspoof5/flac_E
+[ -e "$AS5/flac_E" ] || ln -s flac_E_eval "$AS5/flac_E"
 echo "AS5 flac counts: D=$(find "$AS5" -path '*flac_D*' -name '*.flac' | wc -l) E=$(find "$AS5" -path '*flac_E*' -name '*.flac' | wc -l)"
 
 # MUSAN (noise subset only is extracted)
