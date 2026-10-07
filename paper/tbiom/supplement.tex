@@ -432,11 +432,17 @@ Round~2 was registered in \texttt{PREREGISTRATION\_ROUND2.md} and frozen at the 
 (\texttt{analysis/round2/r2\_registered.py}, \texttt{r2\_gates.py}, \texttt{r2\_taus.py}, \texttt{r2lib.py}). Before the tag no
 score of any round-2 model existed on any development, evaluation or target set; the pre-tag checks touched LA19
 \emph{training} clips only. The ported cluster-bootstrap code reproduces the round-1 speaker-level H2 and H5 results bit for
-bit. Two amendments were logged before the work they govern ran. Amendment~1: the eleven training runs were first launched
+bit. Three amendments were logged before the work they govern ran. Amendment~1: the eleven training runs were first launched
 together and the six on one GPU ran out of memory within ten seconds, before completing an epoch; they were relaunched once
 under a scheduler that runs one training run per GPU. Amendment~2: the exploratory calibration analysis (E9) uses an exact,
 unpenalised logistic fit instead of the harness's fixed-step \texttt{platt\_fit}, which a unit test showed does not converge
-and fails at the score scales of RawNet2 and Res-TSSDNet.
+and fails at the score scales of RawNet2 and Res-TSSDNet. Amendment~3: the round-2 environment's audio library (libsndfile
+1.2.0) decodes the 149,983 DF21 class-A files without an error, but its float conversion returns \(+1.0\) for the sample
+\(-32768\), which these files contain. The first XLSR-Mamba DF21 run gave this away by reporting no verified-fallback
+decodes, where every round-1 DF21 run reported 149,983. Every FLAC decode is now accepted only if its 16-bit samples match
+the file's STREAMINFO MD5, and every run reports its verified counts. The affected XLSR-Mamba DF21 scores were set aside
+before any quantity was computed from them and re-scored. LA19 (no flip in the 2,910 files that contain \(-32768\)), the WAV
+targets and the round-1 environment were unaffected.
 
 \subsection{Models}
 \emph{AASIST trained on ASVspoof~5.} The ASVspoof~5 baseline B02 (asvspoof-challenge/asvspoof5 @ \texttt{fe23d30}) ships
