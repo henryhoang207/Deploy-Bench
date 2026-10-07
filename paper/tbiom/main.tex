@@ -166,8 +166,8 @@ is the calibration loss of \(\tau^{*}\) at the equal-cost point \cite{brummer06_
 minimum, the oracle HTER, is the part of the deployed error that no fixed threshold removes (discrimination), and TTG the
 part that a better threshold would remove (transfer). We report both, and the transfer share \(\ttg/\hter(\tau^{*})\).
 Because a near-separable development set pins \(\tauE\) with few trials, we also report the \emph{dev-equivalent
-interval}: the connected run of thresholds around \(\tauE\) whose dev HTER is within half a bona fide trial of
-\(\hter(\tauE)\), and the target FRR at its two ends.
+interval}: the connected run of thresholds around \(\tauE\) whose dev HTER exceeds \(\hter(\tauE)\) by at most one bona
+fide trial (\(0.5/n_{\mathrm{bona}}\)), and the target FRR at its two ends.
 
 \emph{Cost.} With \(p\) the bona fide prior weighted by costs, \(C(p,\tau)=[p\,\frr(\tau)+(1-p)\,\far(\tau)]/\min(p,1-p)\)
 is 1 for the better trivial system, so a detector beats both trivial systems only for priors in
@@ -282,9 +282,9 @@ the registered grid, all on the strict side, tilted the registered finding towar
 that interval.
 
 \emph{Silence.} LA19 bona fide clips begin with a median 1.00\,s of silence against 0.38\,s for spoofs; ITW genuine clips
-begin with 0.09\,s. Trimming both ends at test time raises the LA19-eval EER of all five models 5--25 fold, so each relies on
-the cue; re-setting thresholds on trimmed dev lowers ITW FRR (9--38\,pp) but raises FAR (3--34\,pp) and leaves ITW EER
-nearly unchanged. Whether the cue in \emph{training} drives the ITW behaviour is R2-H3.
+begin with 0.09\,s. Trimming both ends at test time raises the LA19-eval EER of all five models 6--34 fold, so each relies on
+the cue; re-setting thresholds on trimmed dev lowers ITW FRR (9--38\,pp) but raises FAR (3--34\,pp) and moves ITW EER by
+only \(-4.0\) to \(+3.1\)\,pp. Whether the cue in \emph{training} drives the ITW behaviour is R2-H3.
 
 \emph{Checks for deployers.} Re-setting \(\tau\) from genuine channel speech alone restores FRR but accepts 88--99.9\% of
 held-out spoofs for the primary models; and at \(\tauE\) on ITW a transferred detector beats the better trivial system only
