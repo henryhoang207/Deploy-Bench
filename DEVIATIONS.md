@@ -457,3 +457,19 @@ XLSR-Mamba's DF21 scores are quarantined (kept, not used) and re-scored with the
 
 **Seen when written:** the decode comparisons above. The faulty XLSR-Mamba DF21 score file exists, but no quantity (EER,
 gate, rate) had been computed from it.
+
+### DEV-9 amendment 4 (2026-10-08, after Pascu's MLAAD-5 scoring failed, before any rerun; no MLAAD-5 score of Pascu exists)
+**What happened.** `r2_w1_finish.sh` started pascu_lr on MLAAD-5 at 01:42 on GPU 1, beside the trimmed training run
+aasist_l_trim_s1 (12.9 GB). Pascu scores whole utterances (the registered input rule), and MLAAD-5 holds 34 clips longer
+than 60 s, the longest 257.6 s (run-on Tacotron2 outputs, `tts_models_en_ek1_tacotron2`). After about 123,000 clips one
+of them needed 1.42 GiB more in the XLS-R convolutional front end than the ~0.3 GiB left on the GPU, and the job stopped
+with CUDA out-of-memory at 06:58. score.py writes its output only at the end, so no MLAAD-5 score of Pascu was written.
+
+**Amendment.** The task is rerun once and unchanged (same code, head, whole-utterance input, one clip per call, fp32,
+TF32 off) on a GPU without a training run: once every training run has started, the first GPU with no training process
+takes it (`scripts/sol1/round2/r2_pascu_mlaad5_rerun.py`). The one addition is the allocator setting
+`PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True`, which changes how GPU memory is reserved, not the arithmetic. With
+the SDPA attention of transformers 4.44.2 the 257.6-s clip needs about 15 GB, within 24 GB. If the rerun fails too,
+Pascu's MLAAD-5 is reported as missing: MLAAD-5 enters only E5 (exploratory), so no registered test changes.
+
+**Seen when written:** the failure log and the MLAAD-5 clip durations; no score.
