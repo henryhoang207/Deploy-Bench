@@ -473,3 +473,5 @@ the SDPA attention of transformers 4.44.2 the 257.6-s clip needs about 15 GB, wi
 Pascu's MLAAD-5 is reported as missing: MLAAD-5 enters only E5 (exploratory), so no registered test changes.
 
 **Seen when written:** the failure log and the MLAAD-5 clip durations; no score.
+
+*Operational note (2026-10-09, before the rerun started):* another user's training job (7.5 GB) appeared on GPU 0. The rerun now also waits for at least 20 GB free on the chosen GPU (was 16), so that the ~15-GB peak of the longest clips has room. This only delays the start; nothing in the scoring changes.

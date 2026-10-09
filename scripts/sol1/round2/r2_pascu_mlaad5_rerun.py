@@ -1,7 +1,7 @@
 """DEV-9 amendment 4: rerun pascu_lr on MLAAD-5 once, unchanged, on a GPU without a training run.
 
 Waits until every one of the eleven AASIST-L runs has started (the training queue is empty) and a GPU carries no
-train/aasist_r2_train.py process, then scores there with the registered settings (whole utterance, batch 1, fp32) plus
+train/aasist_r2_train.py process and has >= 20 GB free, then scores there with the registered settings (whole utterance, batch 1, fp32) plus
 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True. Output: results/round2/scores/pascu_lr/s0/mlaad5.csv (via .partial).
 Ends with PASCU_MLAAD5_DONE or PASCU_MLAAD5_FAILED. Run from the clone (envs/r2 python):
 
@@ -30,14 +30,14 @@ def smi(args):
 
 
 def free_gpu():
-    """Index of a GPU with no training process and >= 16 GB free, or None."""
+    """Index of a GPU with no training process and >= 20 GB free, or None (the 257.6-s clips peak near 15 GB)."""
     train = {int(p) for p in subprocess.run(["pgrep", "-f", "train/aasist_r2_train.py"], capture_output=True,
                                             text=True).stdout.split()}
     gpus = {u: (int(i), float(t) - float(used)) for i, u, t, used in
             smi(["--query-gpu=index,uuid,memory.total,memory.used"])}
     busy = {gpus[u][0] for pid, u in smi(["--query-compute-apps=pid,gpu_uuid"]) if int(pid) in train}
     for u, (i, free_mib) in sorted(gpus.items(), key=lambda kv: kv[1][0]):
-        if i not in busy and free_mib >= 16 * 1024:
+        if i not in busy and free_mib >= 20 * 1024:
             return i
     return None
 
