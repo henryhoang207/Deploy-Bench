@@ -1,0 +1,257 @@
+%==============================================================================
+%  Speech Communication full-length article (D59): the threshold-transfer audit, two registered rounds.
+%  Round 1 = the registered audit as revised for the simulated ICME panel (DFV_Conference/revision, audited numbers).
+%  Round 2 = PREREGISTRATION_ROUND2.md (tag round2-freeze). Every round-2 number comes from a generated table
+%  (analysis/round2/r2_paper_tables.py -> gen/r2_*.tex) or carries a "% src:" comment; \todo{} marks what is pending.
+%  Result-independent writing draft. Supplement in supplement.tex; no venue page cap is imposed.
+%==============================================================================
+\documentclass[review,authoryear]{elsarticle}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{microtype}
+\setlength{\emergencystretch}{2em}
+
+\newcommand{\todo}[1]{\textcolor{red}{[#1]}}
+\newcommand{\gentab}[1]{\IfFileExists{gen/#1.tex}{\input{gen/#1}}{\todo{generated table \detokenize{#1} pending}}}
+\journal{Speech Communication}
+
+\newcommand{\ttg}{\mathrm{TTG}}
+\newcommand{\hter}{\mathrm{HTER}}
+\newcommand{\frr}{\mathrm{FRR}}
+\newcommand{\far}{\mathrm{FAR}}
+\newcommand{\eer}{\mathrm{EER}}
+\newcommand{\tauE}{\tau^{*}_{\mathrm{EER}}}
+\newcommand{\tauF}[1]{\tau^{*}_{\mathrm{FRR}#1}}
+\newcommand{\tauA}[1]{\tau^{*}_{\mathrm{FAR}#1}}
+
+\begin{document}
+
+\begin{frontmatter}
+\title{Thresholded Once, Deployed Elsewhere: A Two-Round Pre-Registered Audit of Threshold Transfer in Speech Deepfake Detection}
+\author{\todo{Author names}}
+\address{\todo{Affiliations and corresponding-author email}}
+
+\begin{abstract}
+\todo{Complete the abstract after the final round-2 analyses. Report both resampling units for H2, the H5 outcome,
+the registered extension and its outcomes, and the transfer/discrimination distinction. Disclose that H3 was not
+supported for lack of usable quantized models and H6 was not supported on a clause the quantizer could not meet;
+the separate deployment study reports those analyses.}
+\end{abstract}
+
+\begin{keyword}
+speech deepfake detection \sep evaluation methodology \sep threshold transfer \sep calibration \sep domain shift
+\end{keyword}
+\end{frontmatter}
+
+\input{introduction}
+\input{related_work}
+
+% ============================ III. PROTOCOL =====================================
+\section{Protocol}
+\label{sec:protocol}
+
+% src: PREREGISTRATION_ROUND2.md sections 6, 9; deploybench/metrics.py; revision/results/b_thresholds.json
+\begin{table}[!t]
+\caption{Reporting card for a threshold-transfer audit. The study's actual registration and deviation chronology is given in Section~\ref{sec:design}.}
+\label{tab:card}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}p{0.21\columnwidth}p{0.73\columnwidth}@{}}
+\toprule
+\emph{Inputs} & A CM that outputs a score; labelled source development data; target sets with speaker labels; one or more cost
+models. \\
+\emph{Specify before a new audit} & Threshold policies computed from development scores alone (EER; FRR budgets 1\% and
+5\%; FAR budgets 1\% and 5\%), the estimator and its tie rule, the hypotheses and the resampling unit (speaker). \\
+\emph{Report at each policy and target} & FRR (BPCER) and FAR (APCER) at the shipped threshold; HTER split into oracle HTER
+and TTG, with speaker-level intervals; FRR and FAR at both ends of the interval of thresholds that tie on dev data; cost over
+a sweep of priors, with its break-even window; the data and policy that set the threshold. \\
+\emph{For triage} & The review share and the automatic-decision errors of a three-zone policy designed on dev data. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% src: deploybench/metrics.py; PREREGISTRATION_ROUND2.md sections 6, 9; revision/results/b_thresholds.json; revision/results/e_cost.json
+\subsection{Scores, thresholds and measures}
+Each CM maps a clip \(x\) to a score \(s(x)\), higher meaning more bona fide, and declares a spoof if \(s(x)<\tau\). Every
+threshold is fixed on the source development set of the model's training data. \(\tauE\) is the crossing of dev FRR and
+FAR, estimated by linear interpolation between adjacent unique dev scores. \(\tauF{1}\) and \(\tauF{5}\) are the strictest
+thresholds whose dev FRR stays within 1\% and 5\%, and \(\tauA{1}\) and \(\tauA{5}\) the most lenient thresholds whose dev
+FAR stays within 1\% and 5\% (BPCER at a fixed APCER in ISO/IEC 30107-3 terms). On a target, \(\frr(\tau)\) is the share of
+bona fide clips declared spoof (BPCER), \(\far(\tau)\) the share of spoofs accepted (APCER), and
+\(\hter(\tau)=\tfrac12[\frr(\tau)+\far(\tau)]\) \citep{bengio04_hter}. For a transferred threshold \(\tau^{*}\),
+\begin{equation}
+\ttg(\tau^{*}) \;=\; \hter(\tau^{*}) \;-\; \min_{\tau}\hter(\tau)
+\label{eq:ttg}
+\end{equation}
+is the calibration loss of \(\tau^{*}\) at the equal-cost point \citep{brummer06_calibration,vanleeuwen07_intro}. The
+minimum, the oracle HTER, is the part of the deployed error that no threshold on these scores removes (discrimination), and TTG the
+part that a better threshold would remove (transfer). We report both, and the transfer share \(\ttg/\hter(\tau^{*})\).
+Because a near-separable development set pins \(\tauE\) with few trials, we also report the \emph{dev-equivalent
+interval}: the connected run of thresholds around \(\tauE\) whose dev HTER exceeds \(\hter(\tauE)\) by at most one bona
+fide trial (\(0.5/n_{\mathrm{bona}}\)), and the target FRR at its two ends.
+
+% src: deploybench/metrics.py; PREREGISTRATION_ROUND2.md sections 6, 9; revision/results/b_thresholds.json; revision/results/e_cost.json
+\emph{Cost.}\label{eq:cost} With \(p\) the bona fide prior weighted by costs, \(C(p,\tau)=[p\,\frr(\tau)+(1-p)\,\far(\tau)]/\min(p,1-p)\)
+is 1 for the better trivial system, so a detector beats both trivial systems only for priors in
+\(\far/(\far+1-\frr)<p<(1-\far)/(1-\far+\frr)\), its break-even window.
+
+% src: PREREGISTRATION_ROUND2.md section 9 E7
+\emph{Three-zone policy.} The registered extension uses a review band \([\tau_{\mathrm{lo}},\tau_{\mathrm{hi}})\) holding 10\% of the pooled dev scores,
+centred in rank on \(\tauE\), sends scores inside it to review, rejects below it and accepts above it. On each target we
+report the review share and the automatic errors, and compare with the same rule fitted to the labelled target and with a
+label-free variant whose edges are re-anchored on the target's unlabelled scores.
+
+% src: PREREGISTRATION.md; revision/results/b_thresholds.json; revision/paper/main.tex
+% ============================ IV. STUDY DESIGN =====================================
+\section{Study Design}
+\label{sec:design}
+\subsection{Round 1: released LA19-trained checkpoints}
+% src: the ICME revision (DFV_Conference/revision/paper/main.tex Sec. III-B/C; audited by audit_claims.py).
+Round~1 audits five published CMs: four primary models (AASIST and AASIST-L \citep{jung22_aasist}, RawNet2
+\citep{tak21_rawnet2}, Res-TSSDNet \citep{hua21_res_tssdnet}) and a self-supervised reference, XLS-R+AASIST
+\citep{tak22_xlsr_aasist} (Table~\ref{tab:roster}). Checkpoints are used as released; we vendor each author's code and keep
+its score function, class order and input policy. A primary model must reproduce its published LA19 evaluation EER within
+15\% (relative); the released RawNet2 is the ASVspoof~2021 DF baseline and is gated on DF21 against the organisers'
+released scores (per-trial agreement \(3.7{\times}10^{-5}\)); XLS-R+AASIST has no published LA19 figure and enters no
+hypothesis count. Every threshold is fixed on the LA19 development set (24,844 trials, 2,548 bona fide).
+
+% src: revision/paper/gen/tab_roster.tex; revision/results/b_thresholds.json
+\begin{table}[!t]
+\caption{Round-1 roster and development thresholds. EER on LA19 eval (\%): ours / published. Dev EER (\%) and \(\tauE\) on
+LA19 dev. Last column: dev bona fide trials below, and dev spoof trials at or above, \(\tauE\).}
+\label{tab:roster}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\input{gen/tab_roster}\\[2pt]
+\parbox{\columnwidth}{\footnotesize\textsuperscript{a}Different training run, gated on DF21 instead.
+\textsuperscript{b}None published, so ungated and outside every hypothesis count.}
+\end{table}
+
+% src: PREREGISTRATION.md; DEVIATIONS.md DEV-2 and DEV-8; revision/results/g_docs.json; revision/paper/main.tex
+The targets are the LA19 evaluation set (71,237 trials; 11 of 13 attacks unseen), In-the-Wild (31,779 clips of public
+figures with 54 distinct speaker labels in its metadata), a verified subset of ASVspoof~2021 DF (455,508 trials; libFLAC~1.4
+rejects 43\% of the public evaluation files and for 78,420 of them the only working decode fails the file's own MD5, so we
+exclude those), and an EnCodec stress set: 1,000 LA19-eval clips (500 per class, all 67 speakers) resynthesised at 6\,kbps
+\citep{defossez23_encodec}, whose bona fide clips stay bona fide (a genuine user's speech through a codec is still
+genuine) \citep{wang25_asvspoof5_db,xiao26_resynth}. The registered hypotheses were H2 (on ITW at \(\tauE\), FRR exceeds FAR
+for at least three of the four primary models) and H5 (EnCodec raises FRR more than FAR, relative to the clean copy, for
+at least three), tested by one-sided class-stratified bootstraps (B = 1,000) with Holm correction; because clips are nested
+in speakers, we added speaker-cluster bootstraps (B = 10,000) as a logged, exploratory deviation \citep{field07_boot,bolle04_subsets}. The resampling unit for H2 was specified after the descriptive ITW rates had been seen. H1 and H4 are exploratory and receive effect sizes and intervals rather than confirm/refute claims; their detailed results appear in the supplement.
+The hypotheses were registered on 19~July 2026, amended in August and September, and frozen on 28~September 2026 before any
+ITW clip was scored; the frozen registration and the deviation log are in the repository. Two int8 hypotheses were also
+registered; neither was supported (H3 for lack of usable int8 models, H6 on a clause the quantizer could never meet), and the separate deployment study will report their analyses.
+
+\input{round2_design}
+
+% src: revision/paper/gen/tab_operating.tex; revision/results/a_cluster.json
+% ============================ V. RESULTS: ROUND 1 ======================================
+\section{Round 1: Released Checkpoints}
+\label{sec:round1}
+% src: the ICME revision Sec. IV (results/b_thresholds.txt, a_cluster.txt, f_vad_*.txt, a5_cheapcheck.txt, e_cost.txt).
+\begin{table*}[!t]
+\caption{Round 1: operating behaviour at the frozen \(\tauE\) (fp32, \%). HTER = oracle HTER (discrimination) + TTG
+(transfer, pp); TTG/HTER is the transfer share (\%). The CI of TTG is a speaker-cluster bootstrap (B = 1,000).}
+\label{tab:op}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\resizebox{\textwidth}{!}{\input{gen/tab_operating}}
+\end{table*}
+
+% src: revision/results/b_thresholds.json; revision/results/a_cluster.json
+\emph{Unseen attacks.} On LA19 eval the genuine speech comes from the source corpus and only the attacks are new, so the
+error that grows is false acceptance: the primary models accept 6.1--11.5\% of spoofs and reject 0.1--0.5\% of genuine
+clips. AASIST and AASIST-L lose 4.18 and 4.64 HTER points to transfer (speaker-level 95\% CIs [3.74, 4.65] and
+[3.99, 5.36]), 84\% and 83\% of their deployed HTER, which the EER hides (0.83\% against 5.00\% for AASIST). By HTER at the
+development threshold, Res-TSSDNet (3.17\%) overtakes both, which beat it by EER.
+
+% src: revision/results/b_thresholds.json; revision/results/a_cluster.json
+\emph{Shifted targets.} On ITW and DF21 the genuine speech has shifted and FRR exceeds FAR for four of five models on each
+target. For the primary models on ITW the dominant loss is discrimination (EER 34--49\%; transfer only 2--11\% of the
+deployed HTER). The reference has the largest gap from its own optimum (59\% and 73\% of its HTER on ITW and DF21) yet the
+fewest errors (HTER 25.2\% on ITW against 34.6--51.4\%).
+
+% src: results/analysis/h2_test.json; results/analysis/h5_test.json; revision/results/a_cluster.json
+\emph{The registered tests.} H2 is supported at the clip level (three of four) but not at the speaker level: resampling
+ITW's 54 speaker labels, only Res-TSSDNet's FRR $-$ FAR excludes zero (+31.3\,pp [+14.3, +51.8]), and deleting a single
+speaker moves AASIST's difference between $-0.5$ and +5.4\,pp; we do not claim H2. H5 is supported under both units:
+EnCodec raises FRR and lowers FAR for every primary model (Res-TSSDNet rejects 68.4\% of resynthesised bona fide clips).
+
+% src: revision/results/b_thresholds.json; revision/results/a_cluster.json
+\emph{The policy sets the direction.} A threshold whose dev FRR is 1\% rejects 42.8--81.8\% of genuine ITW speech, while a
+dev FAR of 5\% becomes 14.2--91.9\% FAR with FAR above FRR for all five models: the dominant error follows the policy, and
+the registered grid, all on the strict side, tilted the registered finding toward false rejection.
+
+% src: revision/results/b_thresholds.json; revision/results/a_cluster.json
+\emph{Determinacy.} Dev is nearly separable, so \(\tauE\) is pinned by few trials. For the reference, every threshold in
+\([-3.38, +2.14]\) ties with \(\tauE\) on dev within one bona fide trial, and its ITW FRR runs from 25.1\% to 73.0\% over
+that interval.
+
+% src: revision/results/f_vad_stats_analysis.json; revision/results/f_vad_scores_analysis.json
+\emph{Silence.} LA19 bona fide clips begin with a median 1.00\,s of silence against 0.38\,s for spoofs; ITW genuine clips
+begin with 0.09\,s. Trimming both ends at test time raises the LA19-eval EER of all five models 6--34 fold, showing sensitivity to
+the removed non-speech; this test-time intervention does not by itself isolate a learned silence shortcut; re-setting thresholds on trimmed dev lowers ITW FRR (9--38\,pp) but raises FAR (3--34\,pp) and moves ITW EER by
+only \(-4.0\) to \(+3.1\)\,pp. Whether the cue in \emph{training} drives the ITW behaviour is R2-H3.
+
+% src: revision/results/a5_cheapcheck.json; revision/results/e_cost.json
+\emph{Checks for deployers.} Re-setting \(\tau\) from genuine channel speech alone restores FRR but accepts 88--99.9\% of
+held-out spoofs for the primary models; and at \(\tauE\) on ITW a transferred detector beats the better trivial system only
+in narrow windows of bona fide priors (none for RawNet2).
+
+% src: results/phase_2_conversion_app/mlaad5/mlaad_report.json; results/phase_2_conversion_app/mlaad5/sample_rate_census.json; DEVIATIONS.md DEV-6.
+\emph{Multilingual transfer, descriptive.} The original checkpoints were also scored on MLAAD paired with M-AILABS
+bona fide speech (Table~\ref{tab:r1mlaad}). EER spans 24.8--37.7\%, and FAR exceeds FRR for four of five checkpoints at
+\(\tauE\); Res-TSSDNet is the exception (FRR 60.78\%, FAR 18.42\%). Thus the FRR-dominant pattern on ITW and DF21 does
+not extend to this surface. Every spoof file is native 22.05\,kHz, whereas 98.2\% of bona fide files are native
+16\,kHz; resampling traces may contribute to separation, so these are not isolated language effects. These results
+were known when round~2 was registered and remain descriptive.
+
+% src: results/phase_2_conversion_app/mlaad5/mlaad_report.json; results/phase_2_conversion_app/mlaad5/sample_rate_census.json.
+\begin{table}[!t]
+\caption{Descriptive round-1 MLAAD/M-AILABS operating behaviour at \(\tauE\): rates in \%, TTG in pp.
+Sample-rate confound: every spoof is native 22.05\,kHz and 98.2\% of bona fide speech is native 16\,kHz.}
+\label{tab:r1mlaad}
+\centering
+\footnotesize
+\input{gen/r1_mlaad}
+\end{table}
+
+\section{Round 2: Current Detectors, Retraining, Silence and Channels}
+\label{sec:round2}
+\subsection{Gates and operating behaviour}
+\todo{Insert final generated detector gates and operating-point tables after W4 review.}
+
+\subsection{Registered tests and reading rule}
+\todo{Report all registered hypotheses and the descriptive reading rule from the final W4 outputs.}
+
+\subsection{Seed variation and silence-trimmed training}
+\todo{Report the seed spread, manipulation check, recipe-selection details and last-epoch sensitivity comparison.}
+
+\subsection{Channels and shifted corpora}
+\todo{Insert final channel effects, MLAAD with its sample-rate confound, and ASVspoof evaluation by condition.
+Disclose the outcome of the once-only Pascu MLAAD rerun.}
+
+\subsection{Review policies and calibration across priors}
+\todo{Report review shares, automatic errors, policy collapse where applicable, and actual versus minimum costs.}
+
+\input{limitations}
+
+\section{Conclusion}
+\label{sec:conclusion}
+\todo{Write the conclusion once the final round-2 results establish which round-1 observations carry over.}
+
+\input{declarations}
+
+\bibliographystyle{elsarticle-harv}
+\bibliography{refs}
+
+\end{document}

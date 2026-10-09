@@ -1,0 +1,84 @@
+% src: PREREGISTRATION.md; PREREGISTRATION_ROUND2.md; DEVIATIONS.md DEV-8; revision/paper/main.tex
+\section{Discussion and Limitations}
+\label{sec:discussion}
+\subsection{What a transferred operating point establishes}
+The round-1 audit distinguishes a detector that orders target scores poorly from one whose source threshold sits
+poorly on otherwise informative scores. Both can produce a high deployed error, but they suggest different responses.
+Changing a threshold cannot repair poor discrimination. Conversely, selecting a detector solely by target-oracle EER
+does not address how a source threshold will behave on genuine target speech. The false-rejection and
+false-acceptance decomposition is therefore needed alongside HTER and its transfer gap.
+
+% src: PREREGISTRATION.md; PREREGISTRATION_ROUND2.md; DEVIATIONS.md DEV-8; revision/paper/main.tex
+The reporting card is intended to make these distinctions inspectable. It requires the threshold source and
+estimator, the application policy, the target error components and an oracle reference computed only for analysis.
+The target oracle is not an available deployment policy unless labelled target data can actually be collected.
+Similarly, the genuine-speech-only threshold reset in round~1 measures a tradeoff: restoring a rejection budget
+does not establish a useful spoof detector. A workflow that uses the scores for review must assess review load and
+automatic errors separately; the registered review-policy analysis remains to be incorporated below.
+
+% src: PREREGISTRATION.md; PREREGISTRATION_ROUND2.md; DEVIATIONS.md DEV-8; revision/paper/main.tex
+\todo{Integrate the round-2 outcomes and reading rule after the final analyses. Assess whether each round-1
+interpretation extends to the new detectors, retrained runs and channels before making recommendations across rounds.}
+
+\subsection{Scope of inference}
+The released-checkpoint audit inherits each author's training, augmentation and model-selection choices. Its roster
+was selected for a broader deployment project rather than sampled from the population of speech detectors. Related
+models share a lineage, and the self-supervised reference enters no primary-model hypothesis count. The registered
+extension broadens this evidence but still retrains only AASIST-L. An observation across its seeds supports a
+statement about that recipe under the recorded training and selection rules; it does not identify an architecture
+effect across independently trained detector families.
+
+% src: PREREGISTRATION.md; PREREGISTRATION_ROUND2.md; DEVIATIONS.md DEV-8; revision/paper/main.tex
+The ASVspoof~5 detector differs from LA19-trained detectors in more than silence handling, including its training
+corpus. Its training audio was not subject to the development/evaluation post-processing
+\citep{wang25_asvspoof5_db}. It therefore cannot isolate a causal effect of removing silence during training. The
+trimmed and untrimmed AASIST-L arms provide the registered intervention. Even there, the intervention changes both
+training and threshold-source preprocessing, and the recipe's weight-averaging eligibility may differ between
+arms. The selection-free last-epoch comparison helps interpret that distinction. Test-time trimming alone, as in
+round~1, can expose reliance on a cue but cannot establish why a detector learned it.
+
+% src: PREREGISTRATION.md; PREREGISTRATION_ROUND2.md; DEVIATIONS.md DEV-8; revision/paper/main.tex
+\subsection{Data, dependence and ecological validity}
+ITW is a community-exposed benchmark, not a prospective sample of previously unseen deployment traffic
+\citep{muller22_in_the_wild}. Its metadata identify speakers but not source recordings. Speaker-cluster inference
+accounts for within-speaker dependence under the recorded labels; recording-specific effects and dependence that
+crosses speaker labels cannot be separated from those labels. The disagreement between clip-level and
+speaker-level H2 inference is part of the audit's evidence, rather than a reason to substitute one registered
+result for the other. The exploratory H1 and H4 comparisons likewise rest on few distinct models, so multiple
+model-policy points do not create independent model replications.
+
+% src: PREREGISTRATION.md; PREREGISTRATION_ROUND2.md; DEVIATIONS.md DEV-8; revision/paper/main.tex
+The DF21 analysis uses the documented integrity-verified evaluation surface. Excluding audio that cannot reproduce
+its own encoded checksum changes the evaluated population, and the clean-surface sensitivity analysis does not
+recover the omitted trials. Our DF21 measurements must therefore be identified by their surface and should not be
+equated with published measurements on a different subset or decode. The checksum verification and decoder
+amendment are reproducibility requirements, not an estimate that the excluded trials are harmless.
+
+% src: PREREGISTRATION.md; PREREGISTRATION_ROUND2.md; DEVIATIONS.md DEV-8; revision/paper/main.tex
+MLAAD paired with M-AILABS adds languages and synthesis systems but also a class-associated sample-rate difference.
+Resampling traces may contribute to separation, so a pooled or language-specific error rate cannot be interpreted
+as an isolated language effect. The original round-1 MLAAD scores were already known when the extension was
+registered; their reporting remains descriptive. Bona fide speaker and spoof-system clustering measures the
+available dependence structure, not independence of every utterance.
+
+% src: PREREGISTRATION.md; PREREGISTRATION_ROUND2.md; DEVIATIONS.md DEV-8; revision/paper/main.tex
+The stress experiments preserve clip identity and isolate specified transformations. A codec reconstruction of
+genuine speech retains its genuine label under this channel-use interpretation; codec-based generation can have
+another role in synthesis benchmarks \citep{wu24_codecfake,wang25_asvspoof5_db,xiao26_resynth}. The experiments cover
+single-pass digital transformations and impulse-response convolution. They do not reproduce an entire live
+transmission chain, a physical re-recording campaign or an adaptive adversary. Desktop scoring does not establish
+on-device numerical parity, latency or energy performance.
+
+% src: PREREGISTRATION.md; PREREGISTRATION_ROUND2.md; DEVIATIONS.md DEV-8; revision/paper/main.tex
+\subsection{Registration and reporting boundaries}
+The tagged registration and deviation log provide a version-controlled chronology rather than an independently
+deposited registration. Some original amendments followed pilot or reproduction observations, and the speaker-level
+sensitivity analyses were requested after the round-1 results were known. The manuscript reports that chronology,
+preserves the original clip-level outcomes and labels the added analyses as exploratory. Round~2 was designed in
+response to those observations; its registration protects the later tests from adaptation to its own scores,
+without making the original observations unknown at design time.
+
+Our costs are explicit evaluation scenarios, not measured operational priors or monetary losses. A review policy
+does not model reviewer accuracy, staffing, delay or consent requirements for collecting genuine channel speech.
+The audit characterizes detector limitations and the evidence needed to assess them; it does not certify an
+authenticity decision for a particular speaker or forensic case.

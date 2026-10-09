@@ -1,0 +1,125 @@
+% Literature-only draft: no round-2 outcomes or empirical literature numbers.
+% Primary-source verification is recorded beside the relevant bibliography entries.
+\section{Related Work}
+\label{sec:related}
+
+\subsection{Threshold-aware evaluation in speech and biometrics}
+% src: bib:bengio04_hter
+The distinction between selecting a decision rule and evaluating it is established in biometric authentication.
+\citet{bengio04_hter} evaluate HTER on a test set after selecting an EER threshold on separate validation data, and
+show why uncertainty in the class-specific errors matters for statistical comparison. Face presentation-attack
+detection also uses development-set thresholds followed by test-set HTER \citep{chingovska12_lbp}.
+For speech, \citet{korshunov16_crossdb} use the same separation when transferring countermeasures between databases
+and between logical-access and replay attacks. These precedents motivate keeping the threshold-selection data
+explicit when assessing a speech deepfake detector.
+
+% src: bib:brummer06_calibration
+Speaker-recognition evaluation further distinguishes discrimination, described by the attainable error trade-offs,
+from calibration, which determines how well a score supports a particular decision rule
+\citep{brummer06_calibration,vanleeuwen07_intro}. The difference between actual cost and minimum cost expresses this
+distinction for a specified application. A minimum found using evaluation labels describes what an oracle threshold
+could achieve; actual cost evaluates the supplied scores at the application's threshold. Our TTG follows this
+lineage at the equal-cost operating point: it measures the excess HTER of a development threshold above the target's
+minimum HTER. It is a threshold-specific loss, rather than a claim that the CM scores are calibrated likelihood
+ratios across applications.
+
+% src: bib:wang20_asvspoof2019
+The ASVspoof challenges provide a complementary evaluation lineage. ASVspoof~2019 and ASVspoof~2021 report EER and
+minimum tandem detection cost, with t-DCF assessing a countermeasure together with an ASV system
+\citep{wang20_asvspoof2019,liu23_asvspoof2021,kinnunen18_tdcf}. The stand-alone detection track of ASVspoof~5 reports
+minimum DCF, actual DCF, and log-likelihood-ratio cost \citep{wang24_asvspoof5}. Its actual DCF uses a fixed Bayes
+threshold under an LLR interpretation of the submitted scores. This differs from transferring an empirical
+development threshold, but both protocols expose behavior that a threshold optimized on the target cannot reveal.
+
+% src: bib:zhou26_eer_hides
+A direct speech-deepfake precedent is \citet{zhou26_eer_hides}, who freeze an SSL-AASIST detector, select a source
+EER threshold on labelled ASVspoof~2019 LA evaluation data, and transfer it to In-the-Wild and a subset of
+ASVspoof~2021 DF. They report HTER and its false-rejection/false-acceptance decomposition, and audit unlabelled
+score corrections. Their monotone-invariance argument clarifies that a strictly increasing score transform can
+alter decisions at a fixed numerical threshold while leaving the ROC and EER unchanged. Our audit uses development data for
+threshold selection and extends the assessment across checkpoints, policies, training runs, and controlled
+perturbations. The contribution is the scope and registration of this assessment, rather than the invention of
+transferred-threshold evaluation.
+
+\subsection{Generalization, dataset cues, and training variability}
+% src: bib:muller22_in_the_wild
+Cross-corpus evaluation tests more than the ability to reject a new synthesis algorithm. In-the-Wild collects
+authentic and manipulated speech of public figures from online media, and demonstrates poor generalization of
+ASVspoof-trained detectors to that setting \citep{muller22_in_the_wild}. Recording conditions, speech content,
+speakers, and generation pipelines can change together. A target EER summarizes the resulting discrimination,
+whereas the transferred FRR and FAR additionally reveal which class a deployed rule harms.
+
+% src: bib:muller21_silence
+Dataset cues can make this distinction harder to interpret. \citet{muller21_silence} identify label-correlated
+leading and trailing silence in ASVspoof data; silence-duration classifiers are predictive, and training established
+CMs after trimming silence changes their detection performance. Their evidence motivates interventions on the
+training audio, rather than treating a test-time trim alone as evidence that a detector has learned a particular
+causal mechanism. Our paired training design asks whether removing this cue changes the transferred operating
+behavior, with source performance serving as a manipulation check.
+
+% src: bib:wang25_asvspoof5_db
+ASVspoof~5 explicitly addresses collection artefacts. Its shortcut-reduction pipeline normalizes peak amplitude,
+randomly trims leading and trailing non-speech, and varies the retained utterance duration. The database paper
+states that this pipeline is applied to the development and evaluation sets, but not the training set
+\citep{wang25_asvspoof5_db}. Consequently, a detector trained on that release is not automatically trained on
+shortcut-reduced audio. Training variability is another source of uncertainty:
+\citet{wang21_comparative} show that changing initialization can produce statistically distinguishable performance
+for the same CM recipe. Replication over training runs therefore complements comparisons of released checkpoints.
+
+\subsection{Countermeasure architectures and probability calibration}
+% src: bib:tak21_rawnet2
+The checkpoints in this audit span distinct representation choices. RawNet2 learns directly from waveforms
+\citep{tak21_rawnet2}, while Res-TSSDNet uses a residual time-domain network \citep{hua21_res_tssdnet}.
+AASIST integrates spectral and temporal graph-attention representations, and AASIST-L is its lighter variant
+\citep{jung22_aasist}. These models support an assessment across architectures without attributing every difference
+in transfer behavior to a single back end.
+
+% src: bib:tak22_xlsr_aasist
+Self-supervised speech representations broaden the feature space available to CMs. \citet{tak22_xlsr_aasist}
+combine a wav2vec~2.0 front end with an AASIST back end and data augmentation. XLS-R supplies multilingual pretrained
+speech representations \citep{babu21_xlsr}; XLSR-Mamba combines that representation family with a dual-column
+bidirectional state-space back end \citep{xiao25_xlsrmamba}. Improvements in discrimination under these designs do
+not themselves establish that a source decision threshold will transfer.
+
+% src: bib:pascu24_calibrated
+\citet{pascu24_calibrated} address both generalization and prediction reliability using frozen self-supervised
+representations with logistic regression. They assess discrimination with EER and probability calibration with
+expected calibration error. ECE describes agreement between predicted probabilities and observed class frequencies
+within probability bins; it does not evaluate a particular source threshold after transfer. Including a detector designed
+with this calibration objective allows the audit to examine that distinction empirically, without presuming that
+probability calibration removes operating-point drift.
+
+\subsection{Channel, codec, and multilingual shift}
+% src: bib:liu23_asvspoof2021
+Communication processing can alter detection cues in both genuine and manipulated speech. ASVspoof~2021 DF
+includes media compression, while ASVspoof~5 applies encoding and compression, including EnCodec, to evaluation
+utterances from both classes \citep{liu23_asvspoof2021,wang25_asvspoof5_db}. The communication benchmark of
+\citet{realworld_comms24} investigates combinations of codecs and packet loss. These studies motivate controlling
+channel changes when comparing clean and perturbed scores, and reporting the class-specific errors of the
+transferred rule in addition to threshold-optimized detection performance.
+
+% src: bib:wu24_codecfake
+Neural codecs also participate in speech generation. CodecFake trains countermeasures on codec-resynthesized
+speech to improve detection of codec-based synthesis \citep{wu24_codecfake}.
+\citet{xiao26_resynth} examine the resulting label ambiguity: a codec can be either a transmission mechanism or
+part of a synthesis pipeline. The codec operation alone therefore does not specify the audit's target label.
+Our channel stress tests preserve the clean utterance's label and state that assumption explicitly; this assesses
+the treatment of genuine speech carried through a channel, rather than defining every resynthesis as an attack.
+
+% src: bib:mlaad24
+MLAAD expands evaluation beyond predominantly English benchmarks by providing synthetic speech across languages
+and synthesis architectures \citep{mlaad24}. Its distributed audio is synthetic; corresponding original human
+recordings are supplied by the M-AILABS source corpus. This distinction matters for threshold auditing: spoof-only
+data can measure attack acceptance at a frozen threshold, but cannot identify false rejection or a complete HTER.
+Language and synthesis coverage should therefore be reported separately from evidence about the operating rule on
+bona fide traffic. The audit fixes the dataset version and pairing protocol in its study design.
+
+\subsection{Selective decisions and transferred review policies}
+% src: bib:geifman17_selective
+Selective classification adds an abstention option, trading automatic-decision coverage for lower error among
+the retained decisions \citep{geifman17_selective}. In speech screening, the abstention can become a review queue,
+with acceptance and rejection on either side of a score band. A band chosen on development data remains a
+transferred policy: its target review share and residual errors depend on the target score distribution. Our
+three-zone assessment consequently measures coverage and class-specific automatic errors together. It does not
+treat a source review budget as a guarantee of target workload, nor assume that a target-fitted oracle policy is
+available during deployment.

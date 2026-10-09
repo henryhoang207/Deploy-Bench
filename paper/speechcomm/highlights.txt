@@ -1,0 +1,5 @@
+Development thresholds expose errors hidden by target-oracle evaluation.
+Transfer gaps separate threshold-dependent error from discrimination loss.
+Speaker-aware inference changes the interpretation of the registered audit.
+The operating policy determines which error dominates after transfer.
+Registered replications test detectors, retraining and silence handling.

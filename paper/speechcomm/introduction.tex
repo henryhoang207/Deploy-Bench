@@ -1,0 +1,50 @@
+\section{Introduction}
+\label{sec:intro}
+Speech synthesis and voice conversion have made the assessment of speech authenticity an operational problem for
+speech technology. A countermeasure (CM) produces a score, but a screening service or a moderation workflow must turn
+that score into a decision. Its threshold is chosen using development data and then applied to speech whose speakers,
+recording conditions and synthesis systems may differ from those used to choose it. Assessing this decision requires
+more than a measure of how well the scores rank genuine and spoofed speech.
+
+The equal error rate (EER) and minimum tandem detection cost are useful measures of discrimination
+\citep{kinnunen18_tdcf,wang20_asvspoof2019,liu23_asvspoof2021}. They use evaluation labels to locate a favourable
+operating point. A development threshold has no such access to the target labels. Consequently, a low evaluation EER
+does not establish that a threshold selected elsewhere will preserve either the false-rejection budget for genuine
+speech or the false-acceptance budget for spoofs. \citet{zhou26_eer_hides} demonstrate this distinction for a speech
+deepfake detector transferred to In-the-Wild (ITW).
+
+This distinction has a long history in biometric evaluation. Half total error rate (HTER) at a development threshold
+is established practice in authentication and presentation-attack detection
+\citep{bengio04_hter,chingovska12_lbp,korshunov16_crossdb}. Application-independent speaker-recognition evaluation
+separates discrimination from calibration through actual and minimum detection costs
+\citep{brummer06_calibration,vanleeuwen07_intro}. We apply that distinction to speech deepfake countermeasures. The
+threshold transfer gap (TTG) is the excess target HTER at the source development threshold over the best HTER achievable
+by thresholding the same target scores. It gives the threshold-dependent part of the error a separate name and
+reports it beside the error that threshold selection cannot remove.
+
+A threshold-transfer audit must also state whose errors it counts and how its operating point was chosen. Genuine
+speech falsely rejected as spoofed may interrupt screening or prompt an incorrect authenticity accusation; a spoof
+accepted as genuine may evade the same workflow. Their relative frequencies depend on the threshold policy, the
+target distribution and the application costs. Furthermore, a development set with almost separated classes can
+admit several nearly equivalent thresholds that behave differently after transfer. These are assessment questions,
+even when the underlying detector architecture remains unchanged.
+
+% src: PREREGISTRATION.md; PREREGISTRATION_ROUND2.md sections 1, 3, 4, 5.
+We study these questions in two separately registered rounds. Round~1 audits five released LA19-trained checkpoints,
+keeping their author-defined score and input conventions. Round~2 asks whether the findings extend to current
+detectors, retrained AASIST-L models, the same recipe trained and evaluated on silence-trimmed speech, and additional
+channel conditions. Its design was frozen after the round-1 findings were known and before any round-2 development
+or target score existed. This chronology distinguishes replication on new scores from a claim that the later
+hypotheses were formed without knowledge of the earlier audit.
+
+The contribution is an assessment protocol and an empirical audit rather than a new detection architecture.
+Table~\ref{tab:card} sets out the reporting protocol: development-only threshold selection, separate false-rejection
+and false-acceptance rates, discrimination and transfer losses, development-threshold ambiguity, speaker-aware
+uncertainty, and cost-sensitive interpretation. The audit distinguishes registered tests from exploratory
+sensitivity analyses and examines whether its observations concern released checkpoints or a retrained recipe.
+It also evaluates a development-designed accept/review/reject policy by the errors it automates and the traffic it
+sends to review. The accompanying reproducibility package is described in the data-availability statement.
+
+All detector scores in this article use desktop floating-point inference. The separate deployment study concerns
+conversion, quantization and device measurements. The outcomes of the original quantization hypotheses are
+disclosed here to preserve the registration record; their analyses belong to that separate study.

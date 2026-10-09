@@ -1,0 +1,17 @@
+\begin{tabular}{@{}llrrlrrr@{}}
+\toprule
+Set & Class & $n$ & Duration (s) & Leading silence (s), median [P10, P90] & Leading $<0.1$\,s (\%) & Trailing (s) & Leading median at $T=25/35/45$ (s) \\
+\midrule
+LA19 dev & bona fide & 2,548 & 3.39 & 1.00 [0.57, 1.61] & 0.7 & 0.34 & 1.07 / 1.00 / 0.45 \\
+LA19 dev & spoof & 22,296 & 3.27 & 0.38 [0.04, 1.25] & 23.7 & 0.31 & 0.44 / 0.38 / 0.21 \\
+\multicolumn{8}{r}{\emph{leading silence alone as a bona fide detector, EER (\%): $T=25$ 36.5, $T=35$ 34.9, $T=45$ 40.8}} \\
+\midrule
+LA19 eval & bona fide & 7,355 & 3.20 & 0.90 [0.51, 1.50] & 0.9 & 0.37 & 1.00 / 0.90 / 0.43 \\
+LA19 eval & spoof & 63,882 & 2.75 & 0.05 [0.00, 0.88] & 67.2 & 0.23 & 0.06 / 0.05 / 0.02 \\
+\multicolumn{8}{r}{\emph{leading silence alone as a bona fide detector, EER (\%): $T=25$ 18.4, $T=35$ 17.5, $T=45$ 23.6}} \\
+\midrule
+ITW & genuine & 19,963 & 2.99 & 0.09 [0.00, 0.38] & 50.1 & 0.03 & 0.33 / 0.09 / 0.00 \\
+ITW & spoof & 11,816 & 4.05 & 0.24 [0.00, 0.36] & 20.8 & 0.19 & 0.27 / 0.24 / 0.02 \\
+\multicolumn{8}{r}{\emph{leading silence alone as a bona fide detector, EER (\%): $T=25$ 38.3, $T=35$ 56.5, $T=45$ 63.4}} \\
+\bottomrule
+\end{tabular}
