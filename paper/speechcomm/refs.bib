@@ -53,13 +53,16 @@
                Sahidullah, Md and Kinnunen, Tomi H. and Evans, Nicholas and Lee, Kong Aik and Yamagishi, Junichi},
   title     = {{ASVspoof} 5: Crowdsourced Speech Data, Deepfakes, and
                Adversarial Attacks at Scale},
-  booktitle = {Proc. The Automatic Speaker Verification Spoofing Countermeasures Workshop ({ASVspoof} 2024)},
+  booktitle = {Proc. ASVspoof 2024 Workshop},
   pages     = {1--8},
   year      = {2024},
   doi       = {10.21437/ASVspoof.2024-1}
 }
 
-% verified: https://arxiv.org/abs/2502.08857v4 and https://arxiv.org/html/2502.08857v4 (Sec. 4.2).
+% verified 2026-10-09: Crossref 10.1016/j.csl.2025.101825 is the journal version of arXiv:2502.08857 (same title and
+% 29 authors; Comput. Speech Lang. 95, article 101825, issue of January 2026). The facts the manuscript attributes to it
+% were checked in https://arxiv.org/html/2502.08857v4 (Secs. 4.1-4.2); the published text was not re-read.
+% Key retained from the preprint citation; bibliographic year is the published version.
 @article{wang25_asvspoof5_db,
   author  = {Wang, Xin and Delgado, H\'{e}ctor and Tak, Hemlata and Jung, Jee-weon and
              Shim, Hye-jin and Todisco, Massimiliano and Kukanov, Ivan and Liu, Xuechen and
@@ -69,9 +72,11 @@
              Le Maguer, S{\'e}bastien and Gong, Cheng and Guo, Hanjie and Chen, Liping and Singh, Vishwanath},
   title   = {{ASVspoof} 5: Design, Collection and Validation of Resources for Spoofing,
              Deepfake, and Adversarial Attack Detection Using Crowdsourced Speech},
-  journal = {arXiv preprint arXiv:2502.08857},
-  year    = {2025},
-  url     = {https://arxiv.org/abs/2502.08857v4}
+  journal = {Computer Speech \& Language},
+  volume  = {95},
+  pages   = {101825},
+  year    = {2026},
+  doi     = {10.1016/j.csl.2025.101825}
 }
 
 % verified: https://arxiv.org/abs/2401.09512 and Crossref 10.1109/IJCNN60899.2024.10650962.
@@ -85,6 +90,15 @@
   year      = {2024},
   doi       = {10.1109/IJCNN60899.2024.10650962},
   url       = {https://arxiv.org/abs/2401.09512v5}
+}
+
+% verified 2026-10-09: the maintainers' own BibTeX in the repository README. The caito.de page that MLAAD cites
+% for this corpus no longer resolves.
+@misc{solak17_mailabs,
+  author = {Solak, I. Celeste Aurora and Naumov, Dima},
+  title  = {The {M-AILABS} Speech Dataset},
+  year   = {2017},
+  url    = {https://github.com/i-celeste-aurora/m-ailabs-dataset}
 }
 
 % verified: https://www.isca-archive.org/asvspoof_2021/muller21_asvspoof.html
@@ -282,12 +296,16 @@
   year    = {2025}
 }
 
-@misc{chesney19_deepfakes,
-  author       = {Chesney, R. and Citron, D.},
-  title        = {Deep Fakes: A Looming Challenge for Privacy, Democracy, and National Security},
-  howpublished = {SSRN 3213954},
-  year         = {2018},
-  doi          = {10.2139/ssrn.3213954}
+% verified 2026-10-09: californialawreview.org article page (vol. 107, December 2019) and its PDF (pp. 1753-1820,
+% "liar's dividend" in the text); the DOI resolves via DataCite to the Berkeley Law record. Earlier SSRN posting: 10.2139/ssrn.3213954.
+@article{chesney19_deepfakes,
+  author  = {Chesney, Robert and Citron, Danielle Keats},
+  title   = {Deep Fakes: A Looming Challenge for Privacy, Democracy, and National Security},
+  journal = {California Law Review},
+  volume  = {107},
+  pages   = {1753--1820},
+  year    = {2019},
+  doi     = {10.15779/Z38RV0D15J}
 }
 
 % ---- channels, codecs ---------------------------------------------------------
@@ -372,7 +390,7 @@
 }
 
 @article{bolle04_subsets,
-  author  = {Bolle, R. and Ratha, N. and Pankanti, S.},
+  author  = {Bolle, Ruud M. and Ratha, Nalini K. and Pankanti, Sharath},
   title   = {Error Analysis of Pattern Recognition Systems---the Subsets Bootstrap},
   journal = {Comput. Vis. Image Underst.},
   volume  = {93},
@@ -383,7 +401,7 @@
 }
 
 @article{field07_boot,
-  author  = {Field, C. and Welsh, A.},
+  author  = {Field, C. A. and Welsh, A. H.},
   title   = {Bootstrapping Clustered Data},
   journal = {J. Roy. Statist. Soc. Ser. B},
   volume  = {69},
@@ -394,7 +412,7 @@
 }
 
 @article{nosek18_prereg,
-  author  = {Nosek, B. and Ebersole, C. and DeHaven, A. and Mellor, D.},
+  author  = {Nosek, Brian A. and Ebersole, Charles R. and DeHaven, Alexander C. and Mellor, David T.},
   title   = {The Preregistration Revolution},
   journal = {Proc. Natl. Acad. Sci. USA},
   volume  = {115},
@@ -406,7 +424,7 @@
 
 % ---- supplement only -------------------------------------------------------------------
 @article{drummond06_costcurves,
-  author  = {Drummond, C. and Holte, R.},
+  author  = {Drummond, Chris and Holte, Robert C.},
   title   = {Cost Curves: An Improved Method for Visualizing Classifier Performance},
   journal = {Machine Learning},
   volume  = {65},
@@ -496,7 +514,7 @@
 }
 @misc{iso30107_3,
   author       = {{ISO/IEC JTC 1/SC 37}},
-  title        = {{ISO/IEC} 30107-3:2023 Information technology -- Biometric presentation attack detection -- Part 3: Testing and reporting},
+  title        = {{ISO/IEC 30107-3:2023 Information technology -- Biometric presentation attack detection -- Part 3: Testing and reporting}},
   howpublished = {International Organization for Standardization},
   year         = {2023}
 }

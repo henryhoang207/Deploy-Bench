@@ -84,7 +84,7 @@ Each CM maps a clip \(x\) to a score \(s(x)\), higher meaning more bona fide, an
 threshold is fixed on the source development set of the model's training data. \(\tauE\) is the crossing of dev FRR and
 FAR, estimated by linear interpolation between adjacent unique dev scores. \(\tauF{1}\) and \(\tauF{5}\) are the strictest
 thresholds whose dev FRR stays within 1\% and 5\%, and \(\tauA{1}\) and \(\tauA{5}\) the most lenient thresholds whose dev
-FAR stays within 1\% and 5\% (BPCER at a fixed APCER in ISO/IEC 30107-3 terms). On a target, \(\frr(\tau)\) is the share of
+FAR stays within 1\% and 5\%, which correspond to BPCER at a fixed APCER in ISO/IEC 30107-3 terms \citep{iso30107_3}. On a target, \(\frr(\tau)\) is the share of
 bona fide clips declared spoof (BPCER), \(\far(\tau)\) the share of spoofs accepted (APCER), and
 \(\hter(\tau)=\tfrac12[\frr(\tau)+\far(\tau)]\) \citep{bengio04_hter}. For a transferred threshold \(\tau^{*}\),
 \begin{equation}
@@ -137,7 +137,7 @@ LA19 dev. Last column: dev bona fide trials below, and dev spoof trials at or ab
 \end{table}
 
 % src: PREREGISTRATION.md; DEVIATIONS.md DEV-2 and DEV-8; revision/results/g_docs.json; revision/paper/main.tex
-The targets are the LA19 evaluation set (71,237 trials; 11 of 13 attacks unseen), In-the-Wild (31,779 clips of public
+The targets \citep{wang20_asvspoof2019,muller22_in_the_wild,liu23_asvspoof2021} are the LA19 evaluation set (71,237 trials; 11 of 13 attacks unseen), In-the-Wild (31,779 clips of public
 figures with 54 distinct speaker labels in its metadata), a verified subset of ASVspoof~2021 DF (455,508 trials; libFLAC~1.4
 rejects 43\% of the public evaluation files and for 78,420 of them the only working decode fails the file's own MD5, so we
 exclude those), and an EnCodec stress set: 1,000 LA19-eval clips (500 per class, all 67 speakers) resynthesised at 6\,kbps
@@ -145,7 +145,7 @@ exclude those), and an EnCodec stress set: 1,000 LA19-eval clips (500 per class,
 genuine) \citep{wang25_asvspoof5_db,xiao26_resynth}. The registered hypotheses were H2 (on ITW at \(\tauE\), FRR exceeds FAR
 for at least three of the four primary models) and H5 (EnCodec raises FRR more than FAR, relative to the clean copy, for
 at least three), tested by one-sided class-stratified bootstraps (B = 1,000) with Holm correction; because clips are nested
-in speakers, we added speaker-cluster bootstraps (B = 10,000) as a logged, exploratory deviation \citep{field07_boot,bolle04_subsets}. The resampling unit for H2 was specified after the descriptive ITW rates had been seen. H1 and H4 are exploratory and receive effect sizes and intervals rather than confirm/refute claims; their detailed results appear in the supplement.
+in speakers, we added speaker-cluster bootstraps (B = 10,000) as a logged, exploratory deviation \citep{bolle04_subsets,field07_boot}. The resampling unit for H2 was specified after the descriptive ITW rates had been seen. H1 and H4 are exploratory and receive effect sizes and intervals rather than confirm/refute claims; their detailed results appear in the supplement.
 The hypotheses were registered on 19~July 2026, amended in August and September, and frozen on 28~September 2026 before any
 ITW clip was scored; the frozen registration and the deviation log are in the repository. Two int8 hypotheses were also
 registered; neither was supported (H3 for lack of usable int8 models, H6 on a clause the quantizer could never meet), and the separate deployment study will report their analyses.
@@ -208,7 +208,7 @@ held-out spoofs for the primary models; and at \(\tauE\) on ITW a transferred de
 in narrow windows of bona fide priors (none for RawNet2).
 
 % src: results/phase_2_conversion_app/mlaad5/mlaad_report.json; results/phase_2_conversion_app/mlaad5/sample_rate_census.json; DEVIATIONS.md DEV-6.
-\emph{Multilingual transfer, descriptive.} The original checkpoints were also scored on MLAAD paired with M-AILABS
+\emph{Multilingual transfer, descriptive.} The original checkpoints were also scored on MLAAD \citep{mlaad24} paired with M-AILABS
 bona fide speech (Table~\ref{tab:r1mlaad}). EER spans 24.8--37.7\%, and FAR exceeds FRR for four of five checkpoints at
 \(\tauE\); Res-TSSDNet is the exception (FRR 60.78\%, FAR 18.42\%). Thus the FRR-dominant pattern on ITW and DF21 does
 not extend to this surface. Every spoof file is native 22.05\,kHz, whereas 98.2\% of bona fide files are native

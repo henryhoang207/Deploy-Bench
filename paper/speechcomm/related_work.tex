@@ -25,8 +25,8 @@ ratios across applications.
 
 % src: bib:wang20_asvspoof2019
 The ASVspoof challenges provide a complementary evaluation lineage. ASVspoof~2019 and ASVspoof~2021 report EER and
-minimum tandem detection cost, with t-DCF assessing a countermeasure together with an ASV system
-\citep{wang20_asvspoof2019,liu23_asvspoof2021,kinnunen18_tdcf}. The stand-alone detection track of ASVspoof~5 reports
+minimum tandem detection cost, with t-DCF assessing a countermeasure together with an ASV system; the 2021 deepfake
+(DF) track, which involves no ASV system, reports EER only \citep{kinnunen18_tdcf,wang20_asvspoof2019,liu23_asvspoof2021}. The stand-alone detection track of ASVspoof~5 reports
 minimum DCF, actual DCF, and log-likelihood-ratio cost \citep{wang24_asvspoof5}. Its actual DCF uses a fixed Bayes
 threshold under an LLR interpretation of the submitted scores. This differs from transferring an empirical
 development threshold, but both protocols expose behavior that a threshold optimized on the target cannot reveal.
@@ -109,7 +109,7 @@ the treatment of genuine speech carried through a channel, rather than defining 
 % src: bib:mlaad24
 MLAAD expands evaluation beyond predominantly English benchmarks by providing synthetic speech across languages
 and synthesis architectures \citep{mlaad24}. Its distributed audio is synthetic; corresponding original human
-recordings are supplied by the M-AILABS source corpus. This distinction matters for threshold auditing: spoof-only
+recordings are supplied by the M-AILABS source corpus \citep{solak17_mailabs}. This distinction matters for threshold auditing: spoof-only
 data can measure attack acceptance at a frozen threshold, but cannot identify false rejection or a complete HTER.
 Language and synthesis coverage should therefore be reported separately from evidence about the operating rule on
 bona fide traffic. The audit fixes the dataset version and pairing protocol in its study design.

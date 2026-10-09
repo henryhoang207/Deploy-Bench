@@ -55,7 +55,7 @@ more bona fide, a clip is declared spoof if its score is below \(\tau\), \(\frr\
 % src: revision/paper/supplement.tex; revision/results/
 \section{Registration timeline and deviations}
 Table~\ref{tab:dev} lists the registration events and departures that touch the round-1 material here, with their dates and what had been seen
-when it was logged. The registration was frozen in version control at a tagged snapshot on 28~September 2026, and that snapshot and the deviation log are in the repository (\repo). The freeze date therefore rests on our own version control, not on a read-only, time-stamped record held by a third party (Nosek et al.\ \citep{nosek18_prereg} on the value of such a record). Every
+when it was logged. The registration was frozen in version control at a tagged snapshot on 28~September 2026, and that snapshot and the deviation log are in the repository (\repo). The freeze date therefore rests on our own version control, not on a read-only, time-stamped record held by a third party \citep[on the value of such a record, see][]{nosek18_prereg}. Every
 deviation after the freeze was written into a log before the analysis it governs was run, and registered results are never replaced: a
 deviation adds a labelled result beside them.
 
@@ -160,7 +160,7 @@ of ITW clips (genuine/spoof) inside the interval.}
 
 % src: revision/paper/supplement.tex; revision/results/
 \subsection{A threshold set on the evaluation set}
-Zhou and Wang \citep{zhou26_eer_hides} set the EER threshold on the labelled LA19 \emph{evaluation} scores. Table~\ref{tab:evalthr} applies
+\citet{zhou26_eer_hides} set the EER threshold on the labelled LA19 \emph{evaluation} scores. Table~\ref{tab:evalthr} applies
 that convention with our estimator. For the reference model the ITW FRR is 70.2\% (they report 78.7\% for an SSL-AASIST detector, whose checkpoint and preprocessing differ from ours in ways we cannot test), against 49.9\% at the dev threshold.
 
 % src: revision/paper/supplement.tex; revision/results/
@@ -282,7 +282,7 @@ It covers all 67 evaluation speakers (3 to 29 clips each, median 14) and all 13 
 spoofs each: A07 34, A08 32, A09 36, A10 41, A11 40, A12 47, A13 29, A14 28, A15 40, A16 34, A17 40, A18 46, A19 53). Table~\ref{tab:h5}
 gives the two components of the H5 statistic with speaker-cluster intervals. \(\Delta\frr>0\) and \(\Delta\far<0\) are both significant for
 all four models under Holm within each component's family. The convention for the label of the resynthesised bona fide clips, and its
-competing alternatives \citep{wu24_codecfake,xiao26_resynth,wang23_vocoded}, are discussed in the paper. Under the competing convention,
+competing alternatives \citep{wang23_vocoded,wu24_codecfake,xiao26_resynth}, are discussed in the paper. Under the competing convention,
 the \(\Delta\frr\) column would read as detections of resynthesised speech rather than as rejections of genuine speech. We did not run a second analysis under that convention.
 
 % src: revision/paper/supplement.tex; revision/results/
@@ -358,7 +358,7 @@ as mixed. For the reference, dev EER rises from 0.009\% before trimming to 1.49\
 of source separability and the operating point to non-speech removal, without identifying its training-time cause.
 
 % src: revision/paper/supplement.tex; revision/results/
-\emph{Comparison with M\"uller et al.} \citep{muller21_silence} report that a classifier using only leading-silence duration reaches 15.1\% EER
+\emph{Comparison with earlier silence work.} \citet{muller21_silence} report that a classifier using only leading-silence duration reaches 15.1\% EER
 on LA19 evaluation (ours: 17.5\% with a simple VAD at \(T=35\), 18.4\% at \(T=25\)) and that trimming silence before training raised EER from
 3.6\% to 15.5\% for an established model in their experiment. Their intervention retrains on trimmed audio, ours does not, so the numbers are not comparable, but the direction (EER rises when the cue is removed) agrees.
 
@@ -408,8 +408,7 @@ shipped threshold minus the held-out FRR at it.}
 % src: revision/paper/supplement.tex; revision/results/
 \section{Cost sweep, break-even and stability}
 Fig.~\ref{fig:cost} plots the normalised cost \(C(p)\) of the main paper's cost definition over the effective bona fide prior \(p\) (a cost curve in the sense
-of Drummond and Holte \citep{drummond06_costcurves}, and the application-independent view of Br\"ummer and du Preez
-\citep{brummer06_calibration}) at \(\tauE\), with the target-oracle cost dotted and the two registered points marked. A detector helps where \(C<1\). Table~\ref{tab:cost} gives the window of priors for each policy, and the cost of the oracle threshold at the two registered points. For
+of \citealp{drummond06_costcurves}, and the application-independent view of \citealp{brummer06_calibration}) at \(\tauE\), with the target-oracle cost dotted and the two registered points marked. A detector helps where \(C<1\). Table~\ref{tab:cost} gives the window of priors for each policy, and the cost of the oracle threshold at the two registered points. For
 the screening model \(C=19\,\frr+\far\), so \(C<1\) requires \(\frr<(1-\far)/19\). At \(\tauE\) on ITW this is 3.1, 3.3, 1.6, 4.3 and 5.2\% for
 AASIST, AASIST-L, RawNet2, Res-TSSDNet and the reference, against FRR of 43.8, 50.6, 33.8, 50.3 and 49.9\% obtained. Table~\ref{tab:stab}
 gives, per target, policy and measure, the model with the largest gap in the point estimate and the share of 1,000 paired speaker-bootstrap replicates in which it is the largest. Table~\ref{tab:costsplit} splits the registered costs at \(\tauE\) into the cost of the target-oracle threshold (discrimination) and the remainder (transfer). On ITW under screening the oracle costs 0.86--1.00 and the remainder, 6.10--8.99, is transfer: the transferred threshold sits far from the accept-almost-everything point that a 0.95 prior favours, although even the best threshold barely beats the trivial system. The share of the excess that is transfer therefore depends on the cost model; at equal costs it is 2--11\% for the primary models on ITW. Under the forensic model the reference's transfer part on ITW is 0.07.
