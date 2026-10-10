@@ -269,3 +269,11 @@ def test_pascu_tiles_only_clips_shorter_than_the_xlsr_receptive_field():
     assert _tile_to_min(np.arange(400, dtype=np.float32)).shape == (400,)
     with pytest.raises(ValueError):
         _tile_to_min(np.zeros(0, dtype=np.float32))
+
+
+def test_round1_models_have_no_as5_scores_and_refuse_loudly():
+    """r2_explore's have() skips a (model, surface) pair through SystemExit; a KeyError crashed E7 (2026-10-10)."""
+    import r2lib as R
+    with pytest.raises(SystemExit):
+        R.r1_path("aasist", "as5_eval")
+    assert R.r1_path("aasist", "itw").name == "scores_fp32_pytorch_itw.csv"
