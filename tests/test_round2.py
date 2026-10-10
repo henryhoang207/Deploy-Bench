@@ -255,3 +255,17 @@ def test_platt_fit_is_not_used_for_e9_because_it_does_not_converge():
     assert a20 * 20 == pytest.approx(a1, rel=1e-3)
     assert abs(platt_fit(s, y)[0] - a1) > 0.05
     assert abs(platt_fit(20 * s, y, n_iter=20000)[0] * 20 - a1) > 0.2
+
+
+def test_pascu_tiles_only_clips_shorter_than_the_xlsr_receptive_field():
+    """DEV-9 amendment 5: a clip under 400 samples is repeated to exactly 400 (fix_length's tiling); others untouched."""
+    from models.wrap_pascu import MIN_SAMPLES, _tile_to_min
+    assert MIN_SAMPLES == 400
+    x = np.arange(185, dtype=np.float32)
+    y = _tile_to_min(x)
+    assert len(y) == 400 and np.array_equal(y, np.tile(x, 3)[:400])
+    z = np.arange(557, dtype=np.float32)
+    assert _tile_to_min(z) is z
+    assert _tile_to_min(np.arange(400, dtype=np.float32)).shape == (400,)
+    with pytest.raises(ValueError):
+        _tile_to_min(np.zeros(0, dtype=np.float32))

@@ -1,11 +1,12 @@
-"""DEV-9 amendment 4: rerun pascu_lr on MLAAD-5 once, unchanged, on a GPU without a training run.
+"""DEV-9 amendments 4 and 5: rerun pascu_lr on MLAAD-5 on a GPU without a training run (amendment 5: the attempt with
+the short-clip tiling in models/wrap_pascu.py; logs r2_pascu_mlaad5_a5*.log).
 
 Waits until every one of the eleven AASIST-L runs has started (the training queue is empty) and a GPU carries no
 train/aasist_r2_train.py process and has >= 20 GB free, then scores there with the registered settings (whole utterance, batch 1, fp32) plus
 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True. Output: results/round2/scores/pascu_lr/s0/mlaad5.csv (via .partial).
 Ends with PASCU_MLAAD5_DONE or PASCU_MLAAD5_FAILED. Run from the clone (envs/r2 python):
 
-    setsid nohup /mnt/data8tb/henry/envs/r2/bin/python -B ../xfer/r2_pascu_mlaad5_rerun.py > ../logs/r2_pascu_mlaad5_rerun.log 2>&1 &
+    setsid nohup /mnt/data8tb/henry/envs/r2/bin/python -B ../xfer/r2_pascu_mlaad5_rerun.py > ../logs/r2_pascu_mlaad5_a5.log 2>&1 &
 """
 import datetime
 import os
@@ -47,6 +48,8 @@ def main():
         sys.exit("REFUSED: the clone does not contain tag round2-freeze")
     if "_flac_read_verified" not in open("score.py").read():
         sys.exit("REFUSED: score.py lacks the verified FLAC decoder")
+    if "_tile_to_min" not in open("models/wrap_pascu.py").read():
+        sys.exit("REFUSED: models/wrap_pascu.py lacks the short-clip tiling of DEV-9 amendment 5")
     if os.path.exists(OUT):
         print(f"{OUT} exists; nothing to do", flush=True)
         return
@@ -64,13 +67,13 @@ def main():
     cmd = [f"{H}/envs/r2/bin/python", "-B", "score.py", "--model", "pascu_lr", "--checkpoint",
            f"{H}/r2_runs/pascu/head_train.npz", "--dataset", "mlaad", "--device", "cuda", "--batch", "1",
            "--progress", "50000", "--out", OUT + ".partial"]
-    with open(f"{H}/logs/r2_pascu_lr_mlaad5_rerun_score.log", "w") as fh:
+    with open(f"{H}/logs/r2_pascu_lr_mlaad5_a5_score.log", "w") as fh:
         rc = subprocess.run(cmd, env=env, stdout=fh, stderr=subprocess.STDOUT).returncode
     if rc == 0:
         os.replace(OUT + ".partial", OUT)
         print(f"PASCU_MLAAD5_DONE {now()}", flush=True)
     else:
-        print(f"PASCU_MLAAD5_FAILED rc={rc} {now()} (log {H}/logs/r2_pascu_lr_mlaad5_rerun_score.log)", flush=True)
+        print(f"PASCU_MLAAD5_FAILED rc={rc} {now()} (log {H}/logs/r2_pascu_lr_mlaad5_a5_score.log)", flush=True)
 
 
 if __name__ == "__main__":

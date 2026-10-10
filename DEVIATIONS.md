@@ -475,3 +475,24 @@ Pascu's MLAAD-5 is reported as missing: MLAAD-5 enters only E5 (exploratory), so
 **Seen when written:** the failure log and the MLAAD-5 clip durations; no score.
 
 *Operational note (2026-10-09, before the rerun started):* another user's training job (7.5 GB) appeared on GPU 0. The rerun now also waits for at least 20 GB free on the chosen GPU (was 16), so that the ~15-GB peak of the longest clips has room. This only delays the start; nothing in the scoring changes.
+
+### DEV-9 amendment 5 (2026-10-10, after the amendment-4 rerun failed; no MLAAD-5 score of Pascu exists)
+**What happened.** The amendment-4 rerun of pascu_lr on MLAAD-5 started at 06:36 on GPU 0 (no training run there) and
+stopped at 10:12, after about 145,000 clips, with `RuntimeError: Calculated padded input size per channel: (1). Kernel
+size: (2)`. A clip shorter than the receptive field of the XLS-R convolutional feature encoder (400 samples at 16 kHz)
+cannot pass that stack, so the whole-utterance rule cannot score it. Two of the 494,853 MLAAD-5 clips are that short,
+both zonosTTS-v0.1 spoofs of 256 samples at 22.05 kHz (185 samples at 16 kHz, 11.6 ms):
+`mlaad__fake_en_zonosTTS-v0.1_the_sea_fairies_16_f000070` and `mlaad__fake_fr_zonosTTS-v0.1_lupin_contre_holmes_14_f000164`.
+The next shortest clip has 557 samples and scores normally. The other models never meet this limit, because their
+fixed-length input repeats a short clip (`score.fix_length`). Amendment 4 said Pascu's MLAAD-5 would be reported missing
+if its rerun failed; this failure is deterministic rather than a resource problem, and the author chose this amendment
+instead (2026-10-10).
+
+**Amendment.** Pascu keeps the whole-utterance rule, except that a clip shorter than 400 samples is repeated to exactly
+400 samples (`np.tile`, then cut: the tiling `fix_length` applies for every fixed-length model), and the wrapper logs each
+such clip (`models/wrap_pascu.py`, `_tile_to_min`). Only those two clips are affected: no clip that Pascu has already
+scored or been fitted on (LA19 train, dev and eval; ITW; DF21; the stress set) is that short, because any such clip would
+have stopped those runs. The task is rerun once, on a GPU without a training run and with at least 20 GB free, as in
+amendment 4. If it fails again, Pascu's MLAAD-5 is reported missing (E5 only).
+
+**Seen when written:** the failure log and the lengths of the shortest MLAAD-5 clips; no score.
