@@ -8,10 +8,13 @@ TAG=${1:?interim or final}
 H=/mnt/data8tb/henry; cd $H/deploybench
 export DATA_ROOT=$H/data/deepfake OMP_NUM_THREADS=8 MKL_NUM_THREADS=8
 PY="nice $H/envs/db310/bin/python -B"
+# E9 needs scikit-learn (DEV-9 amendment 2), installed in envs/r2 only; both envs have numpy 1.23.5, so the
+# bootstrap draws are the same in either
+PYX="nice $H/envs/r2/bin/python -B"
 step() { echo "[$1] start $(date -Is)"; shift; if "$@"; then echo "[step] ok $(date -Is)"; else echo "W4_STEP_FAILED: $* $(date -Is)"; fi; }
 if [ "$TAG" = interim ]; then
   step gates $PY analysis/round2/r2_gates.py --xlsr-mamba-ref vendor/XLSR-Mamba/Scores/DF/Bmamba3_LA_WCE_1e-06_ES144_NE12.txt --runs-dir $H/r2_runs
   step registered $PY analysis/round2/r2_registered.py
 fi
-step explore $PY analysis/round2/r2_explore.py --b 1000
+step explore $PYX analysis/round2/r2_explore.py --b 1000
 echo "W4_RUN_DONE $TAG $(date -Is)"
