@@ -1,0 +1,17 @@
+{
+ "model": "as5_aasist",
+ "seed": 0,
+ "source": "as5_dev",
+ "dev_scores_file": "results/round2/scores/as5_aasist/s0/as5_dev.csv",
+ "dev_scores_sha256": "ecaa7a8ba45f444bf0801544d14ac26b56a13d912d726415f2ff5a565c0762dc",
+ "n_bona": 31334,
+ "n_spoof": 109616,
+ "dev_eer": 0.15200335717413516,
+ "taus": {
+  "eer": 7.528118885845846,
+  "frr1": 4.4543776512146,
+  "frr5": 6.2009968757629395,
+  "far1": 14.50342845916748,
+  "far5": 12.38094425201416
+ }
+}

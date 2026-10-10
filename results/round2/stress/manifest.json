@@ -1,0 +1,20 @@
+{
+  "created": "2026-10-07T03:40:16+00:00",
+  "source_dataset": "asvspoof19_eval",
+  "n_utts": 1000,
+  "ids_sha256": "2a3c8964169856262344c68737fc96ea74814d6f874d8f9a2eb7e4303f902792",
+  "conditions": [
+    "clean",
+    "opus6k",
+    "opus24k",
+    "amr4.75",
+    "mp3_32",
+    "snr20",
+    "snr10",
+    "snr5",
+    "mic_ir"
+  ],
+  "musan": "/mnt/data8tb/henry/data/stress_sources/musan",
+  "ir": "/mnt/data8tb/henry/data/stress_sources/ir_air_phone",
+  "ffmpeg": "ffmpeg version 7.0.2-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2000-2024 the FFmpeg developers"
+}

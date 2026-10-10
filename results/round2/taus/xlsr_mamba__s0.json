@@ -1,0 +1,17 @@
+{
+ "model": "xlsr_mamba",
+ "seed": 0,
+ "source": "la19_dev",
+ "dev_scores_file": "results/round2/scores/xlsr_mamba/s0/la19_dev.csv",
+ "dev_scores_sha256": "232a948a2ca1995897789118e4bf3ad0da81aadb279843c9d38b50ae367c0dc6",
+ "n_bona": 2548,
+ "n_spoof": 22296,
+ "dev_eer": 0.00031395766056696583,
+ "taus": {
+  "eer": -1.507597277144768,
+  "frr1": 3.259793519973755,
+  "frr5": 4.660078048706055,
+  "far1": -4.485067367553711,
+  "far5": -4.750593185424805
+ }
+}

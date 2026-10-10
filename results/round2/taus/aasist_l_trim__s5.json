@@ -1,0 +1,17 @@
+{
+ "model": "aasist_l_trim",
+ "seed": 5,
+ "source": "la19_dev",
+ "dev_scores_file": "results/round2/scores/aasist_l_trim/s5/la19_dev.csv",
+ "dev_scores_sha256": "11145e53f391e5531a1a585e0a61432e1d7dfadf1987c8f25319cd2943715223",
+ "n_bona": 2548,
+ "n_spoof": 22296,
+ "dev_eer": 0.02063150340868314,
+ "taus": {
+  "eer": 0.22560289986551846,
+  "frr1": -1.3548513650894165,
+  "frr5": 2.2156879901885986,
+  "far1": 2.550642728805542,
+  "far5": -2.4967358112335205
+ }
+}
