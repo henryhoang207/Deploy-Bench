@@ -496,3 +496,5 @@ have stopped those runs. The task is rerun once, on a GPU without a training run
 amendment 4. If it fails again, Pascu's MLAAD-5 is reported missing (E5 only).
 
 **Seen when written:** the failure log and the lengths of the shortest MLAAD-5 clips; no score.
+
+*Correction (2026-10-11, after the rerun):* the two clips are 186 samples after resampling to 16 kHz (`resample_poly` gives ceil(256 x 16000 / 22050) = 186), not 185, and the amendment-4 rerun stopped at the first of them, protocol position 142,798 of 494,853, not "about 145,000". The amendment-5 rerun (2026-10-10 19:51 to 2026-10-11 09:20) logged exactly these two clips ("a clip of 186 samples is repeated to 400") and wrote all 494,853 scores.

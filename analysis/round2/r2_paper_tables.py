@@ -125,13 +125,14 @@ def t_seeds(e23, gates):
     runs = (gates or {}).get("runs", {})
     L = head("analysis/r2_explore.json (E2_E3), gates.json (runs)",
              "rates in %, TTG in pp, at tau_eer from each run's own LA19 dev; SWA = recipe snapshots averaged; "
-             "last = last-epoch weights (E3; identical to swa for the trimmed arm)")
-    L += [r"\begin{tabular}{@{}llrrrrrrrrr@{}}", r"\toprule",
+             "last = last-epoch weights (E3; identical to swa for the trimmed arm, so its Last columns are --); "
+             "the trimmed arm never reached dev EER <= 1%, so R2-H3 compares SWA models with last-epoch models")
+    L += [r"\begin{tabular}{@{}llrrrrrrrrrr@{}}", r"\toprule",
           r"Arm & Seed & SWA & Dev EER & LA19 EER & LA19 TTG & ITW EER & ITW FRR & ITW TTG & Last: LA19 TTG & "
-          r"Last: ITW TTG \\", r"\midrule"]
+          r"Last: ITW TTG & Last: ITW FRR \\", r"\midrule"]
     rel = e23["released_aasist_l"]
     L.append(rf"Released AASIST-L & -- & -- & -- & {pct(rel['la19_eval']['eer'], 2)} & {pct(rel['la19_eval']['ttg'], 2)} & "
-             rf"{pct(rel['itw']['eer'])} & {pct(rel['itw']['frr'])} & {pct(rel['itw']['ttg'], 2)} & -- & -- \\")
+             rf"{pct(rel['itw']['eer'])} & {pct(rel['itw']['frr'])} & {pct(rel['itw']['ttg'], 2)} & -- & -- & -- \\")
     for arm, name in (("aasist_l_r2", "As released"), ("aasist_l_trim", "Trimmed")):
         L.append(r"\addlinespace")
         rows = e23.get(arm, {})
@@ -141,11 +142,12 @@ def t_seeds(e23, gates):
             lt = last.get(k, {})
             l_la = pct(lt["la19_eval|eer"]["ttg"], 2) if arm == "aasist_l_r2" and "la19_eval|eer" in lt else "--"
             l_it = pct(lt["itw|eer"]["ttg"], 2) if arm == "aasist_l_r2" and "itw|eer" in lt else "--"
+            l_fr = pct(lt["itw|eer"]["frr"]) if arm == "aasist_l_r2" and "itw|eer" in lt else "--"
             seed = f"{k}" + (r"$^\dagger$" if k == "1234" else "")
             L.append(rf"{name} & {seed} & {'--' if n_swa is None else n_swa} & {pct(v['dev_eer'], 2)} & "
                      rf"{pct(v['la19_eval|eer']['eer'], 2)} & {pct(v['la19_eval|eer']['ttg'], 2)} & "
                      rf"{pct(v['itw|eer']['eer'])} & {pct(v['itw|eer']['frr'])} & {pct(v['itw|eer']['ttg'], 2)} & "
-                     rf"{l_la} & {l_it} \\")
+                     rf"{l_la} & {l_it} & {l_fr} \\")
     L += [r"\bottomrule", r"\end{tabular}"]
     write("r2_seeds", L)
 
