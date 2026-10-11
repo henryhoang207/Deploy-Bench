@@ -7,6 +7,7 @@ as5_aasist    as5_eval      EER  28.1  tau_eer: FRR  25.6 FAR  30.1 TTG  0.27 [0
 pascu_lr      la19_eval     EER   0.7  tau_eer: FRR   0.0 FAR   3.8 TTG  1.32 [1.08, 1.56] share 0.69  tie FRR 0.0-0.0  frr1->FRR   0.3  far5->FAR  18.0
 pascu_lr      itw           EER   7.7  tau_eer: FRR  19.9 FAR   2.5 TTG  3.59 [1.64, 7.60] share 0.32  tie FRR 28.5-17.7  frr1->FRR  44.3  far5->FAR  24.2
 pascu_lr      df21_verified EER   3.0  tau_eer: FRR  10.3 FAR   0.7 TTG  2.51 [1.03, 4.33] share 0.46  tie FRR 16.1-9.2  frr1->FRR  29.2  far5->FAR   8.4
+pascu_lr      mlaad5        EER  42.8  tau_eer: FRR  84.2 FAR  23.8 TTG 15.73 [12.56, 19.41] share 0.29  tie FRR 94.3-80.0  frr1->FRR  99.3  far5->FAR  60.0
 xlsr_mamba    la19_eval     EER   0.2  tau_eer: FRR   0.0 FAR   1.3 TTG  0.51 [0.40, 0.65] share 0.76  tie FRR 0.0-0.0  frr1->FRR   0.5  far5->FAR  16.7
 xlsr_mamba    itw           EER   9.2  tau_eer: FRR  41.5 FAR   0.8 TTG 11.96 [9.04, 16.79] share 0.57  tie FRR 50.8-19.4  frr1->FRR  86.1  far5->FAR  23.5
 xlsr_mamba    df21_verified EER   1.6  tau_eer: FRR   4.9 FAR   0.5 TTG  1.17 [0.35, 2.37] share 0.43  tie FRR 7.5-1.3  frr1->FRR  29.9  far5->FAR   7.1
@@ -48,6 +49,7 @@ aasist_l_trim s5    opus6k: +52.4/-28.2  opus24k:  +0.6/ -0.6  amr4.75: +95.2/-4
 
 == E5 MLAAD-5 by language (tau_eer); sample-rate confound: every spoof 22.05 kHz, 98.1% of bona fide 16 kHz
 as5_aasist   de: FRR 55.7 FAR 22.8  en: FRR 73.2 FAR 18.1  fr: FRR 77.6 FAR 15.7  it: FRR 73.1 FAR 17.1  pl: FRR 68.4 FAR 22.7
+pascu_lr     de: FRR 84.9 FAR 18.5  en: FRR 78.8 FAR 26.0  fr: FRR 80.2 FAR 31.2  it: FRR 94.0 FAR 16.1  pl: FRR 92.3 FAR 17.5
 xlsr_mamba   de: FRR 18.1 FAR 51.4  en: FRR 14.2 FAR 52.1  fr: FRR  1.5 FAR 65.3  it: FRR 13.4 FAR 42.0  pl: FRR 14.5 FAR 45.3
 
 == E6 ASVspoof 5 eval by condition (as5_aasist, tau from AS5 dev; C00 = no codec, the channel-matched subset)
@@ -77,6 +79,7 @@ as5_aasist    as5_eval      review  26.1% (bona  31.2) auto-rej bona  13.1%  aut
 pascu_lr      la19_eval     review  20.6% (bona  34.8) auto-rej bona   0.0%  auto-acc spoof   0.0% | label-free review 10.0% auto-rej bona   0.0% | error-budget rule COLLAPSES
 pascu_lr      itw           review  64.6% (bona  87.3) auto-rej bona   2.1%  auto-acc spoof   0.0% | label-free review 10.0% auto-rej bona  12.9% | error-budget rule COLLAPSES
 pascu_lr      df21_verified review  10.9% (bona  79.9) auto-rej bona   0.8%  auto-acc spoof   0.0% | label-free review  8.1% auto-rej bona   1.4% | error-budget rule COLLAPSES
+pascu_lr      mlaad5        review  71.4% (bona  85.0) auto-rej bona  15.0%  auto-acc spoof   0.2% | label-free review 10.0% auto-rej bona  77.1% | error-budget rule COLLAPSES
 xlsr_mamba    la19_eval     review  20.3% (bona  43.3) auto-rej bona   0.0%  auto-acc spoof   0.0% | label-free review 10.0% auto-rej bona   0.0% | error-budget rule COLLAPSES
 xlsr_mamba    itw           review  71.1% (bona  98.2) auto-rej bona   1.8%  auto-acc spoof   0.0% | label-free review 10.0% auto-rej bona  33.8% | error-budget rule COLLAPSES
 xlsr_mamba    df21_verified review   9.3% (bona  73.1) auto-rej bona   0.1%  auto-acc spoof   0.0% | label-free review  8.0% auto-rej bona   0.2% | error-budget rule COLLAPSES
@@ -111,6 +114,7 @@ as5_aasist    as5_eval      platt a=0.404 b=-4.103; at pi=0.5 act 0.552 min 0.55
 pascu_lr      la19_eval     platt a=0.485 b=1.928; at pi=0.5 act 0.036 min 0.012
 pascu_lr      itw           platt a=0.485 b=1.928; at pi=0.5 act 0.232 min 0.152
 pascu_lr      df21_verified platt a=0.485 b=1.928; at pi=0.5 act 0.115 min 0.060
+pascu_lr      mlaad5        platt a=0.485 b=1.928; at pi=0.5 act 1.087 min 0.765
 xlsr_mamba    la19_eval     platt a=2.300 b=0.831; at pi=0.5 act 0.012 min 0.003
 xlsr_mamba    itw           platt a=2.300 b=0.831; at pi=0.5 act 0.442 min 0.184
 xlsr_mamba    df21_verified platt a=2.300 b=0.831; at pi=0.5 act 0.058 min 0.031
