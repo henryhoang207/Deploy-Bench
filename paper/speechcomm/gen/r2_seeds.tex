@@ -2,7 +2,9 @@
 % rates in %, TTG in pp, at tau_eer from each run's own LA19 dev; SWA = recipe snapshots averaged; best dev = lowest per-epoch dev EER (epochs.jsonl); final dev = dev EER of the scored model; last = last-epoch weights (E3; identical to swa for the trimmed arm, so its Last columns are --); the trimmed arm never reached dev EER <= 1%, so R2-H3 compares SWA models with last-epoch models
 \begin{tabular}{@{}llrrrrrrrrrrr@{}}
 \toprule
-Arm & Seed & SWA & Best dev & Final dev & LA19 EER & LA19 TTG & ITW EER & ITW FRR & ITW TTG & Last: LA19 TTG & Last: ITW TTG & Last: ITW FRR \\
+ & & & \multicolumn{2}{c}{Dev EER} & \multicolumn{2}{c}{LA19 eval} & \multicolumn{3}{c}{ITW} & \multicolumn{3}{c}{Last-epoch weights} \\
+\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-10}\cmidrule(l){11-13}
+Arm & Seed & SWA & best & final & EER & TTG & EER & FRR & TTG & LA19 TTG & ITW TTG & ITW FRR \\
 \midrule
 Released AASIST-L & -- & -- & -- & -- & 0.99 & 4.64 & 44.5 & 50.6 & 1.55 & -- & -- & -- \\
 \addlinespace

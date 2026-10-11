@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -49,9 +50,14 @@ def pct(x, d=1):
     return "--" if x is None else f"{100 * x:.{d}f}"
 
 
+def minus(line):
+    """Typeset a negative number's sign as a minus, not a hyphen (comment lines untouched; never inside \\( \\))."""
+    return line if line.startswith("%") else re.sub(r"(?<=[ /\[])-(?=\d)", "$-$", line)
+
+
 def write(name, lines):
     GEN.mkdir(parents=True, exist_ok=True)
-    (GEN / f"{name}.tex").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    (GEN / f"{name}.tex").write_text("\n".join(minus(x) for x in lines) + "\n", encoding="utf-8")
     print(f"wrote gen/{name}.tex")
 
 
@@ -101,7 +107,8 @@ def t_tests(r):
     L = head("analysis/r2_registered.json", "R2-H1: FRR-FAR at tau_frr1 / FAR-FRR at tau_far5 on ITW (pp); R2-H2: LA19-eval "
              "TTG at tau_eer per seed (pp); R2-H3: trimmed minus untrimmed run means (pp), exact permutation p over 252 "
              "splits; R2-H4: models rejecting per condition; * = Holm rejection (B = 10000 speaker-cluster bootstrap)")
-    L += [r"\begin{tabular}{@{}lll@{}}", r"\toprule", r"Hypothesis & Per unit & Outcome \\", r"\midrule"]
+    L += [r"\begin{tabular}{@{}p{0.17\textwidth}p{0.60\textwidth}p{0.17\textwidth}@{}}", r"\toprule",
+          r"Hypothesis & Per unit & Outcome \\", r"\midrule"]
     h1 = r["R2-H1"]
     per = "; ".join(
         (f"{NICE[m]}: {pct(v['frr1']['frr_minus_far_pp'] / 100, 1)}/{pct(v['far5']['far_minus_frr_pp'] / 100, 1)}"
@@ -115,10 +122,14 @@ def t_tests(r):
     h3 = r["R2-H3"]
     if h3.get("evaluable"):
         t = h3["tests"]
-        per = (f"dev EER {t['a_dev_eer_higher_when_trimmed']['diff_pp']:+.2f} (p={t['a_dev_eer_higher_when_trimmed']['p']:.3f}); "
-               f"ITW FRR {-t['b_itw_frr_lower_when_trimmed']['diff_pp']:+.2f} (p={t['b_itw_frr_lower_when_trimmed']['p']:.3f}); "
-               f"ITW EER {-t['c_itw_eer_lower_when_trimmed']['diff_pp']:+.2f} (p={t['c_itw_eer_lower_when_trimmed']['p']:.3f})")
-        out = "; ".join(k[0] + (" yes" if v.get("holm_reject") else " no") for k, v in t.items() if "holm_reject" in v)
+        per = (f"dev EER {t['a_dev_eer_higher_when_trimmed']['diff_pp']:+.2f} (p = {t['a_dev_eer_higher_when_trimmed']['p']:.3f}, "
+               f"manipulation check); "
+               f"ITW FRR {-t['b_itw_frr_lower_when_trimmed']['diff_pp']:+.2f} (p = {t['b_itw_frr_lower_when_trimmed']['p']:.3f})"
+               + (r"$^\ast$" if t["b_itw_frr_lower_when_trimmed"].get("holm_reject") else "") + "; "
+               f"ITW EER {-t['c_itw_eer_lower_when_trimmed']['diff_pp']:+.2f} (p = {t['c_itw_eer_lower_when_trimmed']['p']:.3f})"
+               + (r"$^\ast$" if t["c_itw_eer_lower_when_trimmed"].get("holm_reject") else ""))
+        out = ("FRR " + ("supported" if t["b_itw_frr_lower_when_trimmed"].get("holm_reject") else "not supported") + "; EER "
+               + ("supported" if t["c_itw_eer_lower_when_trimmed"].get("holm_reject") else "not supported"))
         L.append(rf"R2-H3 trimmed $-$ untrimmed & {per} & {out} \\")
     else:
         L.append(r"R2-H3 trimmed $-$ untrimmed & -- & not evaluable \\")
@@ -156,8 +167,10 @@ def t_seeds(e23, gates):
              "last = last-epoch weights (E3; identical to swa for the trimmed arm, so its Last columns are --); "
              "the trimmed arm never reached dev EER <= 1%, so R2-H3 compares SWA models with last-epoch models")
     L += [r"\begin{tabular}{@{}llrrrrrrrrrrr@{}}", r"\toprule",
-          r"Arm & Seed & SWA & Best dev & Final dev & LA19 EER & LA19 TTG & ITW EER & ITW FRR & ITW TTG & Last: LA19 TTG & "
-          r"Last: ITW TTG & Last: ITW FRR \\", r"\midrule"]
+          r" & & & \multicolumn{2}{c}{Dev EER} & \multicolumn{2}{c}{LA19 eval} & \multicolumn{3}{c}{ITW} & "
+          r"\multicolumn{3}{c}{Last-epoch weights} \\",
+          r"\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-10}\cmidrule(l){11-13}",
+          r"Arm & Seed & SWA & best & final & EER & TTG & EER & FRR & TTG & LA19 TTG & ITW TTG & ITW FRR \\", r"\midrule"]
     rel = e23["released_aasist_l"]
     L.append(rf"Released AASIST-L & -- & -- & -- & -- & {pct(rel['la19_eval']['eer'], 2)} & {pct(rel['la19_eval']['ttg'], 2)} & "
              rf"{pct(rel['itw']['eer'])} & {pct(rel['itw']['frr'])} & {pct(rel['itw']['ttg'], 2)} & -- & -- & -- \\")
@@ -257,9 +270,13 @@ def t_threezone(e7, surfaces, name):
     L = head("analysis/r2_explore.json (E7)", "10% dev review budget centred in rank on tau_eer; % of target clips; "
              "label-free: the same 10% re-anchored on the target's unlabelled scores; error-budget rule: review band "
              "[tau_frr1, tau_far1), which collapses when the two cross on near-separable dev")
-    L += [r"\begin{tabular}{@{}llrrrrrrl@{}}", r"\toprule",
-          r"Model & Target & Review & Review (genuine) & Genuine auto-rej. & Spoof auto-acc. & "
-          r"Label-free review & Label-free genuine auto-rej. & Error-budget rule \\", r"\midrule"]
+    tcol = len(surfaces) > 1                   # one-target tables (ITW) name the target in the caption instead
+    L += [r"\begin{tabular}{@{}l" + ("l" if tcol else "") + r"rrrrrrl@{}}", r"\toprule",
+          (r" & " if tcol else "") + r" & \multicolumn{4}{c}{Band designed on dev} & \multicolumn{2}{c}{Label-free} & "
+          r"Error-budget \\",
+          (r"\cmidrule(lr){3-6}\cmidrule(lr){7-8}" if tcol else r"\cmidrule(lr){2-5}\cmidrule(lr){6-7}"),
+          r"Model & " + (r"Target & " if tcol else "") + r"Review & Gen.\ in review & Gen.\ rej. & Spoof acc. & Review & "
+          r"Gen.\ rej. & rule \\", r"\midrule"]
     for m in MODELS8:
         for surf in surfaces:
             c = e7.get(f"{m}|{surf}")
@@ -267,7 +284,8 @@ def t_threezone(e7, surfaces, name):
                 continue
             d, f, eb = c["0.1"]["dev"], c["0.1"]["label_free"], c["error_budget"]
             ebs = "collapses" if eb["collapse"] else f"review {pct(eb['review_pooled'])}"
-            L.append(rf"{NICE[m]} & {SURF[surf]} & {pct(d['review_pooled'])} & {pct(d['review_bona'])} & "
+            L.append(rf"{NICE[m]} & " + (rf"{SURF[surf]} & " if tcol else "") + rf"{pct(d['review_pooled'])} & "
+                     rf"{pct(d['review_bona'])} & "
                      rf"{pct(d['bona_auto_rejected'])} & {pct(d['spoof_auto_accepted'])} & {pct(f['review_pooled'])} & "
                      rf"{pct(f['bona_auto_rejected'])} & {ebs} \\")
     L += [r"\bottomrule", r"\end{tabular}"]
