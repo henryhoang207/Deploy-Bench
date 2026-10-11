@@ -1,0 +1,7 @@
+{
+ "n_swa_update": 8,
+ "best_dev_eer_pct": 0.5881231767361247,
+ "swa_sha256": "379ea2ae145b074a47026266193322801ab1984ee0018c777af60934d6677939",
+ "last_sha256": "69778d76276cb965e53343db5adacaa57e6294b74f58db19c13f024f3f94fb3b",
+ "final_model": "swa.pth = SWA of the dev-selected snapshots"
+}

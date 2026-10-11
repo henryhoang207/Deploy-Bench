@@ -82,11 +82,14 @@ def read_scores(p: Path):
 def r1_path(model: str, surface: str) -> Path:
     if surface.startswith("stress_"):
         return R2_SCORES / model / "s0" / f"{surface}.csv"
-    return {"la19_dev": P1 / f"scores_dev_{model}.csv",
-            "la19_eval": P1 / f"scores_repro_{model}.csv",
-            "itw": MM / model / "scores_fp32_pytorch_itw.csv",
-            "df21_verified": MM / model / "scores_fp32_pytorch_df21_verified.csv",
-            "mlaad5": ML / model / "scores_fp32_pytorch_mlaad.csv"}[surface]
+    paths = {"la19_dev": P1 / f"scores_dev_{model}.csv",
+             "la19_eval": P1 / f"scores_repro_{model}.csv",
+             "itw": MM / model / "scores_fp32_pytorch_itw.csv",
+             "df21_verified": MM / model / "scores_fp32_pytorch_df21_verified.csv",
+             "mlaad5": ML / model / "scores_fp32_pytorch_mlaad.csv"}
+    if surface not in paths:                 # e.g. as5_eval: a target for as5_aasist only (D24, D54)
+        die(f"{model}: round 1 has no {surface} scores")
+    return paths[surface]
 
 
 def score_path(model: str, surface: str, seed: int = 0) -> Path:

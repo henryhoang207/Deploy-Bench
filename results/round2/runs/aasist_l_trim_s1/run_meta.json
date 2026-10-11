@@ -1,0 +1,24 @@
+{
+ "seed": 1,
+ "trim": "vad35",
+ "smoke": false,
+ "config": "/mnt/data8tb/henry/deploybench/vendor/aasist/config/AASIST-L.conf",
+ "config_sha256": "9e2e2610b2260b421bf2083646dde4747a6a5cdd138015066d83bc61b6b214cf",
+ "vendor_main_sha256": "ac920ce8f5eb66e02ce40ff0ee4d3d5cf3b94c24a03c4e2e4c04726f64917b3e",
+ "torch": "2.2.1+cu118",
+ "cuda": "11.8",
+ "gpu": "NVIDIA GeForce RTX 4090",
+ "host": "sol1",
+ "n_train": 25380,
+ "n_dev": 24844,
+ "trim_counts": {
+  "train": {
+   "trimmed": 25380
+  },
+  "dev": {
+   "trimmed": 24843,
+   "none": 1
+  }
+ },
+ "nb_params": 85306
+}

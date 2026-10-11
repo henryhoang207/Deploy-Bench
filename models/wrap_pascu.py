@@ -6,7 +6,8 @@ re-implemented here, not vendored:
   - audio: soundfile at 16 kHz (their data.py load_audio asserts sr == 16000); 16-bit samples are exact in float32, so
     score.load_wav gives the values their float64 read casts to float32 inside the feature extractor;
   - features: AutoFeatureExtractor + Wav2Vec2Model('facebook/wav2vec2-xls-r-2b'), the WHOLE utterance, one clip per call,
-    no padding or truncation; feature = last_hidden_state.squeeze(0).mean(0) (scripts/extract_features.py);
+    no padding or truncation (round 2's one exception, DEV-9 amendment 5: a clip under 400 samples, the encoder's
+    receptive field, is repeated to 400); feature = last_hidden_state.squeeze(0).mean(0) (scripts/extract_features.py);
   - classifier: sklearn LogisticRegression(C=1e6, max_iter=5000) with label 1 = FAKE (scripts/linear_classifier.py);
     their Table 2 fits it on LA19 train + dev (evaluate_feature_type.py SPLITS).
 Round 2 refits the classifier on LA19 TRAIN ONLY (train/pascu_fit.py) so that LA19 dev stays a held-out threshold
@@ -20,6 +21,19 @@ from .base import VENDOR
 
 _BACKBONE = VENDOR / "wav2vec2-xls-r-2b"
 SR = 16000
+#: the XLS-R convolutional feature encoder's receptive field: a shorter clip yields no frame (DEV-9 amendment 5)
+MIN_SAMPLES = 400
+
+
+def _tile_to_min(w, n=MIN_SAMPLES):
+    """A clip shorter than n samples repeated to exactly n (score.fix_length's tiling), else the clip itself.
+    DEV-9 amendment 5: two 185-sample MLAAD-5 spoofs cannot pass the encoder whole; nothing else Pascu scores is
+    that short."""
+    if len(w) >= n:
+        return w
+    if len(w) == 0:
+        raise ValueError("pascu_lr: empty clip")
+    return np.tile(w, int(np.ceil(n / len(w))))[:n]
 
 
 class _Wrap:
@@ -38,6 +52,10 @@ class _Wrap:
         w = np.asarray(wave, dtype=np.float32)
         if w.ndim != 1:
             raise ValueError("pascu_lr scores one whole utterance at a time (1-D input)")
+        if len(w) < MIN_SAMPLES:
+            print(f"pascu_lr: a clip of {len(w)} samples is repeated to {MIN_SAMPLES} (DEV-9 amendment 5)",
+                  flush=True)
+            w = _tile_to_min(w)
         inputs = self.fe(w, sampling_rate=SR, return_tensors="pt")
         inputs = {k: v.to(self.device) for k, v in inputs.items()}
         with t.no_grad():

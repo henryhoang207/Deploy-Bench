@@ -1,0 +1,34 @@
+== R2-H1  the policy sets the direction (ITW; B = 10000, seed 0, Holm over 6)
+as5_aasist   tau_frr1: FRR  37.7 FAR  16.7 [+5.1, +35.4] p=0.0059 Holm True | tau_far5: FRR  99.8 FAR   0.1 [-99.9, -99.4] p=1.0000 Holm False -> supports: False
+pascu_lr     tau_frr1: FRR  44.3 FAR   0.5 [+32.5, +61.7] p=0.0001 Holm True | tau_far5: FRR   2.3 FAR  24.2 [+15.3, +27.9] p=0.0001 Holm True -> supports: True
+xlsr_mamba   tau_frr1: FRR  86.1 FAR   0.2 [+81.3, +90.8] p=0.0001 Holm True | tau_far5: FRR   2.2 FAR  23.5 [+12.7, +31.9] p=0.0001 Holm True -> supports: True
+-> 2 of 3 detectors support; R2-H1 SUPPORTED (needs 2)
+
+== R2-H2  LA19-eval TTG > 1 pp across retraining (aasist_l_r2 seeds (1, 2, 3, 4, 5); B = 10000)
+seed 1: TTG  1.19 pp [0.88, 1.55] p=0.0979 Holm False | EER 1.63% HTER 2.76% share 0.43
+seed 2: TTG  3.49 pp [2.88, 4.16] p=0.0001 Holm True | EER 1.20% HTER 4.65% share 0.75
+seed 3: TTG  4.25 pp [3.57, 4.93] p=0.0001 Holm True | EER 1.07% HTER 5.30% share 0.80
+seed 4: TTG  2.82 pp [2.34, 3.34] p=0.0001 Holm True | EER 1.36% HTER 4.17% share 0.68
+seed 5: TTG  1.71 pp [1.38, 2.12] p=0.0001 Holm True | EER 1.25% HTER 2.96% share 0.58
+-> 4 of 5 runs reject H0 (TTG <= 1 pp); R2-H2 SUPPORTED (needs 4)
+
+== R2-H3  silence-trimmed training (aasist_l_trim, n = 5) vs aasist_l_r2 (n = 5); exact permutation
+a_dev_eer_higher_when_trimmed      diff  +2.00 pp  p = 0.0040 (252 splits)  (manipulation check)
+b_itw_frr_lower_when_trimmed       diff +18.33 pp  p = 0.0040 (252 splits)  Holm True
+c_itw_eer_lower_when_trimmed       diff  -1.99 pp  p = 0.8810 (252 splits)  Holm False
+
+== R2-H4  H5 generalised: dFRR - dFAR > 0 at tau_eer, four primary models, per condition (B = 10000)
+opus6k   aasist: +55.0/-10.2 p=0.0001*  aasist_l: +69.0/-12.2 p=0.0001*  rawnet2: +39.8/-13.0 p=0.0001*  tssdnet: +68.0/ -4.4 p=0.0001*  -> 4/4, supported
+opus24k  aasist:  +0.0/ -3.0 p=0.0007*  aasist_l:  +0.2/ -1.6 p=0.0298*  rawnet2:  +0.0/ -2.6 p=0.0001*  tssdnet:  +1.0/ -0.8 p=0.0033*  -> 4/4, supported
+amr4.75  aasist: +89.6/-10.0 p=0.0001*  aasist_l: +92.0/-12.0 p=0.0001*  rawnet2: +79.6/-13.4 p=0.0001*  tssdnet: +76.6/ -4.0 p=0.0001*  -> 4/4, supported
+mp3_32   aasist:  +0.0/ -1.2 p=0.1577  aasist_l:  +0.2/ +0.4 p=0.6031  rawnet2:  +0.0/ -3.4 p=0.0001*  tssdnet:  +0.0/ +3.8 p=1.0000  -> 1/4, not supported
+snr20    aasist:  +4.0/ -2.8 p=0.0001*  aasist_l:  +3.6/ +0.0 p=0.0065*  rawnet2:  -0.2/ +1.8 p=0.9992  tssdnet:  +5.4/+27.2 p=1.0000  -> 2/4, not supported
+snr10    aasist: +41.2/ -8.4 p=0.0001*  aasist_l: +47.6/ -7.2 p=0.0001*  rawnet2:  +7.4/ +8.6 p=0.7030  tssdnet:  +9.4/+30.8 p=1.0000  -> 2/4, not supported
+snr5     aasist: +69.6/ -8.0 p=0.0001*  aasist_l: +73.8/ -7.6 p=0.0001*  rawnet2: +20.0/+22.2 p=0.7844  tssdnet: +21.0/+28.8 p=0.9759  -> 2/4, not supported
+mic_ir   aasist: +35.4/ -9.0 p=0.0001*  aasist_l: +37.8/ -9.4 p=0.0001*  rawnet2: +16.4/ -7.6 p=0.0001*  tssdnet: +51.2/ +3.6 p=0.0001*  -> 4/4, supported
+-> R2-H4 holds for 4 of 8 conditions (per condition: at least 3 of 4 models)
+
+== R2-RL  reading rule for limitation (a) (ITW, tau_eer; descriptive, fixed in advance)
+as5_aasist   ITW EER  27.6%  share 0.32  tie-interval FRR span  25.9 pp -> discrimination-limited
+pascu_lr     ITW EER   7.7%  share 0.32  tie-interval FRR span  10.8 pp -> transfer-limited
+xlsr_mamba   ITW EER   9.2%  share 0.57  tie-interval FRR span  31.4 pp -> transfer-limited

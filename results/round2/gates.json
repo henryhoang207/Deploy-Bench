@@ -1,0 +1,160 @@
+{
+ "as5_aasist": {
+  "passed": true,
+  "eer_pct": 15.200335717413516,
+  "published_pct": 15.2,
+  "range_pct": [
+   12.92,
+   17.479999999999997
+  ],
+  "summary": "AS5 dev EER 15.20% vs 15.2% -> PASS"
+ },
+ "xlsr_mamba": {
+  "passed": true,
+  "n_overlap": 455508,
+  "eer_ours_pct": 1.6173515755196322,
+  "eer_theirs_pct": 1.8314411204110383,
+  "range_pct": [
+   1.5567249523493825,
+   2.106157288472694
+  ],
+  "abs_diff_max": 7.763860464096069,
+  "abs_diff_median": 7.343292236328125e-05,
+  "pearson": 0.9852550234140323,
+  "summary": "DF21 overlap n=455508: EER ours 1.62% vs theirs 1.83% -> PASS"
+ },
+ "pascu_lr": {
+  "passed": true,
+  "gate_model": "pascu_lr_gate (LA19 train + dev)",
+  "eer_pct": 0.5635390250774863,
+  "published_pct": 0.6,
+  "range_pct": [
+   0.51,
+   0.69
+  ],
+  "summary": "pipeline head LA19-eval EER 0.56% vs 0.6% -> PASS"
+ },
+ "runs": {
+  "aasist_l_r2_s1": {
+   "finished": true,
+   "n_swa_update": 8,
+   "best_dev_eer_pct": 0.5881231767361247,
+   "swa_sha256": "379ea2ae145b074a47026266193322801ab1984ee0018c777af60934d6677939",
+   "last_sha256": "69778d76276cb965e53343db5adacaa57e6294b74f58db19c13f024f3f94fb3b",
+   "final_model": "swa.pth = SWA of the dev-selected snapshots",
+   "epochs": 100,
+   "dev_eer_last_pct": 0.6677356294840533,
+   "nan_loss": false
+  },
+  "aasist_l_r2_s1234": {
+   "finished": true,
+   "n_swa_update": 10,
+   "best_dev_eer_pct": 0.510753278706531,
+   "swa_sha256": "f57c5fc2a84316745bda445c72651ae964de34440f97b78a02ab4c750f7595d4",
+   "last_sha256": "fdee2531ef41745098c1e0966e1736b74e11f9dcaf8a2152ff0fd5c7f1e76ce7",
+   "final_model": "swa.pth = SWA of the dev-selected snapshots",
+   "epochs": 100,
+   "dev_eer_last_pct": 0.8247179802615755,
+   "nan_loss": false
+  },
+  "aasist_l_r2_s2": {
+   "finished": true,
+   "n_swa_update": 2,
+   "best_dev_eer_pct": 0.7451055275136469,
+   "swa_sha256": "7a2e8fb303e6f102684547bb49933acf8c617f9fd28bee8a73c614b3a3f5e681",
+   "last_sha256": "ae482a88e19596b7b2cd16fd8e995444bb8ff2a32e3908a45b4205e5056f9695",
+   "final_model": "swa.pth = SWA of the dev-selected snapshots",
+   "epochs": 100,
+   "dev_eer_last_pct": 1.0590702290686913,
+   "nan_loss": false
+  },
+  "aasist_l_r2_s3": {
+   "finished": true,
+   "n_swa_update": 12,
+   "best_dev_eer_pct": 0.43114082595860237,
+   "swa_sha256": "05230701ddfdd84f0e18ffe78bf6471f9379d7fde4c563892381f016ee6c3775",
+   "last_sha256": "fabfc96f648563ca8431b1a663614331406580c2899813fe7365cc7922aac713",
+   "final_model": "swa.pth = SWA of the dev-selected snapshots",
+   "epochs": 100,
+   "dev_eer_last_pct": 0.5505595050804954,
+   "nan_loss": false
+  },
+  "aasist_l_r2_s4": {
+   "finished": true,
+   "n_swa_update": 1,
+   "best_dev_eer_pct": 0.59485084089113,
+   "swa_sha256": "1c5abd2482734dda9debbf84eebdff893f17561039f933a0447fa9c6f582cd0a",
+   "last_sha256": "d427ac32450214840c1999fdc7f0c40d6245cf91b3638778a8c201bcb09a5b46",
+   "final_model": "swa.pth = SWA of the dev-selected snapshots",
+   "epochs": 100,
+   "dev_eer_last_pct": 1.288937368439137,
+   "nan_loss": false
+  },
+  "aasist_l_r2_s5": {
+   "finished": true,
+   "n_swa_update": 6,
+   "best_dev_eer_pct": 0.4709470523325667,
+   "swa_sha256": "fbe15fdd5c02914674371151f34c24051cceb4eb2948de6ada8a29b3ce745dab",
+   "last_sha256": "639bff93f8c5027e40c5d20482160351cd0c8d8b4f7c0d4ff982268ededa8190",
+   "final_model": "swa.pth = SWA of the dev-selected snapshots",
+   "epochs": 100,
+   "dev_eer_last_pct": 0.8247179802615755,
+   "nan_loss": false
+  },
+  "aasist_l_trim_s1": {
+   "finished": true,
+   "n_swa_update": 0,
+   "best_dev_eer_pct": 1.0,
+   "swa_sha256": "7c262a717986ad992f9df61e73eb136e2fc8b2e1b409541530e6de5789f14754",
+   "last_sha256": "8df4bb2987dc00c6bb8c7b671cb22bacd4cc77947816692af368be20553e698d",
+   "final_model": "swa.pth = last epoch (no epoch reached dev EER <= 1%, so the recipe never updated SWA)",
+   "epochs": 100,
+   "dev_eer_last_pct": 2.940615883680623,
+   "nan_loss": false
+  },
+  "aasist_l_trim_s2": {
+   "finished": true,
+   "n_swa_update": 0,
+   "best_dev_eer_pct": 1.0,
+   "swa_sha256": "afb6f373d23ef7069f70b51caec9bbae8bbcaf0aa2c8df5d1016d6ea44857f40",
+   "last_sha256": "1c4ca780124386349f04fe599c51554c994d748c1180805cd239a0890590ca1f",
+   "final_model": "swa.pth = last epoch (no epoch reached dev EER <= 1%, so the recipe never updated SWA)",
+   "epochs": 100,
+   "dev_eer_last_pct": 3.3319504832652616,
+   "nan_loss": false
+  },
+  "aasist_l_trim_s3": {
+   "finished": true,
+   "n_swa_update": 0,
+   "best_dev_eer_pct": 1.0,
+   "swa_sha256": "ee43dd448bbaf5ce24f5eddb10e60ce9a2b1ef37d615254a70c189f9329d84a0",
+   "last_sha256": "358089c3582e36035224fadc9c4941eaf65175701da3727ba71a34bd2ababc47",
+   "final_model": "swa.pth = last epoch (no epoch reached dev EER <= 1%, so the recipe never updated SWA)",
+   "epochs": 100,
+   "dev_eer_last_pct": 2.1977529108853116,
+   "nan_loss": false
+  },
+  "aasist_l_trim_s4": {
+   "finished": true,
+   "n_swa_update": 0,
+   "best_dev_eer_pct": 1.0,
+   "swa_sha256": "24094e457da08b4fb2de02da039a9597c88f345bbbf22f5cb9aff105526122b8",
+   "last_sha256": "63a5390617ddae2a883bbb660cf2e0484f62bff1f97de58823dec06abb70d4a8",
+   "final_model": "swa.pth = last epoch (no epoch reached dev EER <= 1%, so the recipe never updated SWA)",
+   "epochs": 100,
+   "dev_eer_last_pct": 2.752797525402477,
+   "nan_loss": false
+  },
+  "aasist_l_trim_s5": {
+   "finished": true,
+   "n_swa_update": 0,
+   "best_dev_eer_pct": 1.0,
+   "swa_sha256": "b02fc538b4becfa9f626b6deade80718a059d6731e67d1421207a13bc5d0f203",
+   "last_sha256": "d2ad31e3703acbaa6fc4476846e25bc90390a6677aa4ef6aca850028c26b302b",
+   "final_model": "swa.pth = last epoch (no epoch reached dev EER <= 1%, so the recipe never updated SWA)",
+   "epochs": 100,
+   "dev_eer_last_pct": 2.071606567608413,
+   "nan_loss": false
+  }
+ }
+}

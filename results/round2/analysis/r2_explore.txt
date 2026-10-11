@@ -1,0 +1,141 @@
+== E1 operating behaviour (five policies; TTG with a speaker-cluster 95% interval, B = 1000) + E8 + E10
+as5_aasist    la19_eval     EER  34.2  tau_eer: FRR   6.5 FAR  53.1 TTG  0.27 [0.06, 0.81] share 0.01  tie FRR 6.5-1.1  frr1->FRR   0.5  far5->FAR   8.2
+as5_aasist    itw           EER  27.6  tau_eer: FRR  79.9 FAR   0.6 TTG 13.03 [8.10, 18.62] share 0.32  tie FRR 79.9-54.0  frr1->FRR  37.7  far5->FAR   0.1
+as5_aasist    df21_verified EER  26.2  tau_eer: FRR  15.3 FAR  36.1 TTG  0.08 [0.01, 0.61] share 0.00  tie FRR 15.3-3.2  frr1->FRR   1.1  far5->FAR   2.1
+as5_aasist    mlaad5        EER  37.4  tau_eer: FRR  69.9 FAR  18.7 TTG  8.33 [6.01, 11.01] share 0.19  tie FRR 69.9-34.0  frr1->FRR  17.3  far5->FAR   0.8
+as5_aasist    as5_eval      EER  28.1  tau_eer: FRR  25.6 FAR  30.1 TTG  0.27 [0.18, 0.43] share 0.01  tie FRR 25.6-5.3  frr1->FRR   1.4  far5->FAR   0.9
+pascu_lr      la19_eval     EER   0.7  tau_eer: FRR   0.0 FAR   3.8 TTG  1.32 [1.08, 1.56] share 0.69  tie FRR 0.0-0.0  frr1->FRR   0.3  far5->FAR  18.0
+pascu_lr      itw           EER   7.7  tau_eer: FRR  19.9 FAR   2.5 TTG  3.59 [1.64, 7.60] share 0.32  tie FRR 28.5-17.7  frr1->FRR  44.3  far5->FAR  24.2
+pascu_lr      df21_verified EER   3.0  tau_eer: FRR  10.3 FAR   0.7 TTG  2.51 [1.03, 4.33] share 0.46  tie FRR 16.1-9.2  frr1->FRR  29.2  far5->FAR   8.4
+pascu_lr      mlaad5        EER  42.8  tau_eer: FRR  84.2 FAR  23.8 TTG 15.73 [12.56, 19.41] share 0.29  tie FRR 94.3-80.0  frr1->FRR  99.3  far5->FAR  60.0
+xlsr_mamba    la19_eval     EER   0.2  tau_eer: FRR   0.0 FAR   1.3 TTG  0.51 [0.40, 0.65] share 0.76  tie FRR 0.0-0.0  frr1->FRR   0.5  far5->FAR  16.7
+xlsr_mamba    itw           EER   9.2  tau_eer: FRR  41.5 FAR   0.8 TTG 11.96 [9.04, 16.79] share 0.57  tie FRR 50.8-19.4  frr1->FRR  86.1  far5->FAR  23.5
+xlsr_mamba    df21_verified EER   1.6  tau_eer: FRR   4.9 FAR   0.5 TTG  1.17 [0.35, 2.37] share 0.43  tie FRR 7.5-1.3  frr1->FRR  29.9  far5->FAR   7.1
+xlsr_mamba    mlaad5        EER  30.3  tau_eer: FRR  12.4 FAR  52.2 TTG  2.05 [0.21, 4.97] share 0.06  tie FRR 16.4-5.7  frr1->FRR  53.1  far5->FAR  84.5
+
+== E2 seed spread (LA19 eval / ITW at tau_eer) and E3 last-epoch comparison
+aasist_l_r2         la19_eval TTG over seeds 1-5: mean 2.69 pp, range 1.19-4.25; FRR range 0.2-0.4%  (released AASIST-L: TTG 4.64, FRR 0.1%)
+aasist_l_r2         itw       TTG over seeds 1-5: mean 6.51 pp, range 2.90-12.11; FRR range 24.7-43.8%  (released AASIST-L: TTG 1.55, FRR 50.6%)
+aasist_l_r2         dev EER over seeds 1-5: 0.64, 0.75, 0.55, 0.61, 0.74 %
+aasist_l_trim       la19_eval TTG over seeds 1-5: mean 2.24 pp, range 1.74-2.89; FRR range 1.2-2.3%  (released AASIST-L: TTG 4.64, FRR 0.1%)
+aasist_l_trim       itw       TTG over seeds 1-5: mean 10.82 pp, range 7.54-13.81; FRR range 11.0-20.6%  (released AASIST-L: TTG 1.55, FRR 50.6%)
+aasist_l_trim       dev EER over seeds 1-5: 2.94, 3.33, 2.20, 2.76, 2.06 %
+aasist_l_r2_last    la19_eval TTG over seeds 1-5: mean 7.59 pp, range 2.42-12.92; FRR range 0.2-0.3%  (released AASIST-L: TTG 4.64, FRR 0.1%)
+aasist_l_r2_last    itw       TTG over seeds 1-5: mean 10.49 pp, range 8.71-12.24; FRR range 14.8-32.9%  (released AASIST-L: TTG 1.55, FRR 50.6%)
+aasist_l_r2_last    dev EER over seeds 1-5: 0.67, 1.06, 0.55, 1.28, 0.82 %
+aasist_l_trim_last  la19_eval TTG over seeds 1-5: mean 2.24 pp, range 1.74-2.89; FRR range 1.2-2.3%  (released AASIST-L: TTG 4.64, FRR 0.1%)
+aasist_l_trim_last  itw       TTG over seeds 1-5: mean 10.82 pp, range 7.54-13.81; FRR range 11.0-20.6%  (released AASIST-L: TTG 1.55, FRR 50.6%)
+aasist_l_trim_last  dev EER over seeds 1-5: 2.94, 3.33, 2.20, 2.76, 2.06 %
+
+== E4 channel effects at tau_eer (dFRR, dFAR vs clean; speaker-cluster 95% intervals, B = 1000)
+aasist        s0    opus6k: +55.0/-10.2  opus24k:  +0.0/ -3.0  amr4.75: +89.6/-10.0  mp3_32:  +0.0/ -1.2  snr20:  +4.0/ -2.8  snr10: +41.2/ -8.4  snr5: +69.6/ -8.0  mic_ir: +35.4/ -9.0
+aasist_l      s0    opus6k: +69.0/-12.2  opus24k:  +0.2/ -1.6  amr4.75: +92.0/-12.0  mp3_32:  +0.2/ +0.4  snr20:  +3.6/ +0.0  snr10: +47.6/ -7.2  snr5: +73.8/ -7.6  mic_ir: +37.8/ -9.4
+rawnet2       s0    opus6k: +39.8/-13.0  opus24k:  +0.0/ -2.6  amr4.75: +79.6/-13.4  mp3_32:  +0.0/ -3.4  snr20:  -0.2/ +1.8  snr10:  +7.4/ +8.6  snr5: +20.0/+22.2  mic_ir: +16.4/ -7.6
+tssdnet       s0    opus6k: +68.0/ -4.4  opus24k:  +1.0/ -0.8  amr4.75: +76.6/ -4.0  mp3_32:  +0.0/ +3.8  snr20:  +5.4/+27.2  snr10:  +9.4/+30.8  snr5: +21.0/+28.8  mic_ir: +51.2/ +3.6
+xlsr_aasist   s0    opus6k: +99.4/ -0.2  opus24k:  +0.0/ +0.0  amr4.75: +99.0/ -0.2  mp3_32:  +1.4/ +0.0  snr20:  +0.2/ +0.6  snr10:  +2.8/ +0.6  snr5:  +6.8/ +0.4  mic_ir:  +2.4/ +1.6
+as5_aasist    s0    opus6k: +17.8/ -7.4  opus24k:  +3.6/ -3.2  amr4.75: +17.2/-12.6  mp3_32:  +4.0/ -1.6  snr20: +21.2/ -5.8  snr10: +35.2/ -9.4  snr5: +37.2/-12.4  mic_ir:  -1.6/+11.8  encodec6k:  +8.2/ -2.4
+pascu_lr      s0    opus6k: +98.8/ -5.2  opus24k:  +0.0/ -1.0  amr4.75: +92.0/ -5.2  mp3_32:  +0.4/ -2.0  snr20:  +4.0/ -0.4  snr10: +11.6/ +0.8  snr5: +17.4/ +1.2  mic_ir:  +7.2/ +2.4  encodec6k: +69.8/ -5.2
+xlsr_mamba    s0    opus6k: +99.0/ -1.4  opus24k:  +0.0/ -1.4  amr4.75: +97.6/ -1.4  mp3_32:  +0.2/ -1.4  snr20:  +0.6/ -1.0  snr10:  +2.2/ -0.8  snr5:  +5.2/ -1.0  mic_ir:  +0.8/ +7.0  encodec6k: +96.4/ -1.4
+aasist_l_r2   s1    opus6k: +39.8/ -4.8  opus24k:  +0.2/ -0.4  amr4.75: +87.8/ -5.4  mp3_32:  +0.2/ +2.8  snr20: +12.2/ -2.4  snr10: +63.8/ -4.8  snr5: +83.2/ -4.0  mic_ir: +19.4/ -1.4  encodec6k:  +2.2/ +0.8
+aasist_l_r2   s2    opus6k: +43.4/ -8.6  opus24k:  +0.4/ -2.2  amr4.75: +83.2/ -9.2  mp3_32:  +0.4/ +0.6  snr20:  +4.6/ -1.8  snr10: +50.0/ -6.2  snr5: +72.6/ -6.6  mic_ir: +29.0/ -6.8  encodec6k:  +5.6/ -4.2
+aasist_l_r2   s3    opus6k: +49.6/-10.6  opus24k:  +0.0/ -2.6  amr4.75: +92.2/-10.6  mp3_32:  -0.2/ +1.6  snr20:  +6.0/ +3.2  snr10: +44.6/ -2.2  snr5: +67.0/ -4.2  mic_ir: +22.0/ -5.8  encodec6k:  +4.4/ -5.0
+aasist_l_r2   s4    opus6k: +58.8/ -8.4  opus24k:  +0.0/ -1.2  amr4.75: +91.8/ -8.4  mp3_32:  +0.0/ +2.6  snr20:  +3.4/ +4.2  snr10: +33.6/ -3.2  snr5: +64.0/ -3.8  mic_ir: +28.0/ -5.6  encodec6k:  +5.0/ -3.0
+aasist_l_r2   s5    opus6k: +52.0/ -5.4  opus24k:  +0.4/ -1.0  amr4.75: +92.2/ -5.4  mp3_32:  +0.6/ -1.2  snr20:  +8.8/ -2.4  snr10: +68.8/ -4.6  snr5: +83.6/ -4.2  mic_ir: +42.4/ -4.4  encodec6k:  +8.0/ -2.6
+aasist_l_trim s1    opus6k: +51.2/-25.4  opus24k:  +1.4/ +0.2  amr4.75: +91.0/-43.8  mp3_32:  +0.4/ +4.2  snr20:  +1.6/ +5.8  snr10: +23.8/ -7.6  snr5: +42.0/-17.4  mic_ir: +29.4/ -7.4  encodec6k: +36.0/-16.2
+aasist_l_trim s2    opus6k: +48.8/-25.2  opus24k:  +0.8/ +0.4  amr4.75: +93.0/-44.6  mp3_32:  -0.4/ +5.0  snr20:  +1.4/ +6.4  snr10: +18.2/ -8.4  snr5: +28.0/ -9.6  mic_ir: +22.8/ -4.8  encodec6k: +39.6/-17.4
+aasist_l_trim s3    opus6k: +50.0/-23.8  opus24k:  +1.0/ -0.4  amr4.75: +94.6/-46.0  mp3_32:  +0.2/ +4.4  snr20:  +1.0/ +8.2  snr10: +22.4/ -8.8  snr5: +35.0/-15.6  mic_ir: +24.6/ -5.6  encodec6k: +38.0/-16.0
+aasist_l_trim s4    opus6k: +54.2/-27.4  opus24k:  +0.0/ -0.4  amr4.75: +83.6/-40.6  mp3_32:  -0.8/ +8.0  snr20:  +2.2/ +8.4  snr10: +12.4/ +1.8  snr5: +27.2/-10.4  mic_ir: +19.6/ +1.8  encodec6k: +37.8/-17.4
+aasist_l_trim s5    opus6k: +52.4/-28.2  opus24k:  +0.6/ -0.6  amr4.75: +95.2/-42.4  mp3_32:  -0.4/ +3.8  snr20:  +0.8/ +5.2  snr10: +21.8/-10.2  snr5: +39.2/-13.4  mic_ir: +28.6/ -9.4  encodec6k: +41.2/-22.8
+
+== E5 MLAAD-5 by language (tau_eer); sample-rate confound: every spoof 22.05 kHz, 98.1% of bona fide 16 kHz
+as5_aasist   de: FRR 55.7 FAR 22.8  en: FRR 73.2 FAR 18.1  fr: FRR 77.6 FAR 15.7  it: FRR 73.1 FAR 17.1  pl: FRR 68.4 FAR 22.7
+pascu_lr     de: FRR 84.9 FAR 18.5  en: FRR 78.8 FAR 26.0  fr: FRR 80.2 FAR 31.2  it: FRR 94.0 FAR 16.1  pl: FRR 92.3 FAR 17.5
+xlsr_mamba   de: FRR 18.1 FAR 51.4  en: FRR 14.2 FAR 52.1  fr: FRR  1.5 FAR 65.3  it: FRR 13.4 FAR 42.0  pl: FRR 14.5 FAR 45.3
+
+== E6 ASVspoof 5 eval by condition (as5_aasist, tau from AS5 dev; C00 = no codec, the channel-matched subset)
+   C00: n 171602  EER  22.4  FRR  11.6  FAR  30.1  TTG  0.03
+   C01: n  47253  EER  25.9  FRR  22.8  FAR  28.2  TTG  0.45
+   C02: n  47426  EER  27.2  FRR  24.6  FAR  28.7  TTG  0.98
+   C03: n  47987  EER  29.4  FRR  20.3  FAR  37.0  TTG  0.05
+   C04: n  47699  EER  29.2  FRR  13.3  FAR  43.9  TTG  0.53
+   C05: n  47541  EER  23.6  FRR  16.2  FAR  28.7  TTG  0.24
+   C06: n  41554  EER  24.4  FRR  18.1  FAR  29.6  TTG  0.03
+   C07: n  47348  EER  29.8  FRR  15.2  FAR  43.1  TTG  0.16
+   C08: n  46678  EER  35.5  FRR  47.0  FAR  28.5  TTG  4.25
+   C09: n  41599  EER  35.1  FRR  51.6  FAR  24.1  TTG  3.62
+   C10: n  47477  EER  36.4  FRR  65.9  FAR  15.9  TTG  5.45
+   C11: n  46610  EER  29.5  FRR  40.6  FAR  22.1  TTG  3.06
+   silence asvspoof5_dev|spoof: leading median 0.02 s (IQR 0.00-0.08), trailing median 0.01 s
+   silence asvspoof5_dev|bona: leading median 0.03 s (IQR 0.00-0.11), trailing median 0.01 s
+   silence asvspoof5_eval|spoof: leading median 0.03 s (IQR 0.00-0.07), trailing median 0.01 s
+   silence asvspoof5_eval|bona: leading median 0.03 s (IQR 0.00-0.07), trailing median 0.01 s
+
+== E7 three-zone policies (review band from source dev; primary budget 10% centred on tau_eer)
+as5_aasist    la19_eval     review  15.0% (bona  12.3) auto-rej bona   2.7%  auto-acc spoof  45.0% | label-free review 10.0% auto-rej bona   3.5% | error-budget rule band ok
+as5_aasist    itw           review  13.7% (bona  21.0) auto-rej bona  68.3%  auto-acc spoof   0.2% | label-free review 10.0% auto-rej bona  72.2% | error-budget rule band ok
+as5_aasist    df21_verified review  23.4% (bona  21.4) auto-rej bona   7.5%  auto-acc spoof  24.4% | label-free review 10.0% auto-rej bona  11.6% | error-budget rule band ok
+as5_aasist    mlaad5        review  23.2% (bona  32.0) auto-rej bona  52.6%  auto-acc spoof  11.1% | label-free review 10.0% auto-rej bona  63.0% | error-budget rule band ok
+as5_aasist    as5_eval      review  26.1% (bona  31.2) auto-rej bona  13.1%  auto-acc spoof  18.3% | label-free review 10.0% auto-rej bona  20.2% | error-budget rule band ok
+pascu_lr      la19_eval     review  20.6% (bona  34.8) auto-rej bona   0.0%  auto-acc spoof   0.0% | label-free review 10.0% auto-rej bona   0.0% | error-budget rule COLLAPSES
+pascu_lr      itw           review  64.6% (bona  87.3) auto-rej bona   2.1%  auto-acc spoof   0.0% | label-free review 10.0% auto-rej bona  12.9% | error-budget rule COLLAPSES
+pascu_lr      df21_verified review  10.9% (bona  79.9) auto-rej bona   0.8%  auto-acc spoof   0.0% | label-free review  8.1% auto-rej bona   1.4% | error-budget rule COLLAPSES
+pascu_lr      mlaad5        review  71.4% (bona  85.0) auto-rej bona  15.0%  auto-acc spoof   0.2% | label-free review 10.0% auto-rej bona  77.1% | error-budget rule COLLAPSES
+xlsr_mamba    la19_eval     review  20.3% (bona  43.3) auto-rej bona   0.0%  auto-acc spoof   0.0% | label-free review 10.0% auto-rej bona   0.0% | error-budget rule COLLAPSES
+xlsr_mamba    itw           review  71.1% (bona  98.2) auto-rej bona   1.8%  auto-acc spoof   0.0% | label-free review 10.0% auto-rej bona  33.8% | error-budget rule COLLAPSES
+xlsr_mamba    df21_verified review   9.3% (bona  73.1) auto-rej bona   0.1%  auto-acc spoof   0.0% | label-free review  8.0% auto-rej bona   0.2% | error-budget rule COLLAPSES
+xlsr_mamba    mlaad5        review  91.0% (bona  98.8) auto-rej bona   1.2%  auto-acc spoof   0.1% | label-free review 10.0% auto-rej bona   9.2% | error-budget rule COLLAPSES
+aasist        la19_eval     review  40.3% (bona  50.0) auto-rej bona   0.0%  auto-acc spoof   0.0% | label-free review 10.0% auto-rej bona   0.1% | error-budget rule COLLAPSES
+aasist        itw           review  86.9% (bona  86.8) auto-rej bona  13.2%  auto-acc spoof   0.0% | label-free review 10.0% auto-rej bona  39.7% | error-budget rule COLLAPSES
+aasist        df21_verified review  43.4% (bona  75.0) auto-rej bona   2.8%  auto-acc spoof   0.0% | label-free review 10.0% auto-rej bona   9.4% | error-budget rule COLLAPSES
+aasist        mlaad5        review  96.2% (bona  99.3) auto-rej bona   0.7%  auto-acc spoof   0.1% | label-free review 10.0% auto-rej bona   4.9% | error-budget rule COLLAPSES
+aasist_l      la19_eval     review  40.4% (bona  51.3) auto-rej bona   0.0%  auto-acc spoof   0.0% | label-free review 10.0% auto-rej bona   0.1% | error-budget rule COLLAPSES
+aasist_l      itw           review  84.1% (bona  85.1) auto-rej bona  14.9%  auto-acc spoof   0.0% | label-free review 10.0% auto-rej bona  46.2% | error-budget rule COLLAPSES
+aasist_l      df21_verified review  37.4% (bona  73.8) auto-rej bona   5.2%  auto-acc spoof   0.0% | label-free review 10.0% auto-rej bona  12.1% | error-budget rule COLLAPSES
+aasist_l      mlaad5        review  93.9% (bona  98.9) auto-rej bona   1.1%  auto-acc spoof   0.0% | label-free review 10.0% auto-rej bona   7.2% | error-budget rule COLLAPSES
+rawnet2       la19_eval     review  24.2% (bona  35.9) auto-rej bona   0.2%  auto-acc spoof   0.5% | label-free review 10.0% auto-rej bona   0.3% | error-budget rule COLLAPSES
+rawnet2       itw           review  88.8% (bona  86.2) auto-rej bona  13.7%  auto-acc spoof   0.0% | label-free review 10.0% auto-rej bona  29.1% | error-budget rule COLLAPSES
+rawnet2       df21_verified review  18.6% (bona  45.9) auto-rej bona  20.9%  auto-acc spoof   0.1% | label-free review 10.0% auto-rej bona  28.3% | error-budget rule COLLAPSES
+rawnet2       mlaad5        review  87.4% (bona  96.4) auto-rej bona   0.6%  auto-acc spoof   1.4% | label-free review 10.0% auto-rej bona   2.6% | error-budget rule COLLAPSES
+tssdnet       la19_eval     review  26.2% (bona  34.3) auto-rej bona   0.0%  auto-acc spoof   0.1% | label-free review 10.0% auto-rej bona   0.1% | error-budget rule COLLAPSES
+tssdnet       itw           review  66.1% (bona  77.4) auto-rej bona  22.4%  auto-acc spoof   0.0% | label-free review 10.0% auto-rej bona  45.1% | error-budget rule COLLAPSES
+tssdnet       df21_verified review  15.6% (bona  48.5) auto-rej bona  39.7%  auto-acc spoof   0.2% | label-free review 10.0% auto-rej bona  44.7% | error-budget rule COLLAPSES
+tssdnet       mlaad5        review  52.2% (bona  66.2) auto-rej bona  33.8%  auto-acc spoof   0.1% | label-free review 10.0% auto-rej bona  54.4% | error-budget rule COLLAPSES
+xlsr_aasist   la19_eval     review  24.3% (bona  52.6) auto-rej bona   0.0%  auto-acc spoof   0.0% | label-free review 10.0% auto-rej bona   0.0% | error-budget rule COLLAPSES
+xlsr_aasist   itw           review  63.1% (bona  91.4) auto-rej bona   7.7%  auto-acc spoof   0.0% | label-free review 10.0% auto-rej bona  42.1% | error-budget rule COLLAPSES
+xlsr_aasist   df21_verified review  10.3% (bona  68.5) auto-rej bona   0.5%  auto-acc spoof   0.0% | label-free review  7.4% auto-rej bona   0.9% | error-budget rule COLLAPSES
+xlsr_aasist   mlaad5        review  87.6% (bona  95.6) auto-rej bona   1.5%  auto-acc spoof   1.9% | label-free review 10.0% auto-rej bona  15.8% | error-budget rule COLLAPSES
+
+== E9 actual vs minimum normalised cost over priors (Platt on source dev, prior-corrected; logit(pi) -4..4)
+as5_aasist    la19_eval     platt a=0.404 b=-4.103; at pi=0.5 act 0.611 min 0.591
+as5_aasist    itw           platt a=0.404 b=-4.103; at pi=0.5 act 0.751 min 0.544
+as5_aasist    df21_verified platt a=0.404 b=-4.103; at pi=0.5 act 0.528 min 0.512
+as5_aasist    mlaad5        platt a=0.404 b=-4.103; at pi=0.5 act 0.843 min 0.720
+as5_aasist    as5_eval      platt a=0.404 b=-4.103; at pi=0.5 act 0.552 min 0.551
+pascu_lr      la19_eval     platt a=0.485 b=1.928; at pi=0.5 act 0.036 min 0.012
+pascu_lr      itw           platt a=0.485 b=1.928; at pi=0.5 act 0.232 min 0.152
+pascu_lr      df21_verified platt a=0.485 b=1.928; at pi=0.5 act 0.115 min 0.060
+pascu_lr      mlaad5        platt a=0.485 b=1.928; at pi=0.5 act 1.087 min 0.765
+xlsr_mamba    la19_eval     platt a=2.300 b=0.831; at pi=0.5 act 0.012 min 0.003
+xlsr_mamba    itw           platt a=2.300 b=0.831; at pi=0.5 act 0.442 min 0.184
+xlsr_mamba    df21_verified platt a=2.300 b=0.831; at pi=0.5 act 0.058 min 0.031
+xlsr_mamba    mlaad5        platt a=2.300 b=0.831; at pi=0.5 act 0.641 min 0.605
+aasist        la19_eval     platt a=1.639 b=-0.721; at pi=0.5 act 0.084 min 0.016
+aasist        itw           platt a=1.639 b=-0.721; at pi=0.5 act 0.845 min 0.798
+aasist        df21_verified platt a=1.639 b=-0.721; at pi=0.5 act 0.299 min 0.295
+aasist        mlaad5        platt a=1.639 b=-0.721; at pi=0.5 act 0.639 min 0.523
+aasist_l      la19_eval     platt a=1.520 b=-1.217; at pi=0.5 act 0.089 min 0.019
+aasist_l      itw           platt a=1.520 b=-1.217; at pi=0.5 act 0.856 min 0.841
+aasist_l      df21_verified platt a=1.520 b=-1.217; at pi=0.5 act 0.301 min 0.297
+aasist_l      mlaad5        platt a=1.520 b=-1.217; at pi=0.5 act 0.659 min 0.613
+rawnet2       la19_eval     platt a=1.101 b=4.485; at pi=0.5 act 0.113 min 0.085
+rawnet2       itw           platt a=1.101 b=4.485; at pi=0.5 act 1.017 min 0.919
+rawnet2       df21_verified platt a=1.101 b=4.485; at pi=0.5 act 0.394 min 0.381
+rawnet2       mlaad5        platt a=1.101 b=4.485; at pi=0.5 act 0.622 min 0.547
+tssdnet       la19_eval     platt a=0.470 b=1.179; at pi=0.5 act 0.053 min 0.032
+tssdnet       itw           platt a=0.470 b=1.179; at pi=0.5 act 0.696 min 0.678
+tssdnet       df21_verified platt a=0.470 b=1.179; at pi=0.5 act 0.594 min 0.544
+tssdnet       mlaad5        platt a=0.470 b=1.179; at pi=0.5 act 0.819 min 0.752
+xlsr_aasist   la19_eval     platt a=4.015 b=3.523; at pi=0.5 act 0.005 min 0.003
+xlsr_aasist   itw           platt a=4.015 b=3.523; at pi=0.5 act 0.527 min 0.204
+xlsr_aasist   df21_verified platt a=4.015 b=3.523; at pi=0.5 act 0.155 min 0.039
+xlsr_aasist   mlaad5        platt a=4.015 b=3.523; at pi=0.5 act 0.499 min 0.495

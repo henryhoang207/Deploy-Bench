@@ -1,0 +1,25 @@
+{
+ "splits": [
+  "train",
+  "dev"
+ ],
+ "n": 50224,
+ "n_fake": 45096,
+ "n_real": 5128,
+ "C": 1000000.0,
+ "max_iter": 5000,
+ "random_state": 0,
+ "solver": "lbfgs",
+ "n_iter": [
+  180
+ ],
+ "convergence_warnings": [],
+ "train_accuracy": 1.0,
+ "fit_s": 11.5,
+ "sklearn": "1.3.2",
+ "head_sha256": "bcf6eb3bb5ef1a118dea1929101bd1e62729355e463e0a4e19d01880b13f3e46",
+ "feature_sha256": {
+  "train": "c12f4334838328785b62fc1847071669e8ea7c16c5b0653ab9890100fee99582",
+  "dev": "93c3ba77b299a800a9602c685d2fcc905cc3c1ee30255cd051dd1325f0873b66"
+ }
+}

@@ -1,0 +1,7 @@
+{
+ "n_swa_update": 0,
+ "best_dev_eer_pct": 1.0,
+ "swa_sha256": "b02fc538b4becfa9f626b6deade80718a059d6731e67d1421207a13bc5d0f203",
+ "last_sha256": "d2ad31e3703acbaa6fc4476846e25bc90390a6677aa4ef6aca850028c26b302b",
+ "final_model": "swa.pth = last epoch (no epoch reached dev EER <= 1%, so the recipe never updated SWA)"
+}
