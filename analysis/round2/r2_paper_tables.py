@@ -107,7 +107,8 @@ def t_tests(r):
     L = head("analysis/r2_registered.json", "R2-H1: FRR-FAR at tau_frr1 / FAR-FRR at tau_far5 on ITW (pp); R2-H2: LA19-eval "
              "TTG at tau_eer per seed (pp); R2-H3: trimmed minus untrimmed run means (pp), exact permutation p over 252 "
              "splits; R2-H4: models rejecting per condition; * = Holm rejection (B = 10000 speaker-cluster bootstrap)")
-    L += [r"\begin{tabular}{@{}p{0.17\textwidth}p{0.60\textwidth}p{0.17\textwidth}@{}}", r"\toprule",
+    L += [r"\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.17\textwidth}>{\raggedright\arraybackslash}p{0.60\textwidth}"
+          r">{\raggedright\arraybackslash}p{0.17\textwidth}@{}}", r"\toprule",
           r"Hypothesis & Per unit & Outcome \\", r"\midrule"]
     h1 = r["R2-H1"]
     per = "; ".join(
