@@ -2,7 +2,9 @@
 % 10% dev review budget centred in rank on tau_eer; % of target clips; label-free: the same 10% re-anchored on the target's unlabelled scores; error-budget rule: review band [tau_frr1, tau_far1), which collapses when the two cross on near-separable dev
 \begin{tabular}{@{}llrrrrrrl@{}}
 \toprule
-Model & Target & Review & Review (genuine) & Genuine auto-rej. & Spoof auto-acc. & Label-free review & Label-free genuine auto-rej. & Error-budget rule \\
+ &  & \multicolumn{4}{c}{Band designed on dev} & \multicolumn{2}{c}{Label-free} & Error-budget \\
+\cmidrule(lr){3-6}\cmidrule(lr){7-8}
+Model & Target & Review & Gen.\ in review & Gen.\ rej. & Spoof acc. & Review & Gen.\ rej. & rule \\
 \midrule
 AASIST (ASVspoof 5) & LA19 eval & 15.0 & 12.3 & 2.7 & 45.0 & 10.0 & 3.5 & review 78.6 \\
 AASIST (ASVspoof 5) & ITW & 13.7 & 21.0 & 68.3 & 0.2 & 10.0 & 72.2 & review 45.3 \\
