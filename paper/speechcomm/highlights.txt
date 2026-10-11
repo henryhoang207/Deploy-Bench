@@ -1,5 +1,5 @@
-Development thresholds expose errors hidden by target-oracle evaluation.
-Transfer gaps separate threshold-dependent error from discrimination loss.
-Speaker-aware inference changes the interpretation of the registered audit.
-The operating policy determines which error dominates after transfer.
-Registered replications test detectors, retraining and silence handling.
+Protocol splits deployed error into discrimination loss and a threshold transfer gap
+Two pre-registered rounds audit eight speech deepfake detectors and 11 training runs
+The threshold policy decides which error dominates after a detector is transferred
+Detectors that discriminate In-the-Wild well remain limited by their dev thresholds
+Review budgets and calibration set on development data do not survive transfer

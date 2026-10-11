@@ -45,7 +45,8 @@ Deepfake Detection'' (Speech Communication)}
 % src: revision/paper/supplement.tex; revision/results/
 \section{Scope}
 This supplement documents the completed round-1 analyses that the paper cites but does not print. The registered
-round-2 methods are in the main text; round-2 outcomes await the final analysis. The round-1 material is computed from the committed fp32 score
+round-2 methods are in the main text; Section~\ref{sec:r2supp} adds the round-2 registration events and the round-2
+results that the paper summarises. The round-1 material is computed from the committed fp32 score
 files and the frozen thresholds, and each script first recomputes the committed registered numbers and stops if one differs (to
 \(10^{-12}\)). The registered tests (H2 and H5 at the clip level) keep their status. Every other quantity is exploratory, and is reported
 with effect sizes and intervals, without confirm or refute language. Notation follows the paper: label 1 is bona fide, a higher score is
@@ -62,7 +63,7 @@ deviation adds a labelled result beside them.
 % src: revision/paper/supplement.tex; revision/results/
 % src: revision/paper/supplement.tex; revision/results/
 \begin{table}[!ht]
-\caption{Deviations and registration events that touch a result in the paper.}
+\caption{Deviations and registration events that touch a round-1 result in the paper (round~2: Table~\ref{tab:dev2}).}
 \label{tab:dev}
 \centering
 \footnotesize
@@ -484,6 +485,147 @@ verifies), class B (MD5 fails), the verified subset (evaluation minus B) and the
 \label{tab:df21}
 \centering
 \wide{s_tab_df21}
+\end{table}
+
+\section{Round 2: registration events and additional results}
+\label{sec:r2supp}
+% src: DEVIATIONS.md DEV-9; PREREGISTRATION_ROUND2.md
+\subsection{Registration events}
+Round~2 has its own registration, frozen in version control at the tag \texttt{round2-freeze} on 7~October 2026 with
+its analysis code, and five amendments (Table~\ref{tab:dev2}). Each amendment was written into the deviation log before
+the work it governs and records what had been seen when it was written. None changes a registered test, support rule or
+threshold.
+
+% src: DEVIATIONS.md DEV-9; DEVIATIONS.md DEV-9 amendment 1; DEVIATIONS.md DEV-9 amendment 2; DEVIATIONS.md DEV-9 amendment 3; DEVIATIONS.md DEV-9 amendment 4; DEVIATIONS.md DEV-9 amendment 5
+\begin{table}[!ht]
+\caption{Round-2 registration events.}
+\label{tab:dev2}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}p{0.13\textwidth}p{0.08\textwidth}p{0.40\textwidth}p{0.33\textwidth}@{}}
+\toprule
+Event & Date & What it fixed or changed & What had been seen \\
+\midrule
+Registration & 7 Oct 2026 & Three detectors, eleven AASIST-L runs, eight channel conditions, gates, thresholds, R2-H1 to R2-H4,
+the reading rule, exploratory analyses and failure rules. & Every round-1 result and published figures; pre-tag smoke
+tests on LA19 training clips only. No round-2 score and no audio of the new channel conditions. \\
+Amendment 1 & 7 Oct 2026 & A run that fails from resource exhaustion before completing its first epoch is relaunched
+once; runs start only when their GPU has room. & The out-of-memory failures; no development score or training metric. \\
+Amendment 2 & 7 Oct 2026 & E9 uses the exact unpenalised logistic fit instead of a fixed-step routine that underfits.
+& A unit test on synthetic scores; no E9 quantity. \\
+Amendment 3 & 7 Oct 2026 & FLAC audio is accepted only if it matches its STREAMINFO MD5 and is converted to float by
+the harness; XLSR-Mamba's DF21 scores are re-scored. & Decoder comparisons; the affected score file existed, but no
+quantity had been computed from it. \\
+Amendment 4 & 8 Oct 2026 & One unchanged rerun of Pascu's MLAAD-5 scoring on a GPU without a training run. & The
+out-of-memory log and the clip durations; no score. \\
+Amendment 5 & 10 Oct 2026 & For Pascu's detector, a clip shorter than 400 samples is repeated to 400 samples and logged;
+one more rerun. & The failure log and the shortest clip lengths; no score. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% src: results/round2/gates.json; results/round2/pascu/head_train.json; DEVIATIONS.md DEV-9 amendment 1; DEVIATIONS.md DEV-9 amendment 5
+\subsection{Execution}
+All eleven AASIST-L runs trained for 100 epochs without divergence or NaN loss; amendment~1 covered a launch that ran out
+of GPU memory before any epoch finished. The weight averages of the untrimmed runs hold 1 to 12 snapshots. No trimmed run
+reached the averaging threshold, so each trimmed model is its last epoch and scores identically to its last-epoch copy.
+The head of Pascu's detector was fitted on the 25,380 LA19 training clips (L-BFGS, 100 iterations, no convergence
+warning, training accuracy 1.0). Pascu's MLAAD-5 scoring failed twice, first for lack of GPU memory and then on two
+186-sample clips; the amendment-5 rerun scored all 494,853 trials and repeated exactly those two clips. XLSR-Mamba's DF21
+scores were recomputed under amendment~3, and the quarantined file entered no analysis.
+
+% src: gen/r2s_policies.tex; results/round2/analysis/r2_explore.json (E1_E8_E10)
+\subsection{All policies, BPCER at fixed APCER and break-even windows}
+Table~\ref{tab:r2pol} gives the round-2 detectors at all five policies (E1), BPCER at the development thresholds for
+APCER budgets of 1\% and 5\% against the target threshold that achieves those APCERs (E8), and the bona fide priors at
+which the cost at \(\tauE\) is below 1 (E10). The FAR budgets do not keep their APCER after transfer: on ITW, \(\tauA{1}\)
+gives an APCER of 8.4\% for Pascu's detector and 10.9\% for XLSR-Mamba. Pascu's detector has no break-even window on
+MLAAD-5.
+
+% src: gen/r2s_policies.tex; results/round2/analysis/r2_explore.json (E1_E8_E10)
+\begin{table}[!ht]
+\caption{Round-2 detectors: FRR/FAR (\%) at the five frozen policies, BPCER@\(k\) = BPCER at the dev threshold for
+APCER \(k\)\% / at the target threshold with APCER \(k\)\%, and the break-even window of bona fide priors at \(\tauE\).}
+\label{tab:r2pol}
+\centering
+\wide{r2s_policies}
+\end{table}
+
+% src: gen/r2s_last.tex; results/round2/analysis/r2_explore.json (E2_E3)
+\subsection{Weight averaging and last-epoch weights}
+Table~\ref{tab:r2last} sets the registered untrimmed models (weight averages) beside their last-epoch weights and the
+trimmed models (E3). Averaging lowers the transfer gap on both targets (LA19 eval mean 2.69 against 7.59\,pp, ITW 6.51
+against 10.49\,pp) at similar EER. With last-epoch weights in both arms, trimming lowers mean ITW FRR from 23.4\% to 16.8\%
+and raises mean ITW FAR from 71.6\% to 86.5\%, and mean ITW EER rises from 40.7\% to 43.8\%. These are exploratory
+comparisons of five runs per arm, without a test.
+
+% src: gen/r2s_last.tex; results/round2/analysis/r2_explore.json (E2_E3)
+\begin{table}[!ht]
+\caption{Untrimmed AASIST-L runs with their registered weight averages and with their last-epoch weights, and the trimmed
+runs, at each run's \(\tauE\) (rates \%, TTG pp). \(^\dagger\)Pipeline check, outside the means.}
+\label{tab:r2last}
+\centering
+\wide{r2s_last}
+\end{table}
+
+% src: gen/r2s_channels.tex; results/round2/analysis/r2_explore.json (E4)
+\subsection{Channel effects per training run}
+Table~\ref{tab:r2chanruns} gives the channel effects of every training run; the main paper prints the arm means. The
+differences between arms under noise and EnCodec hold for every seed.
+
+% src: gen/r2s_channels.tex; results/round2/analysis/r2_explore.json (E4)
+\begin{table}[!ht]
+\caption{Channel effects at each run's \(\tauE\): \(\Delta\)FRR/\(\Delta\)FAR (pp) against the clean copy of the 1,000-clip
+set (E4).}
+\label{tab:r2chanruns}
+\centering
+\wide{r2s_channels}
+\end{table}
+
+% src: gen/r2s_threezone.tex; gen/r2s_budgets.tex; results/round2/analysis/r2_explore.txt (E7)
+\subsection{Three-zone review on every target and at other budgets}
+Tables~\ref{tab:r2threeall} and~\ref{tab:r2budgets} extend the review analysis (E7). The development-designed band
+exceeds its 10\% budget on every target for the LA19-trained detectors, even on LA19 eval (20.3--40.4\%), whose genuine
+speech comes from the source corpus; on MLAAD-5 it reaches 52.2--96.2\%. Larger budgets move little: at 20\%, the band
+of XLSR-Mamba still sends 77.7\% of ITW clips to review. For the round-1 primary models, which barely discriminate ITW,
+even the target-oracle band leaves 58.1--67.3\% of genuine clips auto-rejected for AASIST, AASIST-L and RawNet2 at the
+10\% budget.
+
+% src: gen/r2s_threezone.tex; results/round2/analysis/r2_explore.json (E7)
+\begin{table}[!ht]
+\caption{Three-zone review at the 10\% dev budget on every target (E7; \% of target clips; columns as in the main
+paper's ITW table: Gen.\ in review = genuine clips sent to review, Gen.\ rej.\ = genuine clips rejected automatically,
+Spoof acc.\ = spoofs accepted automatically).}
+\label{tab:r2threeall}
+\centering
+\wide{r2s_threezone}
+\end{table}
+
+% src: gen/r2s_budgets.tex; results/round2/analysis/r2_explore.json (E7)
+\begin{table}[!ht]
+\caption{Three-zone review on ITW at review budgets of 5, 10 and 20\% of dev traffic: the band designed on dev, the same
+budget at the labelled target oracle, and the label-free re-anchoring (E7; \% of ITW clips; Rej. = genuine clips
+auto-rejected; Acc. = spoofs auto-accepted).}
+\label{tab:r2budgets}
+\centering
+\wide{r2s_budgets}
+\end{table}
+
+% src: gen/r2s_calibration.tex; results/round2/analysis/r2_explore.json (E9); DEVIATIONS.md DEV-9 amendment 2
+\subsection{Calibrated cost at other priors}
+Table~\ref{tab:r2calpri} gives actual and minimum cost after the source-dev logistic calibration at bona fide priors with
+logit \(-2\) and \(+2\) (about 0.12 and 0.88) besides equal priors (E9). At logit \(-2\) the minimum cost on MLAAD-5 is 1.00
+for every detector, so no threshold on these scores beats rejecting everything there; at logit \(+2\) every detector's
+actual cost on ITW exceeds 1.
+
+% src: gen/r2s_calibration.tex; results/round2/analysis/r2_explore.json (E9)
+\begin{table}[!ht]
+\caption{Actual/minimum normalised cost after logistic calibration on source dev, at three bona fide priors (E9).}
+\label{tab:r2calpri}
+\centering
+\footnotesize
+\input{gen/r2s_calibration}
 \end{table}
 
 % src: revision/paper/supplement.tex; revision/results/

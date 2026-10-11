@@ -2,8 +2,8 @@
 %  Speech Communication full-length article (D59): the threshold-transfer audit, two registered rounds.
 %  Round 1 = the registered audit as revised for the simulated ICME panel (DFV_Conference/revision, audited numbers).
 %  Round 2 = PREREGISTRATION_ROUND2.md (tag round2-freeze). Every round-2 number comes from a generated table
-%  (analysis/round2/r2_paper_tables.py -> gen/r2_*.tex) or carries a "% src:" comment; \todo{} marks what is pending.
-%  Result-independent writing draft. Supplement in supplement.tex; no venue page cap is imposed.
+%  (analysis/round2/r2_paper_tables.py -> gen/r2_*.tex) or carries a "% src:" comment; \todo{} marks what the authors
+%  still have to supply. Checked by audit_claims.py. Supplement in supplement.tex; no venue page cap is imposed.
 %==============================================================================
 \documentclass[review,authoryear]{elsarticle}
 \usepackage{amsmath,amssymb}
@@ -39,10 +39,23 @@
 \address{\todo{Affiliations and corresponding-author email}}
 
 \begin{abstract}
-\todo{Complete the abstract after the final round-2 analyses. Report both resampling units for H2, the H5 outcome,
-the registered extension and its outcomes, and the transfer/discrimination distinction. Disclose that H3 was not
-supported for lack of usable quantized models and H6 was not supported on a clause the quantizer could not meet;
-the separate deployment study reports those analyses.}
+% src: revision/paper/main.tex; revision/results/b_thresholds.json; results/round2/analysis/r2_registered.txt; results/round2/analysis/r2_explore.txt
+A speech deepfake detector's decision threshold is chosen on development data and then applied to speech from other
+speakers, channels and synthesis systems. We propose a reporting protocol for this transfer and apply it in a two-round
+pre-registered audit. The protocol splits the half total error rate at the development threshold into the error that no
+threshold removes and a threshold transfer gap (TTG), reports false rejection and false acceptance under explicit
+policies, and states the thresholds that tie on development data and speaker-level uncertainty. Round~1 audits five
+released detectors trained on ASVspoof~2019 LA. On its unseen attacks, transfer causes 83--84\% of the deployed error of
+two detectors whose equal error rates are below 1\%. On In-the-Wild, false rejection exceeds false acceptance for three
+of four primary models when clips are resampled, as registered, but for one of four when speakers are resampled, so we
+do not claim it; a neural codec raises false rejection more than false acceptance under both units. Two quantization
+hypotheses were not supported, one for lack of usable quantized models and one on a clause the quantizer could not meet.
+Round~2, registered before any of its scores existed, confirms that the operating policy sets the dominant error for
+two of three current detectors and that the transfer gap recurs across retraining (four of five seeds). Trimming silence
+from training lowers false rejection but not the equal error rate, largely through checkpoint selection. Low-bitrate
+codecs and a phone impulse response raise false rejection more than false acceptance (four of eight channel conditions).
+Detectors that discriminate In-the-Wild well remain limited by their thresholds, and review budgets designed on
+development data do not survive transfer.
 \end{abstract}
 
 \begin{keyword}
@@ -185,11 +198,33 @@ fewest errors (HTER 25.2\% on ITW against 34.6--51.4\%).
 ITW's 54 speaker labels, only Res-TSSDNet's FRR $-$ FAR excludes zero (+31.3\,pp [+14.3, +51.8]), and deleting a single
 speaker moves AASIST's difference between $-0.5$ and +5.4\,pp; we do not claim H2. H5 is supported under both units:
 EnCodec raises FRR and lowers FAR for every primary model (Res-TSSDNet rejects 68.4\% of resynthesised bona fide clips).
+Table~\ref{tab:tests} gives both tests under both resampling units.
+
+% src: revision/paper/main.tex (Table IV); revision/results/a_cluster.json; results/analysis/h2_test.json; results/analysis/h5_test.json
+\begin{table}[!t]
+\caption{Round-1 confirmatory tests on the four primary models: the registered clip bootstrap (\(B=1000\), every rejection with \(p\le .001\))
+and the speaker-cluster bootstrap (\(B=10{,}000\)). Holm at \(\alpha=.05\) within each family.}
+\label{tab:tests}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\input{gen/tab_tests}
+\end{table}
 
 % src: revision/results/b_thresholds.json; revision/results/a_cluster.json
 \emph{The policy sets the direction.} A threshold whose dev FRR is 1\% rejects 42.8--81.8\% of genuine ITW speech, while a
 dev FAR of 5\% becomes 14.2--91.9\% FAR with FAR above FRR for all five models: the dominant error follows the policy, and
-the registered grid, all on the strict side, tilted the registered finding toward false rejection.
+the registered grid, all on the strict side, tilted the registered finding toward false rejection (Fig.~\ref{fig:frrfar}).
+
+% src: revision/analysis/figures_rev.py; revision/results/b_thresholds.json
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{fig_frr_far.pdf}
+\caption{ITW: each curve is a model's FRR--FAR trade-off, markers are the five frozen thresholds, and the thick segment is the
+interval of thresholds that tie with \(\tauE\) on dev (within one bona fide trial). Points above the diagonal put the error on
+genuine speech, and screening \(C<1\) needs a point below the dashed line.}
+\label{fig:frrfar}
+\end{figure}
 
 % src: revision/results/b_thresholds.json; revision/results/a_cluster.json
 \emph{Determinacy.} Dev is nearly separable, so \(\tauE\) is pinned by few trials. For the reference, every threshold in
@@ -227,27 +262,309 @@ Sample-rate confound: every spoof is native 22.05\,kHz and 98.2\% of bona fide s
 
 \section{Round 2: Current Detectors, Retraining, Silence and Channels}
 \label{sec:round2}
+% src: results/round2/analysis/r2_registered.txt; results/round2/analysis/r2_explore.txt; DEVIATIONS.md DEV-9 amendment 5
+Every registered round-2 score file was produced and passed its integrity review, so no detector, training run or
+condition is missing from a registered test. The registered tests ran once, after the last of those files existed; the
+exploratory analyses ran on the same files. The tables in this section are generated from the committed result files.
+Unless stated otherwise, rates are at each model's frozen \(\tauE\), and intervals are speaker-cluster bootstrap
+intervals.
+
 \subsection{Gates and operating behaviour}
-\todo{Insert final generated detector gates and operating-point tables after W4 review.}
+\label{sec:r2op}
+% src: gen/r2_gates.tex; results/round2/gates.json; bib:wang25_asvspoof5_db; bib:pascu24_calibrated
+All three reproduction gates pass (Table~\ref{tab:r2gates}). The ASVspoof~5 baseline reproduces its published development
+EER (15.20\% against 15.2\%; \citealp{wang25_asvspoof5_db}), XLSR-Mamba's EER on verified DF21 is 1.62\% against 1.83\% for the
+authors' released scores on the same 455,508 trials, and the train-plus-dev fit of Pascu's detector reaches 0.56\% on LA19
+eval against the published 0.6\% \citep{pascu24_calibrated}.
+
+% src: gen/r2_gates.tex; results/round2/gates.json
+\begin{table}[!t]
+\caption{Round-2 reproduction gates (EER, \%). Reference: the published value, or for XLSR-Mamba the authors' released
+DF21 scores on the same trials. A gate passes within 15\% relative error.}
+\label{tab:r2gates}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\gentab{r2_gates}
+\end{table}
+
+% src: gen/r2_operating.tex; results/round2/analysis/r2_explore.txt (E1); revision/results/b_thresholds.json
+Table~\ref{tab:r2op} repeats the round-1 decomposition for the new detectors. The two LA19-trained self-supervised
+detectors separate ITW far better than any round-1 primary model (EER 7.7\% for Pascu's detector and 9.2\% for
+XLSR-Mamba, against 34--49\%), yet their development thresholds again reject much more genuine speech than they accept
+spoofs. XLSR-Mamba rejects 41.5\% of genuine ITW clips and accepts 0.8\% of spoofs, so 57\% of its deployed HTER is
+transfer (TTG 11.96\,pp [9.04, 16.79]); Pascu's detector rejects 19.9\% and accepts 2.5\% (TTG 3.59\,pp [1.64, 7.60],
+32\%). Both also show FRR above FAR on verified DF21 (10.3\% against 0.7\%, and 4.9\% against 0.5\%), and most of their
+small LA19-eval HTER is transfer (69\% and 76\%). The dev-equivalent interval matters as it did in round~1: across the
+thresholds that tie with XLSR-Mamba's \(\tauE\) on dev, its ITW FRR runs from 19.4\% to 50.8\%, and from 17.7\% to
+28.5\% for Pascu's detector.
+
+% src: gen/r2_operating.tex; results/round2/analysis/r2_explore.txt (E1)
+The ASVspoof~5 baseline behaves differently. Its EER is 26--37\% on every target, including its own evaluation set
+(28.1\%), but its development threshold transfers within its own corpus (TTG 0.27\,pp on ASVspoof~5 eval) and to LA19
+eval and DF21 (0.27 and 0.08\,pp). The direction of its error depends on the target: on LA19 eval it accepts 53.1\% of
+spoofs and rejects 6.5\% of genuine clips, whereas on ITW it rejects 79.9\% of genuine speech and accepts 0.6\% of spoofs
+(TTG 13.03\,pp), and on MLAAD-5 it rejects 69.9\%.
+
+% src: gen/r2_operating.tex; results/round2/analysis/r2_explore.json (E1_E8_E10)
+\begin{table*}[!t]
+\caption{Round-2 detectors at the frozen \(\tauE\) (fp32, \%). Columns as in Table~\ref{tab:op}: HTER = oracle HTER + TTG
+(pp, speaker-cluster 95\% CI, \(B=1000\)); Share = TTG/HTER (\%); the last column gives target FRR at the two ends of the
+dev-equivalent interval. The ASVspoof~5 baseline takes its thresholds from ASVspoof~5 dev, the others from LA19 dev.}
+\label{tab:r2op}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\resizebox{\textwidth}{!}{\gentab{r2_operating}}
+\end{table*}
+
+% src: gen/r2s_policies.tex; results/round2/analysis/r2_explore.json (E1_E8_E10)
+The supplement gives every policy on every target (E1, E8, E10). A source APCER budget does not hold after transfer
+either: at \(\tauA{5}\) the two self-supervised detectors accept 24.2\% and 23.5\% of ITW spoofs, so their BPCER of
+2.3\% and 2.2\% there is not a BPCER at an APCER of 5\%; at the target threshold that does give 5\% APCER on ITW,
+their BPCER is 11.0\% and 15.0\%. At \(\tauE\) on ITW, the break-even windows of all three new detectors contain the
+forensic prior of 1/11 and exclude the screening prior of 0.95.
 
 \subsection{Registered tests and reading rule}
-\todo{Report all registered hypotheses and the descriptive reading rule from the final W4 outputs.}
+\label{sec:r2tests}
+% src: gen/r2_tests.tex; results/round2/analysis/r2_registered.txt
+Table~\ref{tab:r2tests} gives the registered outcomes. \emph{R2-H1 is supported} (two of three detectors). For Pascu's
+detector and XLSR-Mamba the strict FRR budget puts the error on genuine ITW speech (at \(\tauF{1}\), FRR 44.3\% and
+86.1\% against FAR 0.5\% and 0.2\%) and the lenient FAR budget puts it on spoofs (at \(\tauA{5}\), FAR 24.2\% and 23.5\%
+against FRR 2.3\% and 2.2\%), and all four tests reject after Holm correction. The ASVspoof~5 baseline meets the first
+condition (+21.0\,pp [+5.1, +35.4]) but not the second: at \(\tauA{5}\) it rejects 99.8\% of genuine ITW speech and
+accepts 0.1\% of spoofs. Its ITW scores lie almost entirely below its development thresholds, so for this detector the
+target shift, not the policy, sets the direction of the error.
+
+% src: gen/r2_tests.tex; results/round2/analysis/r2_registered.txt
+\emph{R2-H2 is supported} (four of five runs). Retraining AASIST-L with seeds 1--5 gives LA19-eval TTGs at \(\tauE\) of
+1.19 to 4.25\,pp. Four exceed the 1-pp margin after Holm correction; seed~1 (1.19\,pp [0.88, 1.55], \(p=.098\)) does
+not. Transfer accounts for 43--80\% of each run's deployed HTER. The released checkpoint's LA19-eval gap (4.64\,pp) is
+therefore not peculiar to one released file: under this recipe and its checkpoint-selection rule the gap recurs,
+although its size varies more than threefold across seeds.
+
+% src: gen/r2_tests.tex; results/round2/analysis/r2_registered.txt
+\emph{R2-H3 indicates an operating-point effect.} Trimming raises development EER, as the manipulation check requires
+(+2.00\,pp, \(p=.004\), the smallest \(p\) that 252 reassignments allow). Within the family, lower ITW FRR at \(\tauE\)
+is supported (run means 16.8\% against 35.1\%, \(-18.33\)\,pp, \(p=.004\)), and lower ITW EER is not (the trimmed arm
+is 1.99\,pp higher, \(p=.881\)). The registered reading is an operating-point effect without a discrimination gain.
+Section~\ref{sec:r2seeds} shows that checkpoint selection contributes most of the FRR difference.
+
+% src: gen/r2_tests.tex; results/round2/analysis/r2_registered.txt (R2-H4)
+\emph{R2-H4 holds for four of the eight conditions.} Low-bitrate speech codecs push genuine speech below the development
+threshold: Opus at 6\,kbps raises FRR by 40--69\,pp and AMR-NB at 4.75\,kbps by 77--92\,pp across the four primary
+models, while FAR falls, so both conditions meet the rule for all four models. The phone impulse response raises FRR by
+16--51\,pp (four of four). Opus at 24\,kbps also meets it for four of four, but through small shifts: FRR moves by at
+most 1\,pp while FAR falls by 0.8--3.0\,pp. MP3 at 32\,kbps moves almost nothing (one of four). Additive noise splits the
+models: AASIST and AASIST-L reject 41--74\,pp more genuine speech at 10 and 5\,dB SNR, whereas noise raises the FAR of
+RawNet2 (by 2--22\,pp) and of Res-TSSDNet (by 27--31\,pp, at all three noise levels), so each noise level meets the rule
+for two of four models only.
+
+% src: gen/r2_tests.tex; results/round2/analysis/r2_registered.txt (R2-RL)
+\emph{Reading rule.} The ASVspoof~5 baseline is discrimination-limited on ITW (EER 27.6\%). Pascu's detector and
+XLSR-Mamba are transfer-limited: XLSR-Mamba by both criteria (transfer share 0.57; its dev-equivalent interval spans
+31.4\,pp of ITW FRR), Pascu's detector by the span alone (10.8\,pp, share 0.32). No new detector is well-transferred. The
+round-1 pattern of the self-supervised reference, strong ITW discrimination with a threshold far from the target
+optimum, recurs for both new LA19-trained detectors.
+
+% src: gen/r2_tests.tex; results/round2/analysis/r2_registered.json
+\begin{table*}[!t]
+\caption{Round-2 registered outcomes (speaker-cluster bootstrap, \(B=10{,}000\); exact permutation tests for R2-H3).
+R2-H1: FRR\(-\)FAR at \(\tauF{1}\) / FAR\(-\)FRR at \(\tauA{5}\) on ITW (pp). R2-H2: LA19-eval TTG at \(\tauE\) per seed
+(pp). R2-H3: trimmed minus untrimmed run means (pp; manipulation check, then the two tests of the family). R2-H4: models
+meeting the rule per condition. \(^\ast\): rejected after Holm correction (R2-H1: both of the detector's tests
+rejected). The reading rule is descriptive.}
+\label{tab:r2tests}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\gentab{r2_tests}
+\end{table*}
 
 \subsection{Seed variation and silence-trimmed training}
-\todo{Report the seed spread, manipulation check, recipe-selection details and last-epoch sensitivity comparison.}
+\label{sec:r2seeds}
+% src: gen/r2_seeds.tex; results/round2/analysis/r2_explore.txt (E2, E3); results/round2/gates.json
+\emph{Seed variation (E2).} The five untrimmed runs come close to the released model's LA19-eval EER (1.07--1.63\%
+against 0.99\%) but not to its ITW operating point (Table~\ref{tab:r2seeds}). The released checkpoint rejects more genuine
+ITW speech than any retrained run (50.6\% against 24.7--43.8\%) and has a smaller ITW transfer gap than any (1.55 against
+2.90--12.11\,pp), while ITW EER is similar (38.2--45.6\% against 44.5\%). The pipeline-check run (seed 1234, outside every
+count) lies outside these ranges as well (LA19-eval TTG 6.18\,pp, ITW FRR 21.5\%). Our runs omit the author's
+evaluation-based checkpoint step, so the released file comes from a slightly different procedure. An audit of one released
+checkpoint therefore describes that file; the operating point of a recipe has to be read from several runs.
+
+% src: gen/r2_seeds.tex; gen/r2s_last.tex; results/round2/analysis/r2_explore.txt (E3)
+\emph{Checkpoint selection (E3).} The recipe's weight average absorbed 1 to 12 development-selected snapshots in the
+untrimmed runs. Their last-epoch weights have similar LA19-eval EER (1.20--2.00\%) but larger transfer gaps: on LA19 eval
+2.42--12.92\,pp (mean 7.59, against 2.69 for the averages), and on ITW a mean of 10.49\,pp against 6.51. The transfer gap
+of R2-H2 is thus a property of the recipe together with its selection rule.
+
+% src: gen/r2_seeds.tex; gen/r2s_last.tex; results/round2/runs/aasist_l_trim_s1/epochs.jsonl; bib:muller21_silence; bib:wang20_asvspoof2019
+\emph{Silence-trimmed training.} Trimming silence from training, development and test audio keeps development EER low
+(best epoch 1.72--2.31\%, scored model 2.06--3.33\%) but raises LA19-eval EER from 1.07--1.63\% to 21.3--23.7\%.
+Without its leading and trailing non-speech, this recipe still separates the development attacks, which are the
+training attacks \citep{wang20_asvspoof2019}, but no longer generalises to LA19's unseen attacks; the direction agrees
+with \citet{muller21_silence}.
+
+% src: gen/r2_seeds.tex; gen/r2s_last.tex; results/round2/analysis/r2_explore.json (E2_E3)
+The registered R2-H3 comparison is not selection-free. The recipe averages only epochs whose development EER is at most
+1\%, and no trimmed run reached that level, so each trimmed model is its last epoch, whereas each untrimmed model is an
+average of selected snapshots. Comparing last-epoch weights in both arms (E3, exploratory) leaves a smaller difference:
+ITW FRR at \(\tauE\) is 16.8\% for the trimmed and 23.4\% for the untrimmed runs (\(-6.6\)\,pp, against \(-18.3\)\,pp
+as registered), lower for each of the five seeds by 1.2 to 12.4\,pp. About two thirds of the registered FRR difference
+thus comes from checkpoint selection rather than from trimming. In both comparisons the lower FRR is paid for in FAR (ITW
+FAR 86.5\% when trimmed, against 54.2\% for the averaged and 71.6\% for the last-epoch untrimmed models), and ITW EER does
+not improve (+2.0 and +3.1\,pp). Trimming moves this recipe's ITW operating point; it does not make the recipe
+discriminate ITW better.
+
+% src: gen/r2_seeds.tex; results/round2/analysis/r2_explore.json (E2_E3); results/round2/gates.json
+\begin{table*}[!t]
+\caption{AASIST-L retrained (E2, E3) against the released checkpoint, at each run's \(\tauE\) from its own LA19 dev (rates
+\%, TTG pp). SWA: snapshots in the recipe's weight average; best dev: lowest per-epoch dev EER; final dev: dev EER of the
+scored model. Last-epoch weights: the run's weights after its final epoch (for the trimmed arm these are the scored
+model). \(^\dagger\)Pipeline check, outside every test and mean.}
+\label{tab:r2seeds}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\resizebox{\textwidth}{!}{\gentab{r2_seeds}}
+\end{table*}
 
 \subsection{Channels and shifted corpora}
-\todo{Insert final channel effects, MLAAD with its sample-rate confound, and ASVspoof evaluation by condition.
-Disclose the outcome of the once-only Pascu MLAAD rerun.}
+\label{sec:r2chan}
+% src: gen/r2_channels.tex; gen/r2s_channels.tex; results/round2/analysis/r2_explore.txt (E4)
+\emph{Channel effects beyond the registered models (E4).} Table~\ref{tab:r2chan} adds the new detectors and the training
+runs. The self-supervised detectors react much more to bandwidth-limiting codecs than to noise: Opus at 6\,kbps and
+AMR-NB raise FRR by 92--99\,pp for Pascu's detector, XLSR-Mamba and the round-1 reference, and EnCodec raises it by 70
+and 96\,pp for the two new ones, whereas 5-dB noise raises it by 5--17\,pp. The ASVspoof~5 baseline reacts least to these
+codecs (+17 and +18\,pp) and most to noise (+21 to +37\,pp), and the phone impulse response raises its FAR (+12\,pp) rather
+than its FRR. The untrimmed AASIST-L runs follow the released checkpoint (Opus 6\,kbps +49 against +69\,pp, AMR-NB +89
+against +92\,pp). The trimmed runs react less to noise (+20 and +34\,pp at 10 and 5\,dB, against +52 and +74\,pp) but
+much more to EnCodec (+39 against +5\,pp), and Opus 6\,kbps, AMR-NB and EnCodec lower their FAR by 26, 43 and 18\,pp.
+
+% src: gen/r2_channels.tex; results/round2/analysis/r2_explore.json (E4)
+\begin{table*}[!t]
+\caption{Channel effects at \(\tauE\) on the 1,000-clip LA19-eval set (\(\Delta\)FRR/\(\Delta\)FAR in pp against the clean
+copy, E4). Round-1 rows are the R2-H4 point estimates; run rows are means over seeds 1--5 (per run in the supplement).
+EnCodec is the round-1 H5 condition; for the round-1 models it is reported in Table~\ref{tab:tests} (--).}
+\label{tab:r2chan}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\resizebox{\textwidth}{!}{\gentab{r2_channels}}
+\end{table*}
+
+% src: gen/r2_mlaad.tex; gen/r2_operating.tex; results/round2/analysis/r2_explore.txt (E5); results/phase_2_conversion_app/mlaad5/sample_rate_census.json; DEVIATIONS.md DEV-9 amendment 5
+\emph{MLAAD-5 (E5, descriptive).} The three new detectors have pooled EERs of 30--43\% on MLAAD-5
+(Table~\ref{tab:r2mlaad}). The ASVspoof~5 baseline and Pascu's detector reject most genuine M-AILABS speech in every
+language (FRR 56--78\% and 79--94\%), whereas XLSR-Mamba accepts 42--65\% of spoofs at FRR 1--18\%. Pascu's scores come
+from the single rerun allowed by amendment~5, which repeated two 186-sample spoofs to 400 samples and scored all 494,853
+trials. Every spoof file is native 22.05\,kHz and 98.2\% of bona fide files are native 16\,kHz, so these rates mix
+language, synthesis system and sample-rate history and isolate none of them.
+
+% src: gen/r2_mlaad.tex; results/round2/analysis/r2_explore.json (E5); results/phase_2_conversion_app/mlaad5/sample_rate_census.json
+\begin{table}[!t]
+\caption{Round-2 detectors on MLAAD-5 by language: FRR/FAR (\%) at \(\tauE\) (E5, descriptive). Sample-rate confound:
+every spoof is native 22.05\,kHz and 98.2\% of bona fide speech native 16\,kHz.}
+\label{tab:r2mlaad}
+\centering
+\footnotesize
+\gentab{r2_mlaad}
+\end{table}
+
+% src: gen/r2_as5.tex; results/round2/analysis/r2_explore.txt (E6); bib:wang25_asvspoof5_db
+\emph{ASVspoof~5 by condition (E6).} On its own evaluation set the baseline's error depends on the channel
+(Table~\ref{tab:r2as5}). Its threshold transfers to the codec-free subset C00 (EER 22.4\%, TTG 0.03\,pp) and to the
+wideband codecs C01--C07 (TTG at most 0.98\,pp), but the narrowband conditions C08--C11, coded at 8\,kHz
+\citep{wang25_asvspoof5_db}, raise FRR to 40.6--65.9\% and the transfer gap to 3.06--5.45\,pp. This is the pattern of
+round~1 and R2-H4 inside one corpus: band-limited coding pushes genuine speech below a development threshold. Unlike LA19,
+ASVspoof~5 shows no class difference in leading silence: the median is 0.03\,s for bona fide clips and 0.02--0.03\,s for
+spoofs in both development and evaluation data.
+
+% src: gen/r2_as5.tex; results/round2/analysis/r2_explore.json (E6)
+\begin{table}[!t]
+\caption{The ASVspoof~5 baseline on ASVspoof~5 eval by codec condition at \(\tauE\) from ASVspoof~5 dev (E6): rates \%,
+TTG pp. C00: no codec; C01--C07: 16-kHz codecs; C08--C11: 8-kHz conditions.}
+\label{tab:r2as5}
+\centering
+\footnotesize
+\gentab{r2_as5}
+\end{table}
 
 \subsection{Review policies and calibration across priors}
-\todo{Report review shares, automatic errors, policy collapse where applicable, and actual versus minimum costs.}
+\label{sec:r2review}
+% src: gen/r2_threezone.tex; gen/r2s_budgets.tex; results/round2/analysis/r2_explore.txt (E7)
+\emph{Three-zone review (E7).} A review band that holds 10\% of development traffic does not hold 10\% of ITW traffic
+(Table~\ref{tab:r2three}). For every LA19-trained detector, ITW scores crowd into the band: it sends 63.1--88.8\% of ITW
+clips, and 77.4--98.2\% of genuine ones, to review, and the automatic decisions that remain reject 1.8--22.4\% of genuine
+clips and accept almost no spoofs. The ASVspoof~5 baseline keeps its review share near budget (13.7\%) only because most
+genuine ITW scores fall below the band, so it auto-rejects 68.3\% of genuine clips. Re-anchoring the band on the unlabelled
+target scores restores the 10\% budget by construction but moves the errors into the automatic decisions: 12.9--72.2\% of
+genuine ITW clips are then rejected without review. With target labels, the same budget would auto-reject 4.6\% and 4.8\%
+of genuine clips for XLSR-Mamba and Pascu's detector. The error-budget rule, which reviews the scores between \(\tauF{1}\)
+and \(\tauA{1}\), collapses to a single threshold for every LA19-trained detector, because the two thresholds cross on
+nearly separable development data; only the ASVspoof~5 baseline keeps a band, which then holds 45.3\% of ITW. A review
+budget, like a threshold, is a property of the development distribution.
+
+% src: gen/r2_threezone.tex; results/round2/analysis/r2_explore.json (E7)
+\begin{table*}[!t]
+\caption{Three-zone review on ITW (E7): a band holding 10\% of pooled dev scores, centred in rank on \(\tauE\), in \% of
+ITW clips. Review: all clips sent to review; Gen.\ in review: genuine clips sent to review; Gen.\ rej.: genuine clips
+rejected automatically; Spoof acc.: spoofs accepted automatically. Label-free: the same 10\% re-anchored on the
+unlabelled ITW scores. Error-budget rule: review between \(\tauF{1}\) and \(\tauA{1}\). Other targets and budgets of 5\%
+and 20\% are in the supplement.}
+\label{tab:r2three}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\resizebox{\textwidth}{!}{\gentab{r2_threezone}}
+\end{table*}
+
+% src: gen/r2_calibration.tex; gen/r2s_calibration.tex; results/round2/analysis/r2_explore.txt (E9); DEVIATIONS.md DEV-9 amendment 2
+\emph{Calibration across priors (E9).} A logistic calibration fitted on source development scores does not remove the
+transfer loss (Table~\ref{tab:r2cal}). Actual cost exceeds minimum cost on every target. At equal priors on ITW the excess
+is largest for the self-supervised detectors (0.44 against 0.18 for XLSR-Mamba, 0.53 against 0.20 for the round-1
+reference, 0.23 against 0.15 for Pascu's detector), whereas the round-1 primary models come close to their minimum because
+the minimum itself is near 1 (0.68--0.92). RawNet2 on ITW (1.02) and Pascu's detector on MLAAD-5 (1.09) do worse than the
+better trivial system even after calibration. At a bona fide prior with logit 2 (about 0.88), every detector costs more on
+ITW than accepting everything (1.18--3.60), although the minimum stays below 1 for the self-supervised ones (0.39--0.58).
+The gap between actual and minimum cost is the cost-domain counterpart of TTG, and a calibration fitted on source data
+inherits it.
+
+% src: gen/r2_calibration.tex; results/round2/analysis/r2_explore.json (E9)
+\begin{table}[!t]
+\caption{Actual/minimum normalised cost at equal priors after a logistic calibration fitted on source dev (E9; 1 = the
+better trivial system). The supplement gives the bona fide priors with logit \(-2\) and \(+2\).}
+\label{tab:r2cal}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\gentab{r2_calibration}
+\end{table}
 
 \input{limitations}
 
 \section{Conclusion}
 \label{sec:conclusion}
-\todo{Write the conclusion once the final round-2 results establish which round-1 observations carry over.}
+% src: results/round2/analysis/r2_registered.txt; results/round2/analysis/r2_explore.txt; revision/paper/main.tex
+A countermeasure is thresholded once, on development data, and deployed elsewhere. Across two registered rounds, eight
+detectors and eleven training runs, the threshold decided much of what the detectors did after transfer: which error
+dominated, how much of the deployed error a better threshold would have removed, how much traffic a review band
+received, and how far a calibrated cost stayed from its minimum. The equal error rate on the target hides all four,
+because it chooses the threshold with the target labels. The detectors that ordered In-the-Wild scores best lost a much
+larger share of their deployed error to the threshold than the round-1 primary models did: both current LA19-trained
+self-supervised detectors, like the round-1 reference, were limited by transfer rather than by discrimination.
+
+The registered extension also qualified two round-1 readings. The transfer gap of a released checkpoint recurred across
+retraining, but its size depended on the seed and on the checkpoint-selection rule, and the released file's operating
+point lay outside the range of its retrained counterparts. Removing the silence cue from training moved the operating
+point rather than improving discrimination, and much of that movement came from checkpoint selection. Claims about a
+recipe therefore need several runs and a stated selection rule, and claims about a cue need a selection-free comparison.
+
+We recommend that speech deepfake evaluations report, for every threshold policy and target, the false-rejection and
+false-acceptance rates at the shipped threshold, the split of HTER into oracle HTER and TTG with speaker-level
+intervals, the range of thresholds that tie on development data, and, where scores route traffic to review, the review
+share and automatic errors on the target. A separate deployment study will apply the same protocol to converted and
+quantized models on mobile devices.
 
 \input{declarations}
 

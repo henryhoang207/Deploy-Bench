@@ -225,6 +225,14 @@ surface and prevents an environment-specific decoder from silently changing its 
 A separate amendment permits one unchanged rerun of Pascu's whole-utterance MLAAD-5 scoring on a
 GPU free of a training run, with an expandable memory-allocator setting. It does not shorten
 utterances, change the head or alter arithmetic. A second failure is reported as missing MLAAD-5
-data; that surface contributes only to the exploratory language analysis. Each amendment records
+data; that surface contributes only to the exploratory language analysis.
+
+% src: DEVIATIONS.md DEV-9 amendment 5.
+That rerun failed for another reason: two MLAAD-5 spoofs are shorter than the 400-sample receptive
+field of the XLS-R convolutional feature encoder, so the whole-utterance rule cannot score them. A
+further amendment, written before any MLAAD-5 score of this detector existed, repeats a clip shorter
+than 400 samples to exactly 400 samples, the tiling that every fixed-length model already applies,
+logs each such clip and allows one more rerun under the same conditions. It touches only those two
+clips; no clip of any other surface that this detector scored is that short. Each amendment records
 what had been seen when it was made. These resource and fidelity amendments are reported alongside
 the frozen design, rather than used to revise its tests or support thresholds.
