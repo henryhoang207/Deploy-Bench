@@ -199,7 +199,7 @@ def main(final: bool):
     # ---- round 2 (built from the collected final analysis; pending until then)
     reg = R2A / "r2_registered.json"
     if reg.exists():
-        h4 = json.loads(reg.read_text(encoding="utf-8"))["h4"]
+        h4 = json.loads(reg.read_text(encoding="utf-8"))["R2-H4"]
         cond = h4["conditions"]
         d4 = lambda c, k: [cond[c]["per_model"][m][k] for m in R.RANKED]  # noqa: E731
         chk("r2.h4_opus6k", f"Opus at 6 kbps raises FRR by {rng(d4('opus6k', 'dfrr_pp'), 0)} pp")
@@ -211,7 +211,7 @@ def main(final: bool):
         truth("r2.h4_mp3", cond["mp3_32"]["n_rejected"] == 1)
         aa = [cond[c]["per_model"][m]["dfrr_pp"] for c in ("snr10", "snr5") for m in ("aasist", "aasist_l")]
         chk("r2.h4_noise_frr", f"AASIST and AASIST-L reject {rng(aa, 0)} pp more genuine speech at 10 and 5 dB SNR")
-        ts = [cond[c]["per_model"]["tssdnet"]["dfar_pp"] for c in ("snr10", "snr5")]
+        ts = [cond[c]["per_model"]["tssdnet"]["dfar_pp"] for c in ("snr20", "snr10", "snr5")]   # all three noise levels
         chk("r2.h4_noise_far", f"Res-TSSDNet's FAR rises by {rng(ts, 0)} pp")
         truth("r2.h4_noise_2of4", all(cond[c]["n_rejected"] == 2 for c in ("snr20", "snr10", "snr5")))
         chk("r2.h4_total", f"R2-H4 holds for {['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight'][h4['n_conditions_supported']]} of the eight conditions")

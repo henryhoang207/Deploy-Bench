@@ -27,8 +27,8 @@ MIN_SAMPLES = 400
 
 def _tile_to_min(w, n=MIN_SAMPLES):
     """A clip shorter than n samples repeated to exactly n (score.fix_length's tiling), else the clip itself.
-    DEV-9 amendment 5: two 185-sample MLAAD-5 spoofs cannot pass the encoder whole; nothing else Pascu scores is
-    that short."""
+    DEV-9 amendment 5: two 186-sample MLAAD-5 spoofs (11.6 ms at 22.05 kHz) cannot pass the encoder whole; nothing
+    else Pascu scores is that short."""
     if len(w) >= n:
         return w
     if len(w) == 0:
