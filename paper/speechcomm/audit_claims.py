@@ -381,6 +381,14 @@ def audit_provenance(docs, fails):
                 if any(p.name in ("mlaad_report.json", "sample_rate_census.json") for p in sources):
                     allowed.update(visible_numbers(docs.get(HERE / "gen" / "r1_mlaad.tex", "")))
                     allowed.update(mlaad_numbers)
+                # TTG at the ends of a dev-equivalent interval: HTER there minus the oracle HTER (explicit claim below).
+                if any(p.name == "b_thresholds.json" for p in sources):
+                    for mm in M5:
+                        for tt, cell in D[mm]["targets"].items():
+                            if "tau_lo" in cell:
+                                for k in ("tau_lo", "tau_hi"):
+                                    v = (cell[k]["frr_pct"] + cell[k]["far_pct"]) / 2 - cell["oracle_hter_pct"]
+                                    allowed.update(_forms(v / 100))
                 # Round-2 prose: the committed result files, rounded as printed (the explicit claims below are exact).
                 if any(p.is_relative_to(R2) or p.name.startswith(("r2_", "r2s_")) for p in sources):
                     allowed.update(R2_NUMBERS)
@@ -810,6 +818,12 @@ def main(final: bool):
     chk("r1.interval", f"every threshold in [{sgn(ivx['tau_lo'], 2)}, {sgn(ivx['tau_hi'], 2)}] ties")
     chk("r1.frr_range", f"its ITW FRR runs from {f(iv['tau_lo']['frr_pct'])}% to {f(iv['tau_hi']['frr_pct'])}% over that "
                         f"interval")
+    ends = [(iv[k]["frr_pct"] + iv[k]["far_pct"]) / 2 - iv["oracle_hter_pct"] for k in ("tau_lo", "tau_hi")]
+    chk("r1.interval_ttg", f"its ITW TTG could be anywhere from {min(ends):.1f} to {max(ends):.1f}pp")
+    chk("r1.dev_attacks", "whose spoofs come from the six training attacks (A01-A06)")
+    fsd = FS["distributions"]
+    chk("r1.lead_eval", f"(evaluation: {f(fsd['asvspoof19_eval|bona']['lead_median_s'], 2)}s against "
+                        f"{f(fsd['asvspoof19_eval|spoof']['lead_median_s'], 2)}s)")
 
     # ---- round 1: silence
     dist = FS["distributions"]

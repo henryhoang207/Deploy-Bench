@@ -126,14 +126,18 @@ label-free variant whose edges are re-anchored on the target's unlabelled scores
 \section{Study Design}
 \label{sec:design}
 \subsection{Round 1: released LA19-trained checkpoints}
-% src: the ICME revision (DFV_Conference/revision/paper/main.tex Sec. III-B/C; audited by audit_claims.py).
+% src: the ICME revision (DFV_Conference/revision/paper/main.tex Sec. III-B/C; audited by audit_claims.py); models/base.py; bib:wang20_asvspoof2019
 Round~1 audits five published CMs: four primary models (AASIST and AASIST-L \citep{jung22_aasist}, RawNet2
 \citep{tak21_rawnet2}, Res-TSSDNet \citep{hua21_res_tssdnet}) and a self-supervised reference, XLS-R+AASIST
 \citep{tak22_xlsr_aasist} (Table~\ref{tab:roster}). Checkpoints are used as released; we vendor each author's code and keep
-its score function, class order and input policy. A primary model must reproduce its published LA19 evaluation EER within
-15\% (relative); the released RawNet2 is the ASVspoof~2021 DF baseline and is gated on DF21 against the organisers'
-released scores (per-trial agreement \(3.7{\times}10^{-5}\)); XLS-R+AASIST has no published LA19 figure and enters no
-hypothesis count. Every threshold is fixed on the LA19 development set (24,844 trials, 2,548 bona fide).
+its score function, class order and input policy: AASIST, AASIST-L, RawNet2 and the reference read 64,600 samples (about
+4\,s at 16\,kHz) and Res-TSSDNet 96,000 samples (6\,s); a shorter clip is repeated to that length and a longer one keeps
+its start. A primary model must reproduce its published LA19 evaluation EER within
+15\% (relative); the released RawNet2 is the baseline of the ASVspoof~2021 deepfake track (DF21) and is gated on DF21
+against the organisers' released scores (per-trial agreement \(3.7{\times}10^{-5}\)); XLS-R+AASIST has no published LA19
+figure and enters no hypothesis count. Every threshold is fixed on the LA19 development set (24,844 trials, 2,548 bona fide),
+whose spoofs come from the six training attacks (A01--A06), so no development score comes from an unseen attack
+\citep{wang20_asvspoof2019}.
 
 % src: revision/paper/gen/tab_roster.tex; revision/results/b_thresholds.json
 \begin{table}[!t]
@@ -156,7 +160,8 @@ exclude those), and an EnCodec stress set: 1,000 LA19-eval clips (500 per class,
 \citep{defossez23_encodec}, whose bona fide clips stay bona fide (a genuine user's speech through a codec is still
 genuine) \citep{wang25_asvspoof5_db,xiao26_resynth}. The registered hypotheses were H2 (on ITW at \(\tauE\), FRR exceeds FAR
 for at least three of the four primary models) and H5 (EnCodec raises FRR more than FAR, relative to the clean copy, for
-at least three), tested by one-sided class-stratified bootstraps (B = 1,000) with Holm correction; because clips are nested
+at least three), tested by one-sided bootstraps that resample bona fide and spoof clips separately (class-stratified,
+B = 1,000) with Holm correction; because clips are nested
 in speakers, we added speaker-cluster bootstraps (B = 10,000) as a logged, exploratory deviation \citep{bolle04_subsets,field07_boot}. The resampling unit for H2 was specified after the descriptive ITW rates had been seen. H1 and H4 are exploratory and receive effect sizes and intervals rather than confirm/refute claims; their detailed results appear in the supplement.
 The hypotheses were registered on 19~July 2026, amended in August and September, and frozen on 28~September 2026 before any
 ITW clip was scored; the frozen registration and the deviation log are in the repository. Two int8 hypotheses were also
@@ -228,11 +233,12 @@ genuine speech, and screening \(C<1\) needs a point below the dashed line.}
 % src: revision/results/b_thresholds.json; revision/results/a_cluster.json
 \emph{Determinacy.} Dev is nearly separable, so \(\tauE\) is pinned by few trials. For the reference, every threshold in
 \([-3.38, +2.14]\) ties with \(\tauE\) on dev within one bona fide trial, and its ITW FRR runs from 25.1\% to 73.0\% over
-that interval.
+that interval, so its ITW TTG could be anywhere from 3.6 to 26.3\,pp: the development data do not determine how much of
+the reference's deployed error is transfer.
 
 % src: revision/results/f_vad_stats_analysis.json; revision/results/f_vad_scores_analysis.json
-\emph{Silence.} LA19 bona fide clips begin with a median 1.00\,s of silence against 0.38\,s for spoofs; ITW genuine clips
-begin with 0.09\,s. Trimming both ends at test time raises the LA19-eval EER of all five models 6--34 fold, showing sensitivity to
+\emph{Silence.} LA19 development bona fide clips begin with a median 1.00\,s of silence against 0.38\,s for spoofs
+(evaluation: 0.90\,s against 0.05\,s); ITW genuine clips begin with 0.09\,s. Trimming both ends at test time raises the LA19-eval EER of all five models 6--34 fold, showing sensitivity to
 the removed non-speech; this test-time intervention does not by itself isolate a learned silence shortcut; re-setting thresholds on trimmed dev lowers ITW FRR (9--38\,pp) but raises FAR (3--34\,pp) and moves ITW EER by
 only \(-4.0\) to \(+3.1\)\,pp. Whether the cue in \emph{training} drives the ITW behaviour is R2-H3.
 
