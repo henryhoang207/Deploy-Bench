@@ -916,6 +916,14 @@ def main(final: bool):
     # ---- round-2 results (registered tests run once; exploratory analyses), rebuilt from the committed files
     audit_round2(chk, truth, schk)
 
+    # ---- Speech Communication's guide for authors: abstract <= 250 words; 3-5 highlights of <= 85 characters
+    abstract = tex.split("\\begin{abstract}", 1)[1].split("\\end{abstract}", 1)[0]
+    words = re.sub(r"(?m)^\s*%.*$", "", abstract).replace("~", " ").split()
+    truth("venue.abstract_words", len(words) <= 250, f"{len(words)} words")
+    hl = [x for x in (HERE / "highlights.txt").read_text(encoding="utf-8").splitlines() if x.strip()]
+    truth("venue.highlights", 3 <= len(hl) <= 5 and all(len(x) <= 85 for x in hl),
+          f"{len(hl)} highlights, longest {max(map(len, hl))} characters")
+
     if final:
         truth("final.todo", not any(r"\todo{" in t for t in docs.values()), "unresolved manuscript placeholders")
         for stem in ("main", "supplement"):

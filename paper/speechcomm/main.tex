@@ -40,22 +40,21 @@
 
 \begin{abstract}
 % src: revision/paper/main.tex; revision/results/b_thresholds.json; results/round2/analysis/r2_registered.txt; results/round2/analysis/r2_explore.txt
-A speech deepfake detector's decision threshold is chosen on development data and then applied to speech from other
-speakers, channels and synthesis systems. We propose a reporting protocol for this transfer and apply it in a two-round
-pre-registered audit. The protocol splits the half total error rate at the development threshold into the error that no
-threshold removes and a threshold transfer gap (TTG), reports false rejection and false acceptance under explicit
-policies, and states the thresholds that tie on development data and speaker-level uncertainty. Round~1 audits five
-released detectors trained on ASVspoof~2019 LA. On its unseen attacks, transfer causes 83--84\% of the deployed error of
-two detectors whose equal error rates are below 1\%. On In-the-Wild, false rejection exceeds false acceptance for three
-of four primary models when clips are resampled, as registered, but for one of four when speakers are resampled, so we
-do not claim it; a neural codec raises false rejection more than false acceptance under both units. Two quantization
-hypotheses were not supported, one for lack of usable quantized models and one on a clause the quantizer could not meet.
-Round~2, registered before any of its scores existed, confirms that the operating policy sets the dominant error for
-two of three current detectors and that the transfer gap recurs across retraining (four of five seeds). Trimming silence
-from training lowers false rejection but not the equal error rate, largely through checkpoint selection. Low-bitrate
-codecs and a phone impulse response raise false rejection more than false acceptance (four of eight channel conditions).
-Detectors that discriminate In-the-Wild well remain limited by their thresholds, and review budgets designed on
-development data do not survive transfer.
+Speech deepfake detectors are thresholded on development data and deployed on other speakers, channels and
+synthesizers. We propose a reporting protocol for this transfer, applied in two pre-registered rounds. The protocol
+splits the half total error rate at the development threshold into discrimination loss and a threshold transfer gap,
+reports false rejection and false acceptance under explicit policies, and states development-threshold ambiguity and
+speaker-level uncertainty. Round~1 audits five released detectors trained on ASVspoof~2019 LA. On its unseen attacks,
+transfer causes 83--84\% of the deployed error of two detectors whose equal error rates are below 1\%. On In-the-Wild,
+false rejection exceeds false acceptance for three of four primary models when clips are resampled, as registered, but
+for one of four when speakers are resampled, so we do not claim it; a neural codec raises false rejection more than
+false acceptance under both units. Two quantization hypotheses were not supported, one for lack of usable quantized
+models and one on a clause the quantizer could not meet. Round~2, registered before its scores existed, confirms that
+the operating policy sets the dominant error for two of three current detectors and that the transfer gap recurs across
+retraining (four of five seeds). Trimming silence from training lowers false rejection, largely through checkpoint
+selection, but not the equal error rate. Low-bitrate codecs and a phone impulse response raise false rejection (four of
+eight channel conditions). Strong In-the-Wild discriminators remain threshold-limited, and development-designed review
+budgets do not survive transfer.
 \end{abstract}
 
 \begin{keyword}
