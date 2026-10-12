@@ -33,7 +33,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import r2lib as R  # noqa: E402
 
 GEN = Path(os.environ.get("R2_GEN", R.REPO / "paper" / "speechcomm" / "gen"))
-NICE = {"as5_aasist": "AASIST (ASVspoof 5)", "pascu_lr": "XLS-R 2B + LR", "xlsr_mamba": "XLSR-Mamba",
+NICE = {"as5_aasist": "AS5 AASIST", "pascu_lr": "Pascu LR", "xlsr_mamba": "XLSR-Mamba",
         "aasist": "AASIST", "aasist_l": "AASIST-L", "rawnet2": "RawNet2", "tssdnet": "Res-TSSDNet",
         "xlsr_aasist": "XLS-R+AASIST"}
 SURF = {"la19_eval": "LA19 eval", "itw": "ITW", "df21_verified": "DF21 ver.", "mlaad5": "MLAAD-5", "as5_eval": "AS5 eval"}
@@ -67,16 +67,17 @@ def head(src, note):
 
 
 def t_gates(g):
-    L = head("gates.json", "EER in %; reference = published value (AS5 dev, LA19 eval) or the authors' released DF21 "
-             "score file on the same trials (XLSR-Mamba); pass = within 15% relative")
+    L = head("gates.json", "EER in %; reference = the released AS5 baseline's README value (dev), Pascu et al.'s published "
+             "LA19-eval figure, or the authors' released DF21 score file on the same trials (XLSR-Mamba); pass = within 15% "
+             "relative")
     L += [r"\begin{tabular}{@{}llrrc@{}}", r"\toprule", r"Model & Gate & Ours & Reference & Pass \\", r"\midrule"]
     a = g["as5_aasist"]
-    L.append(rf"AASIST (ASVspoof 5) & AS5 dev EER (\%) & {a['eer_pct']:.2f} & 15.2 & {'yes' if a['passed'] else 'no'} \\")
+    L.append(rf"{NICE['as5_aasist']} & AS5 dev EER (\%) & {a['eer_pct']:.2f} & 15.2 & {'yes' if a['passed'] else 'no'} \\")
     x = g["xlsr_mamba"]
     L.append(rf"XLSR-Mamba & DF21 EER, same {x['n_overlap']:,} trials (\%) & {x['eer_ours_pct']:.2f} & "
              rf"{x['eer_theirs_pct']:.2f} & {'yes' if x['passed'] else 'no'} \\")
     p = g["pascu_lr"]
-    L.append(rf"XLS-R 2B + LR & LA19-eval EER, train+dev fit (\%) & {p['eer_pct']:.2f} & 0.6 & {'yes' if p['passed'] else 'no'} \\")
+    L.append(rf"{NICE['pascu_lr']} (train+dev fit) & LA19-eval EER (\%) & {p['eer_pct']:.2f} & 0.6 & {'yes' if p['passed'] else 'no'} \\")
     L += [r"\bottomrule", r"\end{tabular}"]
     write("r2_gates", L)
 
@@ -112,7 +113,7 @@ def t_tests(r):
           r"Hypothesis & Per unit & Outcome \\", r"\midrule"]
     h1 = r["R2-H1"]
     per = "; ".join(
-        (f"{NICE[m]}: {pct(v['frr1']['frr_minus_far_pp'] / 100, 1)}/{pct(v['far5']['far_minus_frr_pp'] / 100, 1)}"
+        (f"{NICE[m]}: {pct(v['frr1']['frr_minus_far_pp'] / 100, 1)} / {pct(v['far5']['far_minus_frr_pp'] / 100, 1)}"
          + (r"$^\ast$" if v.get("supports") else "")) if v.get("evaluable") else f"{NICE[m]}: n/a"
         for m, v in h1["per_model"].items())
     L.append(rf"R2-H1 policy sets direction & {per} & {h1['n_supporting']}/3, {'supported' if h1['supported'] else 'not supported'} \\")
@@ -175,7 +176,7 @@ def t_seeds(e23, gates):
     rel = e23["released_aasist_l"]
     L.append(rf"Released AASIST-L & -- & -- & -- & -- & {pct(rel['la19_eval']['eer'], 2)} & {pct(rel['la19_eval']['ttg'], 2)} & "
              rf"{pct(rel['itw']['eer'])} & {pct(rel['itw']['frr'])} & {pct(rel['itw']['ttg'], 2)} & -- & -- & -- \\")
-    for arm, name in (("aasist_l_r2", "As released"), ("aasist_l_trim", "Trimmed")):
+    for arm, name in (("aasist_l_r2", "Untrimmed"), ("aasist_l_trim", "Trimmed")):
         L.append(r"\addlinespace")
         rows = e23.get(arm, {})
         last = e23.get(arm + "_last", {})
@@ -215,7 +216,7 @@ def t_channels(e4):
         if m == "xlsr_mamba":
             L.append(r"\addlinespace")
     L.append(r"\addlinespace")
-    for arm, name in (("aasist_l_r2", "AASIST-L runs, as released"), ("aasist_l_trim", "AASIST-L runs, trimmed")):
+    for arm, name in (("aasist_l_r2", "AASIST-L runs, untrimmed"), ("aasist_l_trim", "AASIST-L runs, trimmed")):
         rs = [e4[f"{arm}|s{k}"] for k in (1, 2, 3, 4, 5) if f"{arm}|s{k}" in e4]
         if not rs:
             continue
@@ -311,6 +312,64 @@ def t_calibration(e9):
     write("r2_calibration", L)
 
 
+def t_h4(r):
+    """R2-H4 per condition: the registered combined test and its two registered component families (Holm over the four
+    primary round-1 models within each condition and family)."""
+    L = head("analysis/r2_registered.json (R2-H4)", "number of the four primary round-1 models whose one-sided test rejects "
+             "after Holm (B = 10000 speaker-cluster bootstrap, paired clean/stressed clips) at tau_eer")
+    L += [r"\begin{tabular}{@{}lcccl@{}}", r"\toprule",
+          r"Condition & $\Delta$FRR$-\Delta$FAR $>0$ & $\Delta$FRR $>0$ & $\Delta$FAR $<0$ & Rule (3 of 4) \\", r"\midrule"]
+    for c, v in r["R2-H4"]["conditions"].items():
+        pm = v["per_model"].values()
+        nf = sum(bool(x.get("holm_dfrr")) for x in pm)
+        na = sum(bool(x.get("holm_dfar")) for x in pm)
+        L.append(rf"{COND[c]} & {v['n_rejected']}/4 & {nf}/4 & {na}/4 & {'met' if v['supported'] else 'not met'} \\")
+    L += [r"\bottomrule", r"\end{tabular}"]
+    write("r2_h4", L)
+
+
+def t_card(e1, e7, e9, rl, taus, model="xlsr_mamba", surf="itw"):
+    """The reporting card (Table 1) filled in for one detector and target, from the committed results."""
+    c = e1[f"{model}|{surf}"]
+    P = c["policies"]
+    t = taus
+    z = e7[f"{model}|{surf}"]["0.1"]
+    cal = [r for r in e9[f"{model}|{surf}"]["rows"] if r[0] == 0.0][0]
+    w = P["eer"]["window"]
+    L = head("analysis/r2_explore.json (E1_E8_E10, E7, E9), analysis/r2_registered.json (R2-RL), taus/" + model + "__s0.json",
+             f"the reporting card filled in for {model} on {surf}; rates in % of the target class, TTG in pp")
+    rows = [
+        ("Threshold source and policy", rf"LA19 dev ({t['n_bona']:,} bona fide, {t['n_spoof']:,} spoof; dev EER "
+                                        rf"{100 * t['dev_eer']:.3f}\%), \(\tau^{{*}}_{{\mathrm{{EER}}}}\)"),
+        ("Target", rf"ITW, {c['n']:,} clips, {c['clusters']} speaker labels"),
+        (r"FRR (BPCER) / FAR at the shipped threshold", rf"{pct(P['eer']['frr'])} / {pct(P['eer']['far'])}"),
+        ("HTER = oracle HTER + TTG", rf"{pct(P['eer']['hter'])} = {pct(P['eer']['hter_oracle'])} + {pct(P['eer']['ttg'], 2)} "
+                                    rf"[{pct(P['eer']['ttg_ci95'][0], 2)}, {pct(P['eer']['ttg_ci95'][1], 2)}]; share "
+                                    rf"{100 * P['eer']['transfer_share']:.0f}\%"),
+        ("FRR at the ends of the dev-equivalent interval", rf"{pct(min(c['tie']['frr']))}--{pct(max(c['tie']['frr']))} "
+                                                          rf"(span {rl['tie_itw_frr_span_pp']:.1f}\,pp)"),
+        (r"FRR / FAR at the budget policies", ", ".join(
+            rf"{lab} {pct(P[k]['frr'])}/{pct(P[k]['far'])}" for k, lab in
+            (("frr1", r"\(\tau^{*}_{\mathrm{FRR}1}\)"), ("frr5", r"\(\tau^{*}_{\mathrm{FRR}5}\)"),
+             ("far1", r"\(\tau^{*}_{\mathrm{FAR}1}\)"), ("far5", r"\(\tau^{*}_{\mathrm{FAR}5}\)")))),
+        ("BPCER at a FAR budget of 5\\%", rf"{pct(c['bpcer_at_apcer']['0.05']['dev_budget'])} at the dev threshold (realised FAR "
+                                          rf"{pct(P['far5']['far'])}); {pct(c['bpcer_at_apcer']['0.05']['target_oracle'])} at "
+                                          rf"the target threshold with FAR 5\%"),
+        ("Break-even window of bona fide priors", "none" if not w else rf"{w[0]:.3f}--{w[1]:.3f}"),
+        ("Actual / minimum cost at equal priors", rf"{cal[1]:.2f} / {cal[2]:.2f} after logistic calibration on LA19 dev"),
+        ("Three-zone review, 10\\% dev budget", rf"review {pct(z['dev']['review_pooled'])} (genuine "
+                                                rf"{pct(z['dev']['review_bona'])}); automatic: genuine rejected "
+                                                rf"{pct(z['dev']['bona_auto_rejected'])}, spoofs accepted "
+                                                rf"{pct(z['dev']['spoof_auto_accepted'])}"),
+        ("Reading rule", rl["category"]),
+    ]
+    L += [r"\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\textwidth}>{\raggedright\arraybackslash}p{0.60\textwidth}@{}}",
+          r"\toprule", r"Card item & XLSR-Mamba on ITW \\", r"\midrule"]
+    L += [rf"{a} & {b} \\" for a, b in rows]
+    L += [r"\bottomrule", r"\end{tabular}"]
+    write("r2_card", L)
+
+
 POL5 = (("eer", r"\(\tau^{*}_{\mathrm{EER}}\)"), ("frr1", r"\(\tau^{*}_{\mathrm{FRR}1}\)"), ("frr5", r"\(\tau^{*}_{\mathrm{FRR}5}\)"),
         ("far1", r"\(\tau^{*}_{\mathrm{FAR}1}\)"), ("far5", r"\(\tau^{*}_{\mathrm{FAR}5}\)"))
 
@@ -371,7 +430,7 @@ def t_s_channels(e4):
              "set; the trimmed arm trims every clip before scoring")
     L += [r"\begin{tabular}{@{}ll" + "r" * len(CONDS9) + r"@{}}", r"\toprule",
           "Arm & Seed & " + " & ".join(COND[c] for c in CONDS9) + r" \\", r"\midrule"]
-    for gi, (arm, name) in enumerate((("aasist_l_r2", "As released"), ("aasist_l_trim", "Trimmed"))):
+    for gi, (arm, name) in enumerate((("aasist_l_r2", "Untrimmed"), ("aasist_l_trim", "Trimmed"))):
         if gi:
             L.append(r"\addlinespace")
         for s in R.RUN_SEEDS:
@@ -449,6 +508,10 @@ def main():
     rg = load("analysis/r2_registered.json")
     if rg:
         t_tests(rg)
+        t_h4(rg)
+    tm = load("taus/xlsr_mamba__s0.json")
+    if ex and rg and tm and all(k in ex for k in ("E1_E8_E10", "E7", "E9")):
+        t_card(ex["E1_E8_E10"], ex["E7"], ex["E9"], rg["R2-RL"]["xlsr_mamba"], tm)
     if ex:
         if "E2_E3" in ex:
             t_seeds(ex["E2_E3"], g)
