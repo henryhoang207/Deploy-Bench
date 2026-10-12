@@ -1,5 +1,5 @@
 Protocol splits deployed error into discrimination loss and a threshold transfer gap
-Two pre-registered rounds audit eight speech deepfake detectors and 11 training runs
-The threshold policy decides which error dominates after a detector is transferred
-Detectors that discriminate In-the-Wild well remain limited by their dev thresholds
-Review budgets and calibration set on development data do not survive transfer
+Two registered rounds audit eight speech deepfake detectors and 11 training runs
+The threshold policy set the dominant error for two of three current detectors
+Three XLS-R detectors that separate In-the-Wild well stay limited by thresholds
+Exploratory: review budgets designed on development data overflow on new data

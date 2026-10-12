@@ -132,14 +132,35 @@ R2_DERIVED += [EX["E2_E3"]["aasist_l_trim"][s]["itw|eer"]["frr"] - EX["E2_E3"]["
 R2_DERIVED += [sum(r[c][k] for r in (EX["E4"][f"{a}|s{s}"] for s in SEEDS)) / 5 for a in ("aasist_l_r2", "aasist_l_trim")
                for c in EX["E4"]["aasist_l_r2|s1"] for k in ("dfrr", "dfar")]
 R2_DERIVED += [1 / (1 + 2.718281828459045 ** -2)]          # logit 2 as a prior
+TM = json.loads((R2 / "taus" / "xlsr_mamba__s0.json").read_text(encoding="utf-8"))
+R2_DERIVED += [TM["n_spoof"] / (TM["n_bona"] + TM["n_spoof"])]  # LA19 dev is about 90% spoof
 R2_NUMBERS = set()
 for _v in [*_numeric_leaves(GT), *_numeric_leaves(RG), *_numeric_leaves(EX), *_numeric_leaves(PH), *R2_DERIVED]:
     R2_NUMBERS |= _forms(_v)
 
+# ITW class counts, read from a committed round-1 score file (label 1 = bona fide)
+import csv  # noqa: E402
+with open(WORKTREE / "results" / "phase_2_conversion_app" / "main_matrix" / "aasist" / "scores_fp32_pytorch_itw.csv",
+          encoding="utf-8") as _fh:
+    _labels = [r["label"] for r in csv.DictReader(_fh)]
+ITW_N, ITW_BONA = len(_labels), sum(1 for x in _labels if x == "1")
+# The commits of the two registration tags, from this worktree's git history
+TAGS = {t: subprocess.run(["git", "rev-parse", "--short", f"{t}^{{commit}}"], cwd=WORKTREE, capture_output=True,
+                          text=True).stdout.strip() for t in ("roster-freeze", "round2-freeze")}
+# The ASVspoof 5 DCF (miss cost 1, false-alarm cost 10, spoof prior 0.05) as an effective bona fide prior
+AS5_P = (1 - 0.05) * 1 / ((1 - 0.05) * 1 + 0.05 * 10)
+EXTRA_NUMBERS = _forms(ITW_BONA) | _forms(AS5_P) | _forms(1.45) | _forms(0.05)
+
 # Report only literature values still present in the recursively read draft.
-# These are attributed quotations, not estimates computed by this checker.
+# These are attributed quotations, not estimates computed by this checker; a paragraph that cites the key may use them.
 CITED = [("78.7%", "zhou26_eer_hides"), ("15.1%", "muller21_silence"),
-         ("3.6%", "muller21_silence"), ("15.5%", "muller21_silence")]
+         ("3.6%", "muller21_silence"), ("15.5%", "muller21_silence"),
+         ("17.83%", "wang25_asvspoof5_db"), ("29.12%", "wang25_asvspoof5_db")]
+
+# Documented edits to generated round-1 tables (otherwise byte-identical to the audited revision): Table 5's column
+# headers, after the 2026-10-12 review (the clip unit of H2 was chosen post hoc; the speaker analysis is exploratory).
+GEN_EDITS = {"tab_tests.tex": [(b"Clips (registered)", b"Clips (first run)"),
+                               (b"Speakers (this revision)", b"Speakers (exploratory)")]}
 
 
 def tgt(m, t):
@@ -392,6 +413,14 @@ def audit_provenance(docs, fails):
                 # Round-2 prose: the committed result files, rounded as printed (the explicit claims below are exact).
                 if any(p.is_relative_to(R2) or p.name.startswith(("r2_", "r2s_")) for p in sources):
                     allowed.update(R2_NUMBERS)
+                # Attributed literature values, for a paragraph that cites their source; checked derived values;
+                # registration tag commits (verified against git below).
+                keys = set(re.findall(r"\bbib:([\w-]+)", " ".join(comments)))
+                for value, key in CITED:
+                    if key in keys:
+                        allowed.update(visible_numbers(value))
+                allowed.update(EXTRA_NUMBERS)
+                allowed.update(visible_numbers(" ".join(TAGS.values())))
                 unsupported = sorted(set(nums) - allowed)
                 if unsupported:
                     fails.append(("src.unsupported_number", f"{label}: numbers absent from the cited source or audited draft: {unsupported}"))
@@ -430,7 +459,8 @@ def audit_round2(chk, truth, schk):
     # gates
     a, x, p = GT["as5_aasist"], GT["xlsr_mamba"], GT["pascu_lr"]
     truth("r2.gates_pass", a["passed"] and x["passed"] and p["passed"])
-    chk("r2.gate_as5", f"EER ({a['eer_pct']:.2f}% against {a['published_pct']}%")
+    chk("r2.gate_as5", f"the released checkpoint ({a['eer_pct']:.2f}% against {a['published_pct']}%")
+    chk("r2.gate_as5_eval", f"our evaluation EER is {100 * EX['E1_E8_E10']['as5_aasist|as5_eval']['eer']:.1f}%")
     chk("r2.gate_mamba", f"is {x['eer_ours_pct']:.2f}% against {x['eer_theirs_pct']:.2f}% for the authors' released scores "
                          f"on the same {x['n_overlap']:,} trials")
     chk("r2.gate_pascu", f"reaches {p['eer_pct']:.2f}% on LA19 eval against the published {p['published_pct']}%")
@@ -483,8 +513,14 @@ def audit_round2(chk, truth, schk):
                       f"{h1[pa]['far5']['frr_pct']:.1f}% and {h1[xm]['far5']['frr_pct']:.1f}%")
     f1 = h1[a5]["frr1"]
     chk("r2.h1_as5", f"({f1['frr_minus_far_pp']:+.1f}pp [{f1['ci95_pp'][0]:+.1f}, {f1['ci95_pp'][1]:+.1f}])")
-    chk("r2.h1_as5_far5", f"it rejects {h1[a5]['far5']['frr_pct']:.1f}% of genuine ITW speech and accepts "
-                          f"{h1[a5]['far5']['far_pct']:.1f}% of spoofs")
+    own = EX["E1_E8_E10"]["as5_aasist|as5_eval"]["policies"]["far5"]
+    chk("r2.h1_as5_far5", f"Already on its own evaluation set it rejects {pct(own['frr'])}% of genuine clips there (FAR "
+                          f"{pct(own['far'])}%), and on ITW {h1[a5]['far5']['frr_pct']:.1f}% (FAR "
+                          f"{h1[a5]['far5']['far_pct']:.1f}%)")
+    truth("r2.h1_as5_dev_eer", GT["as5_aasist"]["eer_pct"] > 5)
+    chk("r2.h1_as5_dev_eer_text", f"its development EER ({GT['as5_aasist']['eer_pct']:.1f}%) exceeds both budgets")
+    lowdev = [json.loads((R2 / "taus" / f"{mm}__s0.json").read_text(encoding="utf-8"))["dev_eer"] for mm in (pa, xm)]
+    truth("r2.h1_lowdev", max(lowdev) < 0.001, f"dev EERs {lowdev}")
     # R2-H2
     h2 = RG["R2-H2"]["per_run"]
     truth("r2.h2", RG["R2-H2"]["supported"] and RG["R2-H2"]["n_rejected"] == 4 and not h2["1"]["holm_reject"])
@@ -519,7 +555,14 @@ def audit_round2(chk, truth, schk):
     chk("r2.h4_opus24k", f"FAR falls by {min(o24):.1f}-{max(o24):.1f}pp")
     truth("r2.h4_mp3", cond["mp3_32"]["n_rejected"] == 1)
     aa = [cond[cc]["per_model"][mm]["dfrr_pp"] for cc in ("snr10", "snr5") for mm in ("aasist", "aasist_l")]
-    chk("r2.h4_noise_frr", f"AASIST and AASIST-L reject {rng(aa, 0)}pp more genuine speech at 10 and 5dB SNR")
+    rt = [cond[cc]["per_model"][mm]["dfrr_pp"] for cc in ("snr10", "snr5") for mm in ("rawnet2", "tssdnet")]
+    chk("r2.h4_noise_frr", f"(AASIST and AASIST-L by {rng(aa, 0)}pp, RawNet2 and Res-TSSDNet by {rng(rt, 0)}pp)")
+    ncomp = {cc: sum(bool(x["holm_dfrr"]) for x in cond[cc]["per_model"].values()) for cc in cond}
+    truth("r2.h4_comp_noise", ncomp["snr10"] == 4 and ncomp["snr5"] == 4, f"{ncomp}")
+    chk("r2.h4_comp_noise_text", "Additive noise raises false rejection for every primary model at 10 and 5dB SNR")
+    truth("r2.h4_comp_opus24k", ncomp["opus24k"] == 1, f"{ncomp}")
+    chk("r2.h4_comp_opus24k_text", "rising significantly for one model only")
+    truth("r2.h4_comp_codecs_ir", all(ncomp[cc] == 4 for cc in ("opus6k", "amr4.75", "mic_ir")), f"{ncomp}")
     rn = [cond[cc]["per_model"]["rawnet2"]["dfar_pp"] for cc in ("snr20", "snr10", "snr5")]
     ts = [cond[cc]["per_model"]["tssdnet"]["dfar_pp"] for cc in ("snr20", "snr10", "snr5")]   # all three noise levels
     chk("r2.h4_noise_far", f"RawNet2 (by {rng(rn, 0)}pp) and of Res-TSSDNet (by {rng(ts, 0)}pp, at all three noise levels)")
@@ -572,9 +615,12 @@ def audit_round2(chk, truth, schk):
                      f"against -{m_s - m_t:.1f}pp as registered)")
     per = [100 * (e["aasist_l_r2_last"][s]["itw|eer"]["frr"] - e["aasist_l_trim"][s]["itw|eer"]["frr"]) for s in SEEDS]
     truth("r2.e3_each_seed", min(per) > 0)
-    chk("r2.e3_seeds", f"lower for each of the five seeds by {min(per):.1f} to {max(per):.1f}pp")
+    tr = [e["aasist_l_trim"][s]["itw|eer"]["frr"] for s in SEEDS]
+    ul = [e["aasist_l_r2_last"][s]["itw|eer"]["frr"] for s in SEEDS]
+    pairs = sum(1 for a_ in tr for b_ in ul if a_ < b_)
+    chk("r2.e3_pairs", f"a trimmed run has the lower FRR in {pairs} of the {len(tr) * len(ul)} cross-arm pairs")
     share = (m_l - m_t) / (m_s - m_t)
-    truth("r2.two_thirds", 0.6 < 1 - share < 0.7, f"selection share {1 - share:.3f}")
+    truth("r2.most_through_averaging", 1 - share > 0.5, f"share through averaging {1 - share:.3f}")
     fa = [100 * arm_mean(arm, "itw|eer", "far") for arm in ("aasist_l_trim", "aasist_l_r2", "aasist_l_r2_last")]
     chk("r2.e3_far", f"(ITW FAR {fa[0]:.1f}% when trimmed, against {fa[1]:.1f}% for the averaged and {fa[2]:.1f}% for the "
                      f"last-epoch untrimmed models)")
@@ -632,8 +678,12 @@ def audit_round2(chk, truth, schk):
     e7 = EX["E7"]
     la19_trained = ("pascu_lr", "xlsr_mamba", "aasist", "aasist_l", "rawnet2", "tssdnet", "xlsr_aasist")
     dv = lambda mm, k, t="itw", b="0.1", kind="dev": e7[f"{mm}|{t}"][b][kind][k]  # noqa: E731
-    chk("r2.e7_review", f"it sends {span([dv(mm, 'review_pooled') for mm in la19_trained])}% of ITW clips, and "
-                        f"{span([dv(mm, 'review_bona') for mm in la19_trained])}% of genuine ones, to review")
+    chk("r2.e7_itw_counts", f"mostly genuine speech ({ITW_BONA:,} of {ITW_N:,} clips)")
+    chk("r2.e7_dev_mix", f"development data are about {100 * TM['n_spoof'] / (TM['n_bona'] + TM['n_spoof']):.0f}% spoof")
+    chk("r2.e7_genuine", f"the band holds {span([dv(mm, 'review_bona', 'la19_eval') for mm in la19_trained])}% of genuine "
+                         f"LA19-eval clips, whose speech comes from the source corpus (supplement), but "
+                         f"{span([dv(mm, 'review_bona') for mm in la19_trained])}% of genuine ITW clips")
+    chk("r2.e7_review", f"it sends {span([dv(mm, 'review_pooled') for mm in la19_trained])}% of ITW clips to review")
     chk("r2.e7_autorej", f"reject {span([dv(mm, 'bona_auto_rejected') for mm in la19_trained])}% of genuine clips")
     truth("r2.e7_noacc", max(dv(mm, "spoof_auto_accepted") for mm in la19_trained) < 0.001)
     chk("r2.e7_as5", f"({pct(dv(a5, 'review_pooled'))}%) only because most genuine ITW scores fall below the band, so it "
@@ -649,9 +699,11 @@ def audit_round2(chk, truth, schk):
     e9 = EX["E9"]
     at = lambda mm, t, lg=0.0: next(r for r in e9[f"{mm}|{t}"]["rows"] if abs(r[0] - lg) < 1e-9)  # noqa: E731
     truth("r2.e9_act_ge_min", all(r[1] >= r[2] - 1e-12 for v in e9.values() for r in v["rows"] if r[1] is not None))
-    chk("r2.e9_ssl", f"({at(xm, 'itw')[1]:.2f} against {at(xm, 'itw')[2]:.2f} for XLSR-Mamba, {at('xlsr_aasist', 'itw')[1]:.2f} "
-                     f"against {at('xlsr_aasist', 'itw')[2]:.2f} for the round-1 reference, {at(pa, 'itw')[1]:.2f} against "
-                     f"{at(pa, 'itw')[2]:.2f} for Pascu's detector)")
+    chk("r2.e9_ssl", f"the excess is largest for XLSR-Mamba ({at(xm, 'itw')[1]:.2f} against {at(xm, 'itw')[2]:.2f}) and the "
+                     f"round-1 reference ({at('xlsr_aasist', 'itw')[1]:.2f} against {at('xlsr_aasist', 'itw')[2]:.2f})")
+    chk("r2.e9_pascu", f"smaller for Pascu's detector ({at(pa, 'itw')[1]:.2f} against {at(pa, 'itw')[2]:.2f})")
+    excess = sorted(((at(mm, "itw")[1] - at(mm, "itw")[2]), mm) for mm in (a5, *la19_trained))
+    truth("r2.e9_largest_two", {excess[-1][1], excess[-2][1]} == {xm, "xlsr_aasist"}, f"{excess}")
     chk("r2.e9_primary_min", f"near 1 ({span([at(mm, 'itw')[2] for mm in R.RANKED], 2, 1)})")
     chk("r2.e9_trivial", f"RawNet2 on ITW ({at('rawnet2', 'itw')[1]:.2f}) and Pascu's detector on MLAAD-5 "
                          f"({at(pa, 'mlaad5')[1]:.2f})")
@@ -664,20 +716,40 @@ def audit_round2(chk, truth, schk):
     # discussion and abstract
     words = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight"]
     chk("disc.mamba_span", f"XLSR-Mamba's ITW FRR spans {rl[xm]['tie_itw_frr_span_pp']:.1f}pp")
-    chk("disc.two_thirds", "about two thirds of that reduction comes from checkpoint selection")
+    chk("disc.most_through_averaging", "most of that reduction runs through the weight averaging that trimming switched off")
     chk("abs.h1", f"sets the dominant error for {words[RG['R2-H1']['n_supporting']]} of three current detectors")
     chk("abs.h2", f"recurs across retraining ({words[RG['R2-H2']['n_rejected']]} of five seeds)")
-    chk("abs.h4", f"({words[h4['n_conditions_supported']]} of eight channel conditions)")
-    chk("abs.h2_r1", f"for three of four primary models when clips are resampled, as registered, but for "
-                     f"{words[sum(1 for mm in RK if A['a1_h2']['per_model'][mm]['holm_reject_h0'])]} of four when speakers "
-                     f"are resampled")
+    chk("abs.h4", f"toward false rejection in {words[h4['n_conditions_supported']]} of eight channel conditions")
+    fr4 = [cond[cc]["per_model"][mm]["dfrr_pp"] for cc in ("opus6k", "amr4.75", "mic_ir") for mm in R.RANKED]
+    chk("abs.h4_range", f"raise false rejection by {rng(fr4, 0)} points")
+    chk("abs.h2_r1", f"for three of four primary models under clip resampling but for "
+                     f"{words[sum(1 for mm in RK if A['a1_h2']['per_model'][mm]['holm_reject_h0'])]} of four under speaker "
+                     f"resampling")
     share1 = sorted(100 * pol(mm, "19la_eval")["transfer_share"] for mm in ("aasist", "aasist_l"))
-    chk("abs.r1_share", f"transfer causes {share1[0]:.0f}-{share1[1]:.0f}% of the deployed error of two detectors whose "
-                        f"equal error rates are below 1%")
+    chk("abs.r1_share", f"the transfer gap accounts for {share1[0]:.0f}-{share1[1]:.0f}% of the deployed error of two "
+                        f"detectors whose equal error rates are below 1%")
+    # conclusion
+    ttg_ssl = sorted([c(pa, "itw")["ttg"] * 100, c(xm, "itw")["ttg"] * 100, pol("xlsr_aasist", "itw")["ttg_pp"]])
+    chk("concl.ttg", f"(TTG {ttg_ssl[0]:.2f} to {ttg_ssl[-1]:.2f}pp)")
+    # protocol: the ASVspoof 5 DCF as an effective prior; ITW speaker structure
+    chk("proto.as5_dcf", f"p=0.95/1.45{AS5_P:.3f}")
+    truth("proto.as5_dcf_value", abs(AS5_P - 0.95 / 1.45) < 1e-12)
+    # discussion: per-speaker concentration (round-1 table S10)
+    spk = (HERE / "gen" / "s_tab_speakers.tex").read_text(encoding="utf-8")
+    rows90 = [int(r.split("&")[5]) for r in spk.splitlines() if r.count("&") >= 7 and r.split("&")[0].strip() in
+              ("AASIST", "AASIST-L", "RawNet2", "Res-TSSDNet", "XLS-R (ref.)")]
+    rows50 = [int(r.split("&")[4]) for r in spk.splitlines() if r.count("&") >= 7 and r.split("&")[0].strip() in
+              ("AASIST", "AASIST-L", "RawNet2", "Res-TSSDNet", "XLS-R (ref.)")]
+    chk("disc.speakers", f"{min(rows90)} to {max(rows90)} of ITW's 54 public-figure labels")
+    chk("disc.speakers50", f"and {min(rows50)} to {max(rows50)} more than half")
+    # supplement: the registration tags
+    truth("s.tags_resolved", all(TAGS.values()), f"{TAGS}")
+    schk("s.tag_round2", f"round2-freeze (commit {TAGS['round2-freeze']})")
+    schk("s.tag_round1", f"roster-freeze (commit {TAGS['roster-freeze']})")
     truth("abs.r1_eer_below_1", all(tgt(mm, "19la_eval")["eer_pct"] < 1 for mm in ("aasist", "aasist_l")))
 
     # supplement (round-2 section)
-    schk("s.r2_far1", f"gives an APCER of {pct(c(pa, 'itw', 'far1')['far'])}% for Pascu's detector and "
+    schk("s.r2_far1", f"gives a FAR of {pct(c(pa, 'itw', 'far1')['far'])}% for Pascu's detector and "
                       f"{pct(c(xm, 'itw', 'far1')['far'])}% for XLSR-Mamba")
     truth("s.r2_nowindow", not c(pa, "mlaad5").get("window"))
     schk("s.r2_last", f"(LA19 eval mean {100 * arm_mean('aasist_l_r2', 'la19_eval|eer', 'ttg'):.2f} against "
@@ -748,8 +820,13 @@ def main(final: bool):
         if g.name.startswith(("r2_", "r2s_")) or g.name == "r1_mlaad.tex":
             continue
         src = R.REV / "paper" / "gen" / g.name
+        ours = g.read_bytes()
+        for old, new in GEN_EDITS.get(g.name, []):   # undo a documented edit before comparing with the revision
+            truth(f"gen.{g.stem}.edit", new in ours, f"documented edit {new!r} missing from {g.name}")
+            ours = ours.replace(new, old)
         truth(f"gen.{g.stem}", src.exists() and src.read_bytes().replace(b"\r\n", b"\n") ==
-              g.read_bytes().replace(b"\r\n", b"\n"), f"{g.name} differs from {src} (ignoring checkout line endings only)")
+              ours.replace(b"\r\n", b"\n"), f"{g.name} differs from {src} (ignoring checkout line endings and the "
+                                            f"documented edits only)")
 
     # ---- study design
     dv = D["aasist"]["dev"]

@@ -1,4 +1,4 @@
-% Literature-only draft: no round-2 outcomes or empirical literature numbers.
+% Literature only: no round-2 outcomes or empirical literature numbers.
 % Primary-source verification is recorded beside the relevant bibliography entries.
 \section{Related Work}
 \label{sec:related}
@@ -13,20 +13,24 @@ For speech, \citet{korshunov16_crossdb} use the same separation when transferrin
 and between logical-access and replay attacks. These precedents motivate keeping the threshold-selection data
 explicit when assessing a speech deepfake detector.
 
-% src: bib:brummer06_calibration
+% src: bib:brummer06_calibration; bib:ferrer19_failsafe; bib:morrison13_tutorial; bib:morrison21_consensus
 Speaker-recognition evaluation further distinguishes discrimination, described by the attainable error trade-offs,
 from calibration, which determines how well a score supports a particular decision rule
-\citep{brummer06_calibration,vanleeuwen07_intro}. The difference between actual cost and minimum cost expresses this
-distinction for a specified application. A minimum found using evaluation labels describes what an oracle threshold
-could achieve; actual cost evaluates the supplied scores at the application's threshold. Our TTG follows this
-lineage at the equal-cost operating point: it measures the excess HTER of a development threshold above the target's
-minimum HTER. It is a threshold-specific loss, rather than a claim that the CM scores are calibrated likelihood
-ratios across applications.
+\citep{brummer06_calibration,vanleeuwen07_intro}. Across applications this distinction is summarised by the
+log-likelihood-ratio cost and its minimum; for a single specified application, by the difference between actual and
+minimum detection cost. A minimum found using evaluation labels describes what an oracle threshold could achieve; actual
+cost evaluates the supplied scores at the application's threshold. Our TTG follows this lineage at the equal-cost
+operating point, where the detection cost equals HTER: it is the actual-minus-minimum cost of a development threshold
+on the target. It is a threshold-specific loss, rather than a claim that the CM scores are calibrated likelihood
+ratios across applications. Calibration under mismatched conditions, and a reject option for trials whose
+calibration is uncertain, have been studied for speaker recognition \citep{ferrer19_failsafe}, and forensic voice
+comparison requires that calibration and validation data reflect the conditions of the case
+\citep{morrison13_tutorial,morrison21_consensus}; threshold transfer is the hard-decision form of the same concern.
 
 % src: bib:wang20_asvspoof2019
 The ASVspoof challenges provide a complementary evaluation lineage. ASVspoof~2019 and ASVspoof~2021 report EER and
 minimum tandem detection cost, with t-DCF assessing a countermeasure together with an ASV system; the 2021 deepfake
-(DF) track, which involves no ASV system, reports EER only \citep{kinnunen18_tdcf,wang20_asvspoof2019,liu23_asvspoof2021}. The stand-alone detection track of ASVspoof~5 reports
+(DF) track, which involves no ASV system, reports EER only \citep{kinnunen18_tdcf,kinnunen20_tdcf,wang20_asvspoof2019,liu23_asvspoof2021}. The stand-alone detection track of ASVspoof~5 reports
 minimum DCF, actual DCF, and log-likelihood-ratio cost \citep{wang24_asvspoof5}. Its actual DCF uses a fixed Bayes
 threshold under an LLR interpretation of the submitted scores. This differs from transferring an empirical
 development threshold, but both protocols expose behavior that a threshold optimized on the target cannot reveal.
@@ -36,10 +40,12 @@ A direct speech-deepfake precedent is \citet{zhou26_eer_hides}, who freeze an SS
 EER threshold on labelled ASVspoof~2019 LA evaluation data, and transfer it to In-the-Wild and a subset of
 ASVspoof~2021 DF. They report HTER and its false-rejection/false-acceptance decomposition, and audit unlabelled
 score corrections. Their monotone-invariance argument clarifies that a strictly increasing score transform can
-alter decisions at a fixed numerical threshold while leaving the ROC and EER unchanged. Our audit uses development data for
-threshold selection and extends the assessment across checkpoints, policies, training runs, and controlled
-perturbations. The contribution is the scope and registration of this assessment, rather than the invention of
-transferred-threshold evaluation.
+alter decisions at a fixed numerical threshold while leaving the ROC and EER unchanged. Relative to that study, the
+present audit (i) sets every threshold on development data, under five policies rather than one; (ii) reports the
+interval of thresholds that tie on development data and what they do on the target; (iii) resamples speakers rather
+than clips; (iv) retrains one recipe several times, separating a released file from its recipe; (v) assesses a review
+policy by its review load and automatic errors; and (vi) registers its tests in two rounds. The contribution is this
+assessment, rather than the invention of transferred-threshold evaluation.
 
 \subsection{Generalization, dataset cues, and training variability}
 % src: bib:muller22_in_the_wild
@@ -49,10 +55,11 @@ ASVspoof-trained detectors to that setting \citep{muller22_in_the_wild}. Recordi
 speakers, and generation pipelines can change together. A target EER summarizes the resulting discrimination,
 whereas the transferred FRR and FAR additionally reveal which class a deployed rule harms.
 
-% src: bib:muller21_silence
+% src: bib:muller21_silence; bib:zhang23_silence
 Dataset cues can make this distinction harder to interpret. \citet{muller21_silence} identify label-correlated
 leading and trailing silence in ASVspoof data; silence-duration classifiers are predictive, and training established
-CMs after trimming silence changes their detection performance. Their evidence motivates interventions on the
+CMs after trimming silence changes their detection performance. \citet{zhang23_silence} analyse in more detail how
+silence in training and test data shapes anti-spoofing performance. This evidence motivates interventions on the
 training audio, rather than treating a test-time trim alone as evidence that a detector has learned a particular
 causal mechanism. Our paired training design asks whether removing this cue changes the transferred operating
 behavior, with source performance serving as a manipulation check.
@@ -90,8 +97,9 @@ with this calibration objective allows the audit to examine that distinction emp
 probability calibration removes operating-point drift.
 
 \subsection{Channel, codec, and multilingual shift}
-% src: bib:liu23_asvspoof2021
-Communication processing can alter detection cues in both genuine and manipulated speech. ASVspoof~2021 DF
+% src: bib:liu23_asvspoof2021; bib:zhang21_channel
+Communication processing can alter detection cues in both genuine and manipulated speech. \citet{zhang21_channel}
+simulate transmission and codec channels on ASVspoof~2019 data and show that they degrade countermeasures. ASVspoof~2021 DF
 includes media compression, while ASVspoof~5 applies encoding and compression, including EnCodec, to evaluation
 utterances from both classes \citep{liu23_asvspoof2021,wang25_asvspoof5_db}. The communication benchmark of
 \citet{realworld_comms24} investigates combinations of codecs and packet loss. These studies motivate controlling
@@ -115,9 +123,10 @@ Language and synthesis coverage should therefore be reported separately from evi
 bona fide traffic. The audit fixes the dataset version and pairing protocol in its study design.
 
 \subsection{Selective decisions and transferred review policies}
-% src: bib:geifman17_selective
+% src: bib:geifman17_selective; bib:ferrer19_failsafe
 Selective classification adds an abstention option, trading automatic-decision coverage for lower error among
-the retained decisions \citep{geifman17_selective}. In speech screening, the abstention can become a review queue,
+the retained decisions \citep{geifman17_selective}; in speaker recognition, a reject option has been paired with
+trial-based calibration under mismatched conditions \citep{ferrer19_failsafe}. In speech screening, the abstention can become a review queue,
 with acceptance and rejection on either side of a score band. A band chosen on development data remains a
 transferred policy: its target review share and residual errors depend on the target score distribution. Our
 three-zone assessment consequently measures coverage and class-specific automatic errors together. It does not

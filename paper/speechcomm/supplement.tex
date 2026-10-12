@@ -57,8 +57,10 @@ more bona fide, a clip is declared spoof if its score is below \(\tau\), \(\frr\
 \section{Registration timeline and deviations}
 Table~\ref{tab:dev} lists the registration events and departures that touch the round-1 material here, with their dates and what had been seen
 when it was logged. The registration was frozen in version control at a tagged snapshot on 28~September 2026, and that snapshot and the deviation log are in the repository (\repo). The freeze date therefore rests on our own version control, not on a read-only, time-stamped record held by a third party \citep[on the value of such a record, see][]{nosek18_prereg}. Every
-deviation after the freeze was written into a log before the analysis it governs was run, and registered results are never replaced: a
-deviation adds a labelled result beside them.
+deviation after the freeze was written into a log before the analysis it governs was run, with one exception: the
+choice of clips as H2's resampling unit, which the registration had left open, was made after the descriptive ITW rates
+had been seen and was recorded only later (Table~\ref{tab:dev}). Registered results are never replaced: a deviation
+adds a labelled result beside them.
 
 % src: revision/paper/supplement.tex; revision/results/
 % src: revision/paper/supplement.tex; revision/results/
@@ -491,8 +493,10 @@ verifies), class B (MD5 fails), the verified subset (evaluation minus B) and the
 \label{sec:r2supp}
 % src: DEVIATIONS.md DEV-9; PREREGISTRATION_ROUND2.md
 \subsection{Registration events}
-Round~2 has its own registration, frozen in version control at the tag \texttt{round2-freeze} on 7~October 2026 with
-its analysis code, and five amendments (Table~\ref{tab:dev2}). Each amendment was written into the deviation log before
+Round~2 has its own registration, frozen in version control at the tag \texttt{round2-freeze} (commit \texttt{73f2721})
+on 7~October 2026 with its analysis code, and five amendments (Table~\ref{tab:dev2}); the round-1 registration is the tag
+\texttt{roster-freeze} (commit \texttt{97e9753}). Both tags are held in the authors' repository, without a third-party
+time stamp. Each amendment was written into the deviation log before
 the work it governs and records what had been seen when it was written. None changes a registered test, support rule or
 threshold.
 
@@ -538,15 +542,15 @@ scores were recomputed under amendment~3, and the quarantined file entered no an
 % src: gen/r2s_policies.tex; results/round2/analysis/r2_explore.json (E1_E8_E10)
 \subsection{All policies, BPCER at fixed APCER and break-even windows}
 Table~\ref{tab:r2pol} gives the round-2 detectors at all five policies (E1), BPCER at the development thresholds for
-APCER budgets of 1\% and 5\% against the target threshold that achieves those APCERs (E8), and the bona fide priors at
-which the cost at \(\tauE\) is below 1 (E10). The FAR budgets do not keep their APCER after transfer: on ITW, \(\tauA{1}\)
-gives an APCER of 8.4\% for Pascu's detector and 10.9\% for XLSR-Mamba. Pascu's detector has no break-even window on
-MLAAD-5.
+FAR budgets of 1\% and 5\% against the target threshold that achieves those FARs (E8; FAR is pooled over attacks, so
+these are APCER-like rather than per-species APCER values), and the bona fide priors at which the cost at \(\tauE\) is
+below 1 (E10). The FAR budgets do not hold after transfer: on ITW, \(\tauA{1}\) gives a FAR of 8.4\% for Pascu's detector
+and 10.9\% for XLSR-Mamba. Pascu's detector has no break-even window on MLAAD-5.
 
 % src: gen/r2s_policies.tex; results/round2/analysis/r2_explore.json (E1_E8_E10)
 \begin{table}[!ht]
-\caption{Round-2 detectors: FRR/FAR (\%) at the five frozen policies, BPCER@\(k\) = BPCER at the dev threshold for
-APCER \(k\)\% / at the target threshold with APCER \(k\)\%, and the break-even window of bona fide priors at \(\tauE\).}
+\caption{Round-2 detectors: FRR/FAR (\%) at the five frozen policies, BPCER@\(k\) = BPCER at the dev threshold for a
+pooled FAR of \(k\)\% / at the target threshold with FAR \(k\)\%, and the break-even window of bona fide priors at \(\tauE\).}
 \label{tab:r2pol}
 \centering
 \wide{r2s_policies}
@@ -585,9 +589,11 @@ set (E4).}
 
 % src: gen/r2s_threezone.tex; gen/r2s_budgets.tex; results/round2/analysis/r2_explore.txt (E7)
 \subsection{Three-zone review on every target and at other budgets}
-Tables~\ref{tab:r2threeall} and~\ref{tab:r2budgets} extend the review analysis (E7). The development-designed band
-exceeds its 10\% budget on every target for the LA19-trained detectors, even on LA19 eval (20.3--40.4\%), whose genuine
-speech comes from the source corpus; on MLAAD-5 it reaches 52.2--96.2\%. Larger budgets move little: at 20\%, the band
+Tables~\ref{tab:r2threeall} and~\ref{tab:r2budgets} extend the review analysis (E7). For the LA19-trained detectors the
+development-designed band exceeds its 10\% budget on every target except verified DF21 for XLSR-Mamba (9.3\%), even on
+LA19 eval (20.3--40.4\%), whose class mix matches development data and whose genuine speech comes from the source corpus;
+on MLAAD-5 it reaches 52.2--96.2\%. Re-anchoring on unlabelled scores falls short of the budget on DF21 (7.4--8.1\% for
+the self-supervised detectors), where many saturated scores tie. Larger budgets move little: at 20\%, the band
 of XLSR-Mamba still sends 77.7\% of ITW clips to review. For the round-1 primary models, which barely discriminate ITW,
 even the target-oracle band leaves 58.1--67.3\% of genuine clips auto-rejected for AASIST, AASIST-L and RawNet2 at the
 10\% budget.

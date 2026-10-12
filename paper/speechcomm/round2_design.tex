@@ -11,14 +11,17 @@ confirmatory families and descriptive reading rule; it does not add models to an
 
 \subsubsection{Detectors and evaluation surfaces}
 % src: PREREGISTRATION_ROUND2.md § 3. Models; § 5. Data and targets.
-The extension adds the ASVspoof~5 baseline AASIST, the logistic-regression detector of
-\citet{pascu24_calibrated}, and XLSR-Mamba \citep{xiao25_xlsrmamba}. The first uses the released ASVspoof~5
+The extension adds the ASVspoof~5 baseline AASIST (AS5 AASIST in the tables), the logistic-regression detector of
+\citet{pascu24_calibrated} (Pascu LR), and XLSR-Mamba \citep{xiao25_xlsrmamba}. The first uses the released ASVspoof~5
 checkpoint, trained on the training partition without the post-processing applied to the development and
-evaluation partitions \citep{wang25_asvspoof5_db}. Pascu's detector uses frozen XLS-R~2B features
-\citep{babu21_xlsr}, mean-pools the last hidden state and fits a logistic-regression head. We refit that head
-on LA19 train alone, reserving LA19 dev for threshold setting; a separate train-plus-dev fit is used only
-for the reproduction gate. XLSR-Mamba uses the released deepfake-detection checkpoint trained on LA19
-with RawBoost augmentation \citep{tak22_rawboost}. Table~\ref{tab:r2matrix} gives the registered scoring
+evaluation partitions \citep{wang25_asvspoof5_db}; its reproduction reference is the development EER that the
+organisers' repository gives for that checkpoint \citep{asvspoof5_baselines}. Pascu's detector uses frozen XLS-R~2B
+features \citep{babu21_xlsr}, mean-pools the last hidden state and fits a logistic-regression head with the authors'
+weak penalty (\(C=10^{6}\)). We refit that head on LA19 train alone, reserving LA19 dev for threshold setting; a
+separate train-plus-dev fit is used only for the reproduction gate. XLSR-Mamba uses the authors' released
+deepfake-detection (DF) checkpoint, trained on LA19 with RawBoost augmentation \citep{tak22_rawboost}, at 66,800 samples
+on every surface. The authors' own In-the-Wild figure (6.71\%) comes from their LA checkpoint at 64,600 samples, so our
+ITW results for this detector are not a reproduction of it. Table~\ref{tab:r2matrix} gives the registered scoring
 matrix and source of each model's thresholds.
 
 % src: PREREGISTRATION_ROUND2.md § 3. Models; § 5. Data and targets; § 9. Exploratory analyses (E3, E6, E11).
@@ -34,7 +37,7 @@ The gate-only fit contributes no threshold-transfer result.}
 \toprule
 Model & Threshold source & Common targets & Additional targets \\
 \midrule
-ASVspoof~5 AASIST & ASVspoof~5 dev & LA19 eval, ITW, stress & Verified DF21, MLAAD-5, ASVspoof~5 eval \\
+AS5 AASIST & ASVspoof~5 dev & LA19 eval, ITW, stress & Verified DF21, MLAAD-5, ASVspoof~5 eval \\
 Pascu LR, train-only fit & LA19 dev & LA19 eval, ITW, stress & Verified DF21, MLAAD-5 \\
 XLSR-Mamba & LA19 dev & LA19 eval, ITW, stress & Verified DF21, MLAAD-5 \\
 AASIST-L, untrimmed runs & Each run's LA19 dev & LA19 eval, ITW, stress & None \\
@@ -203,36 +206,18 @@ break-even windows at \(\tauE\), using the round-1 cost models. E11 contains the
 Pascu fit solely as the reproduction gate.
 
 \subsubsection{Failures and amendments}
-% src: PREREGISTRATION_ROUND2.md § 10. Failure, missing data and stopping rules; DEVIATIONS.md DEV-9 amendment 1.
+% src: PREREGISTRATION_ROUND2.md § 10. Failure, missing data and stopping rules; DEVIATIONS.md DEV-9 amendment 1; DEVIATIONS.md DEV-9 amendment 3; DEVIATIONS.md DEV-9 amendment 4; DEVIATIONS.md DEV-9 amendment 5.
 The failure rules prohibit replacement detectors, additional seeds and repetition after training
 divergence, NaN loss or a training crash. Missing runs count against the registered retraining
-support rule; the silence test uses only the completed runs subject to its evaluability minimum.
-A logged resource amendment permits a run that fails before completing its first epoch, before
-any dev score exists, to restart once from scratch with the same seed, code and data. Scheduling
-was adjusted using observed memory requirements, with failed directories retained. This exception
-does not permit restarting a run after training outcomes have been observed. A logistic-regression
-convergence warning is reported and the fitted head is retained.
-
-% src: PREREGISTRATION_ROUND2.md § 10. Failure, missing data and stopping rules; DEVIATIONS.md DEV-9 amendment 3.
-Loaders refuse unknown labels or codecs, incorrect row counts and missing files. Every such fix
-is logged before rerunning the affected job. The FLAC amendment requires native or fallback
-integer decoding to match the file's STREAMINFO MD5 before explicit float32 conversion. It was
-logged after a decoder sign error was found, before any affected round-2 DF21 score was analysed;
-the affected scores were quarantined for re-scoring. This preserves the registered verified
-surface and prevents an environment-specific decoder from silently changing its audio.
-
-% src: DEVIATIONS.md DEV-9 amendment 4.
-A separate amendment permits one unchanged rerun of Pascu's whole-utterance MLAAD-5 scoring on a
-GPU free of a training run, with an expandable memory-allocator setting. It does not shorten
-utterances, change the head or alter arithmetic. A second failure is reported as missing MLAAD-5
-data; that surface contributes only to the exploratory language analysis.
-
-% src: DEVIATIONS.md DEV-9 amendment 5.
-That rerun failed for another reason: two MLAAD-5 spoofs are shorter than the 400-sample receptive
-field of the XLS-R convolutional feature encoder, so the whole-utterance rule cannot score them. A
-further amendment, written before any MLAAD-5 score of this detector existed, repeats a clip shorter
-than 400 samples to exactly 400 samples, the tiling that every fixed-length model already applies,
-logs each such clip and allows one more rerun under the same conditions. It touches only those two
-clips; no clip of any other surface that this detector scored is that short. Each amendment records
-what had been seen when it was made. These resource and fidelity amendments are reported alongside
-the frozen design, rather than used to revise its tests or support thresholds.
+support rule; the silence test uses only the completed runs subject to its evaluability minimum, and
+loaders refuse unknown labels or codecs, incorrect row counts and missing files. Five amendments, each
+logged before the work it governs together with what had been seen, concern execution and fidelity;
+none changes a test, support rule or threshold, and the supplement gives their chronology. A run that
+exhausts GPU memory before completing its first epoch, before any dev score exists, may restart once
+with the same seed, code and data. E9 uses the exact logistic fit described above. FLAC audio is
+accepted only if its integer decode matches the file's own MD5 checksum, which caught a decoder sign
+error before any affected DF21 score was analysed. Pascu's whole-utterance MLAAD-5 scoring could be
+rerun once on a GPU without a training run; because two MLAAD-5 spoofs are shorter than the
+400-sample receptive field of the XLS-R encoder, the last amendment repeats a clip shorter than 400
+samples to exactly 400 samples, the tiling that every fixed-length model already applies, and logs
+each such clip. No clip of any other surface that this detector scored is that short.
