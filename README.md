@@ -32,6 +32,8 @@ results and historical registrations. Neither command needs access to OneDrive,
 the authors' server, source audio, or upstream checkpoints. Remaining author
 information in the manuscript is reported by the claim audit; it is separate
 from the numerical checks.
+Tests that require optional neural inference runtimes are skipped when those
+runtimes are absent; the score-based reproduction does not require them.
 
 To regenerate the checked-in table and figure files deliberately:
 
@@ -40,11 +42,10 @@ python scripts/reproduce_paper.py --write
 ```
 
 To build the article and supplement, install a LaTeX distribution with
-`elsarticle`, then run these commands in `paper/speechcomm/`:
+`pdflatex`, `bibtex`, and `elsarticle`, then run:
 
 ```sh
-latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex
-latexmk -pdf -interaction=nonstopmode -halt-on-error supplement.tex
+python scripts/build_paper.py
 ```
 
 ## Contents and provenance
