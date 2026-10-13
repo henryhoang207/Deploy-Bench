@@ -11,7 +11,9 @@ Score files (written by score.py, gzipped when committed):
   round 1:  the committed fp32 files (phase_1_reproduction, main_matrix, mlaad5), plus their round-2 stress scores
             under results/round2/scores/<model>/s0/stress_<condition>.csv[.gz]
 Surfaces: la19_dev, la19_eval, itw, df21_verified, mlaad5, as5_dev, as5_eval, stress_<condition>.
-Metadata (speaker / system clusters) is read from $R2_META if set, else from the data tree under $DATA_ROOT.
+Metadata (speaker / system clusters) is read from $R2_META if set, the bundled
+reproducibility/metadata folder, the frozen configs/mlaad5 protocol, or the data
+tree under $DATA_ROOT.
 """
 from __future__ import annotations
 
@@ -144,11 +146,22 @@ def meta_file(kind: str) -> Path:
             "as5_dev": DATA_ROOT / "asvspoof5" / names["as5_dev"],
             "as5_eval": DATA_ROOT / "asvspoof5" / names["as5_eval"]}
     m = os.environ.get("R2_META")
-    if m and (Path(m) / names[kind]).exists():
-        return Path(m) / names[kind]
-    if data[kind].exists():
-        return data[kind]
+    candidates = ([Path(m) / names[kind]] if m else []) + [REPO / "reproducibility" / "metadata" / names[kind]]
+    if kind == "mlaad5":
+        candidates.append(REPO / "configs" / "mlaad5" / "protocol.csv")
+    candidates.append(data[kind])
+    for path in candidates:
+        if path.is_file():
+            return path
+        compressed = path.with_name(path.name + ".gz")
+        if compressed.is_file():
+            return compressed
     die(f"metadata for {kind} not found ($R2_META or {data[kind]})")
+
+
+def open_meta(kind):
+    path = meta_file(kind)
+    return gzip.open(path, "rt", encoding="utf-8") if path.suffix == ".gz" else path.open(encoding="utf-8")
 
 
 def _speaker_map(kind: str) -> dict:
@@ -157,14 +170,14 @@ def _speaker_map(kind: str) -> dict:
         return dict(zip(df["file"].str.replace(r"\.wav$", "", regex=True), df["speaker"]))
     if kind in ("la19_eval", "la19_dev"):
         out = {}
-        for line in open(meta_file(kind), encoding="utf-8"):
+        for line in open_meta(kind):
             f = line.split()
             if len(f) >= 5:
                 out[f[1]] = f[0]
         return out
     if kind == "df21":
         out = {}
-        for line in open(meta_file("df21"), encoding="utf-8"):
+        for line in open_meta("df21"):
             f = line.split()
             if len(f) >= 2:
                 out[f[1]] = f[0]
@@ -187,7 +200,7 @@ def _speaker_map(kind: str) -> dict:
         return out
     if kind in ("as5_dev", "as5_eval"):
         out = {}
-        for line in open(meta_file(kind), encoding="utf-8"):
+        for line in open_meta(kind):
             f = line.split()
             out[f[1]] = f[0]
         return out

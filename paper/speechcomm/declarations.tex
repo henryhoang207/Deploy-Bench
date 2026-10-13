@@ -8,11 +8,18 @@
 \todo{Authors: provide funding bodies and grant identifiers, or confirm that no specific funding supported this work.}
 
 \section*{Data availability}
-The study uses the public speech corpora cited in the manuscript, subject to their respective access conditions and
-licences. The reproducibility package comprises the permitted utterance-level score files, frozen thresholds,
-manifests, registration snapshots, deviation log and analysis code. Source audio and restricted checkpoints are
-obtained from their original providers. \todo{Authors: insert a stable public repository or archive URL, confirm its
-contents and licensing, and identify any access restrictions before submission.}
+% src: README.md; DATA_ACCESS.md; LICENSING.md; THIRD_PARTY_NOTICES.md; reproducibility/registrations/manifest.json
+The reproducibility package is available at
+\url{https://github.com/henryhoang207/Deploy-Bench/releases/tag/speechcomm-v1.0.0}.
+It contains utterance-level scores, frozen thresholds, evaluation manifests, the two registration snapshots and
+deviation log, analysis and table-generation code, supporting metadata, and the author-trained round-2 checkpoints.
+Author-written code is licensed under MIT; original documentation and author-trained checkpoints are licensed under
+CC BY 4.0. Third-party components retain their original licences. Dataset-derived scores and metadata follow the
+corpus-specific terms documented in the package, including attribution requirements for ASVspoof, CC BY-SA 4.0
+for In-the-Wild, and CC BY-NC 4.0 for MLAAD-derived material. Source audio and upstream checkpoints are obtained
+from their original providers. Access to MLAAD audio requires a Hugging Face account and acceptance of the
+provider's access conditions. The package itself is downloadable without registration or approval; its
+\texttt{DATA\_ACCESS.md}, \texttt{LICENSING.md}, and third-party notices give the source links and applicable terms.
 
 \section*{Declaration of generative AI and AI-assisted technologies in the manuscript preparation process}
 During the preparation of this work the authors used Claude (Anthropic), through Claude Code, and OpenAI Codex in order

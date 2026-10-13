@@ -10,7 +10,9 @@ We believe the article fits the journal's scope under assessment methodologies f
 
 A separate deployment study, in preparation, covers model conversion, quantization and on-device measurement; none of those results appears in this manuscript. To keep the registration record complete, the manuscript states that the original registration's two quantization hypotheses were not supported, without reporting their analyses.
 
-[Authors: confirm that the manuscript is original, is not under consideration elsewhere and has been approved by all authors; state any related manuscripts or preprints, competing interests, and the public reproducibility URL.]
+The reproducibility package is available at https://github.com/henryhoang207/Deploy-Bench/releases/tag/speechcomm-v1.0.0.
+
+[Authors: confirm that the manuscript is original, is not under consideration elsewhere and has been approved by all authors; state any related manuscripts or preprints and competing interests.]
 
 Sincerely,
 

@@ -18,7 +18,7 @@ from results/round2/{gates.json, analysis/r2_registered.json, analysis/r2_explor
 Prose that cites a round-2 source may use only numbers that those files (rounded) or
 the cited tables contain.
 
-The read-only revision source is discovered under ~/OneDrive, or can be selected
+The read-only revision source is bundled under reproducibility/round1, or can be selected
 with DFV_REVISION (revision directory, or its analysis directory). DEPLOYBENCH
 is deliberately bound to THIS worktree before revlib imports its estimators.
 --final refuses pending items, todos and missing/failed compiled PDFs.
@@ -27,6 +27,7 @@ Speech Communication has no page cap in this audit.
 from __future__ import annotations
 
 import json
+import hashlib
 import importlib.util
 import os
 import re
@@ -52,9 +53,13 @@ def revision_dir():
             p = p.parent
         candidates = [p] if (p / "analysis" / "revlib.py").is_file() else []
     else:
-        candidates = list((Path.home() / "OneDrive").glob(
-            "*/CS material/Research/DFV_Conference/revision"))
-        candidates = [p for p in candidates if (p / "analysis" / "revlib.py").is_file()]
+        bundled = WORKTREE / "reproducibility" / "round1"
+        if (bundled / "analysis" / "revlib.py").is_file():
+            candidates = [bundled]
+        else:
+            candidates = list((Path.home() / "OneDrive").glob(
+                "*/CS material/Research/DFV_Conference/revision"))
+            candidates = [p for p in candidates if (p / "analysis" / "revlib.py").is_file()]
     candidates = sorted({p.resolve() for p in candidates})
     if len(candidates) != 1:
         sys.exit("REFUSED: select the audited revision with DFV_REVISION; found "
@@ -64,7 +69,9 @@ def revision_dir():
 
 REVISION = revision_dir()
 os.environ["DEPLOYBENCH"] = str(WORKTREE)
-os.environ["DFV_META"] = str(REVISION / "meta")
+if "DFV_META" not in os.environ:
+    os.environ["DFV_META"] = str(WORKTREE / "reproducibility" / "metadata" if
+                                 REVISION == WORKTREE / "reproducibility" / "round1" else REVISION / "meta")
 sys.path.insert(0, str(WORKTREE))
 spec = importlib.util.spec_from_file_location("speechcomm_revlib", REVISION / "analysis" / "revlib.py")
 R = importlib.util.module_from_spec(spec)
@@ -144,9 +151,31 @@ with open(WORKTREE / "results" / "phase_2_conversion_app" / "main_matrix" / "aas
           encoding="utf-8") as _fh:
     _labels = [r["label"] for r in csv.DictReader(_fh)]
 ITW_N, ITW_BONA = len(_labels), sum(1 for x in _labels if x == "1")
-# The commits of the two registration tags, from this worktree's git history
-TAGS = {t: subprocess.run(["git", "rev-parse", "--short", f"{t}^{{commit}}"], cwd=WORKTREE, capture_output=True,
-                          text=True).stdout.strip() for t in ("roster-freeze", "round2-freeze")}
+def registration_tags():
+    """Verify archived registration bytes; additionally check original tags in a Git checkout."""
+    manifest_path = WORKTREE / "reproducibility" / "registrations" / "manifest.json"
+    if not manifest_path.is_file():
+        sys.exit("REFUSED: registration snapshot manifest is missing")
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))["tags"]
+    tags = {}
+    for name in ("roster-freeze", "round2-freeze"):
+        snapshot = manifest[name]
+        for record in snapshot["files"]:
+            path = WORKTREE / record["path"]
+            if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != record["sha256"]:
+                sys.exit(f"REFUSED: registration snapshot hash differs: {record['path']}")
+        if (WORKTREE / ".git").exists():
+            git = subprocess.run(["git", "rev-parse", f"{name}^{{commit}}"], cwd=WORKTREE,
+                                 capture_output=True, text=True)
+            if git.returncode or git.stdout.strip() != snapshot["commit"]:
+                sys.exit(f"REFUSED: original registration tag {name} does not match the packaged snapshot")
+        tags[name] = snapshot["commit"][:7]
+    return tags
+
+
+# A ZIP preserves the recorded snapshot provenance; it supplies no independent
+# historical timestamp. Git clones also verify their original tag identities.
+TAGS = registration_tags()
 # The ASVspoof 5 DCF (miss cost 1, false-alarm cost 10, spoof prior 0.05) as an effective bona fide prior
 AS5_P = (1 - 0.05) * 1 / ((1 - 0.05) * 1 + 0.05 * 10)
 EXTRA_NUMBERS = _forms(ITW_BONA) | _forms(AS5_P) | _forms(1.45) | _forms(0.05)
@@ -293,6 +322,8 @@ def source_paths(comment, bibkeys):
             path = next((p for p in options if p.is_file()), options[0])
         else:
             path = WORKTREE / name
+        if not path.is_file() and path.with_name(path.name + ".gz").is_file():
+            path = path.with_name(path.name + ".gz")
         if not path.is_file():
             errors.append(f"source file not found: {path}")
         else:

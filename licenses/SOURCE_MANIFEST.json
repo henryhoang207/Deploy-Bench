@@ -1,0 +1,56 @@
+{
+  "XLSR-Mamba-MIT.txt": {
+    "url": "https://raw.githubusercontent.com/swagshaw/XLSR-Mamba/10ec738/LICENSE",
+    "sha256": "49dc1bc661b7fcfc41c852efcbc844b7aa968bae5f30ff6a69b0adcec1d953cf",
+    "bytes": 1068,
+    "retrieved": "2026-10-13"
+  },
+  "SSL-Anti-spoofing-MIT.txt": {
+    "url": "https://raw.githubusercontent.com/TakHemlata/SSL_Anti-spoofing/main/LICENSE",
+    "sha256": "e5ff6b23454767530b5ce87125140fe04b2cb834f29bb735b37275eaf6519fb9",
+    "bytes": 1064,
+    "retrieved": "2026-10-13"
+  },
+  "fairseq-MIT.txt": {
+    "url": "https://raw.githubusercontent.com/pytorch/fairseq/a54021305d6b3c4c5959ac9395135f63202db8f1/LICENSE",
+    "sha256": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85",
+    "bytes": 1086,
+    "retrieved": "2026-10-13"
+  },
+  "AASIST-MIT.txt": {
+    "url": "https://raw.githubusercontent.com/clovaai/aasist/a04c986/LICENSE",
+    "sha256": "da2e79b8592d166ef505224300968b80ebe1e4c217c43b94a5ec627d81cd4142",
+    "bytes": 1064,
+    "retrieved": "2026-10-13"
+  },
+  "RawNet2-MIT.txt": {
+    "url": "https://raw.githubusercontent.com/asvspoof-challenge/2021/main/LA/Baseline-RawNet2/LICENSE",
+    "sha256": "3ac530ea94af180626245b006b748276c8b5fc90d11e536c50049c016b87127a",
+    "bytes": 1068,
+    "retrieved": "2026-10-13"
+  },
+  "Apache-2.0.txt": {
+    "url": "https://www.apache.org/licenses/LICENSE-2.0.txt",
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "bytes": 11358,
+    "retrieved": "2026-10-13"
+  },
+  "GPL-3.0.txt": {
+    "url": "https://raw.githubusercontent.com/ghua-ac/end-to-end-synthetic-speech-detection/main/LICENSE",
+    "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+    "bytes": 35149,
+    "retrieved": "2026-10-13"
+  },
+  "M-AILABS.txt": {
+    "url": "https://raw.githubusercontent.com/i-celeste-aurora/m-ailabs-dataset/master/README.md",
+    "sha256": "311c13ca91cb97a4f09d7e4a455dc2a9e2b4809ebb2522aa6082c965405b5ddb",
+    "bytes": 1653,
+    "retrieved": "2026-10-13"
+  },
+  "ODC-By-1.0.txt": {
+    "url": "https://opendatacommons.org/licenses/by/odc_by_1.0_public_text.txt",
+    "sha256": "11a6d83734845ad09d809667aa219857a5b985b28c258a2eebf5677668a6bd3b",
+    "bytes": 19977,
+    "retrieved": "2026-10-13"
+  }
+}

@@ -267,7 +267,7 @@ def e6():
         return out
     from deploybench.data import asvspoof5_condition, asvspoof5_rows
     groups = {}
-    for r in asvspoof5_rows("eval"):
+    for r in asvspoof5_rows("eval", protocol=R.meta_file("as5_eval")):
         groups.setdefault(asvspoof5_condition(r), set()).add(r["utt"])
     out = by_group("as5_aasist", "as5_eval", dict(sorted(groups.items())))
     for k, v in out.items():

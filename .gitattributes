@@ -18,3 +18,8 @@ gradlew text eol=lf
 # writes CRLF on every OS, so store the bytes exactly as written: with
 # normalisation, a Linux checkout (sol1) hashed differently from the recorded value.
 *.csv -text
+
+# Bundled provenance inputs carry exact-byte SHA-256 digests and must survive archive/checkout unchanged.
+reproducibility/** -text
+# Preserve the exact upstream license texts recorded in licenses/SOURCE_MANIFEST.json.
+licenses/** -text

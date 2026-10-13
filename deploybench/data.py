@@ -3,6 +3,7 @@ public documentation; step 0.3 'Done when' adjusts them to the real
 downloaded trees (run `python -m deploybench.data --check`)."""
 from __future__ import annotations
 import os, re, sys
+import gzip
 from pathlib import Path
 
 DATA_ROOT = Path(os.environ.get("DATA_ROOT", "~/data/deepfake")).expanduser()
@@ -254,17 +255,20 @@ def _iter_mlaad(root: Path):
 AS5_COLS = ("speaker", "utt", "gender", "codec", "codec_q", "codec_seed", "attack_tag", "attack", "key", "tmp")
 
 
-def asvspoof5_rows(part: str, root: Path = None):
+def asvspoof5_rows(part: str, root: Path = None, *, protocol: Path = None):
     """Validated rows of one ASVspoof 5 track-1 protocol, as dicts keyed by AS5_COLS. Refuses a wrong column
-    count, an unknown KEY or CODEC, and a row count other than the release's."""
+    count, an unknown KEY or CODEC, and a row count other than the release's.
+    An explicit protocol path supports analysis of bundled .tsv[.gz] metadata
+    without a waveform directory; the default dataset layout is unchanged."""
     if part not in ("dev", "eval"):
         raise NotImplementedError(f"asvspoof5_{part}: only dev and eval are used (D54); "
                                   "nothing trains on ASVspoof 5 here and train was not downloaded")
     root = Path(root) if root else DATA_ROOT
     sub, proto, n_expected = REGISTRY[f"asvspoof5_{part}"]
-    path = (root / sub).parent / proto
+    path = Path(protocol) if protocol is not None else (root / sub).parent / proto
     rows = []
-    with open(path, encoding="utf-8") as f:
+    opener = gzip.open if path.suffix == ".gz" else open
+    with opener(path, mode="rt", encoding="utf-8") as f:
         for i, line in enumerate(f, 1):
             p = line.split()
             if len(p) != len(AS5_COLS):

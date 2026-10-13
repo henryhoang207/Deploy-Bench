@@ -1,0 +1,28 @@
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+ & \multicolumn{3}{c}{Screening ($p=0.95$)} & \multicolumn{3}{c}{Forensic ($p=1/11$)} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Model & $C(\tauE)$ & oracle & transfer & $C(\tauE)$ & oracle & transfer \\
+\midrule
+\multicolumn{7}{@{}l}{\emph{In-the-Wild}} \\
+AASIST & 8.73 & 1.00 & 7.73 & 4.63 & 0.98 & 3.65 \\
+AASIST-L & 9.99 & 1.00 & 8.99 & 4.16 & 0.98 & 3.18 \\
+RawNet2 & 7.10 & 1.00 & 6.10 & 7.24 & 0.99 & 6.25 \\
+Res-TSSDNet & 9.74 & 0.99 & 8.75 & 2.40 & 0.97 & 1.43 \\
+XLS-R (ref.) & 9.49 & 0.86 & 8.62 & 0.54 & 0.47 & 0.07 \\
+\midrule
+\multicolumn{7}{@{}l}{\emph{DF21, verified subset}} \\
+AASIST & 2.79 & 0.81 & 1.98 & 1.76 & 0.49 & 1.27 \\
+AASIST-L & 3.26 & 0.83 & 2.43 & 1.49 & 0.51 & 0.99 \\
+RawNet2 & 6.45 & 0.92 & 5.54 & 0.90 & 0.53 & 0.36 \\
+Res-TSSDNet & 10.09 & 1.00 & 9.09 & 1.05 & 0.84 & 0.21 \\
+XLS-R (ref.) & 2.77 & 0.18 & 2.59 & 0.16 & 0.12 & 0.04 \\
+\midrule
+\multicolumn{7}{@{}l}{\emph{LA19 eval: seen corpus, unseen attacks}} \\
+AASIST & 0.13 & 0.09 & 0.04 & 0.98 & 0.05 & 0.93 \\
+AASIST-L & 0.13 & 0.09 & 0.04 & 1.11 & 0.07 & 1.05 \\
+RawNet2 & 0.21 & 0.21 & 0.00 & 1.15 & 0.31 & 0.84 \\
+Res-TSSDNet & 0.11 & 0.10 & 0.01 & 0.61 & 0.12 & 0.49 \\
+XLS-R (ref.) & 0.02 & 0.01 & 0.00 & 0.05 & 0.01 & 0.04 \\
+\bottomrule
+\end{tabular}

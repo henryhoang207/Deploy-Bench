@@ -1,0 +1,407 @@
+%==============================================================================
+%  CONFERENCE PAPER, REVISION 1 (ARS revision mode; response to the ICME-style review in peer_review/).
+%  Venue-neutral IEEE two-column draft, at most 6 pages including references, built double-blind.
+%  Tables II-IV carry generated bodies (analysis/paper_tables.py -> paper/gen/*.tex): do not edit those by hand.
+%  Every other number carries a "% src:" comment naming the result file (revision/results/...) it comes from.
+%  Build: pdflatex main; bibtex main; pdflatex main; pdflatex main.  The submission copy has its comments stripped.
+%==============================================================================
+\documentclass[conference]{IEEEtran}
+\usepackage{cite}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{microtype}
+
+% ---- review mode ------------------------------------------------------------
+\newif\ifblind
+\blindtrue   % \blindfalse for the camera-ready version: author block and real links
+\newcommand{\todo}[1]{\textcolor{red}{[#1]}}
+% \repo is the Anonymous GitHub mirror of branch icme-review at commit 8dcb5cd (made 6 October 2026, removed 31 July 2027).
+% No registration deposit before review (author's decision, 6 October 2026): the frozen registration is cited through \repo.
+% Camera-ready: public repository URL below, and "(tag roster-freeze, commit 97e9753)" may follow the freeze date in Sec. III-C.
+\ifblind
+  \newcommand{\repo}{\url{https://anonymous.4open.science/r/ttg-audit}}
+\else
+  \newcommand{\repo}{\todo{public repository URL}}
+\fi
+
+% ---- notation ---------------------------------------------------------------
+\newcommand{\ttg}{\mathrm{TTG}}
+\newcommand{\hter}{\mathrm{HTER}}
+\newcommand{\frr}{\mathrm{FRR}}
+\newcommand{\far}{\mathrm{FAR}}
+\newcommand{\eer}{\mathrm{EER}}
+\newcommand{\tauE}{\tau^{*}_{\mathrm{EER}}}
+\newcommand{\tauF}[1]{\tau^{*}_{\mathrm{FRR}#1}}
+\newcommand{\tauA}[1]{\tau^{*}_{\mathrm{FAR}#1}}
+\newcommand{\tauor}{\tau_{\mathrm{or}}}
+
+\begin{document}
+
+% The title is the author's decision (D30). "Calibrated" was dropped after two reviewers read it in the score-calibration sense.
+\title{Thresholded Once, Deployed Elsewhere:\\ A Pre-Registered Audit of
+Threshold Transfer in Speech Deepfake Detection}
+
+\ifblind
+\author{\IEEEauthorblockN{Anonymous ICME Submission}}
+\else
+\author{\IEEEauthorblockN{Hoan Hoang}
+\IEEEauthorblockA{\todo{affiliation}\\
+\todo{e-mail}}}
+\fi
+
+\maketitle
+
+% ============================ ABSTRACT =======================================
+% src: results/a_cluster.txt (A1, A2: 3/4 vs 1/4 and 4/4; 54 labels), results/b_thresholds.txt (B3, D: TTG 4.18, 4.64; XLS-R ITW FRR 25.1-73.0);
+% the registered clip-level H2 3/4 and H5 4/4 are in the harness's results/analysis/h2_test.txt and h5_test.txt.
+\begin{abstract}
+Speech deepfake countermeasures (CMs) are ranked by the equal error rate (EER), but a deployed CM must fix its threshold in advance.
+We audit that step for five released checkpoints trained on ASVspoof~2019 LA (LA19): four primary models from 2021--22, three of them
+sharing AASIST components, and one self-supervised reference. Thresholds frozen on LA19 development data are applied unchanged to LA19
+evaluation, In-the-Wild (ITW), a verified subset of ASVspoof~2021 DF and EnCodec resynthesis, under hypotheses registered before we
+scored any ITW clip. H2, that false rejection exceeds false acceptance on ITW, holds for three of four models when clips are resampled,
+as registered, but for one of four when ITW's 54 speaker labels are resampled, so we do not claim it. H5, that EnCodec raises false
+rejection more than false acceptance, holds for four of four under both. In exploratory analyses, a development threshold costs AASIST and AASIST-L 4.2 and 4.6 HTER points on LA19 evaluation, where only the attacks are new. On ITW the primary models' error is mostly poor discrimination, not transfer, and the dominant error follows the threshold policy. The reference model's ITW false rejection ranges from 25\% to 73\% over thresholds that tie on development data. We release the harness and a protocol card.
+\end{abstract}
+
+\begin{IEEEkeywords}
+speech deepfake detection, anti-spoofing, decision threshold, domain shift, calibration loss, pre-registration
+\end{IEEEkeywords}
+
+% ============================ 1. INTRODUCTION ================================
+\section{Introduction}
+\label{sec:intro}
+Speech deepfake countermeasures (CMs) are ranked by the equal error rate (EER) and the minimum tandem detection cost
+\cite{kinnunen18_tdcf}, both evaluated at the threshold that suits the evaluation data best
+\cite{wang20_asvspoof2019,liu23_asvspoof2021}. A deployed CM needs more: a
+call-screening filter, a moderation queue or a browser plug-in \cite{pascu25_edge_plugin} commits to a threshold in advance and decides
+on traffic it does not control. The EER does not say how that threshold behaves there, and the difference can be large. Zhou and Wang
+\cite{zhou26_eer_hides} report a detector with 0.21\% source EER that rejects 78.7\% of genuine In-the-Wild speech once its source
+threshold is transferred.
+
+Fixing a threshold on development data and reporting the half total error rate (HTER) on test data is established practice in
+presentation-attack detection (PAD) \cite{chingovska12_lbp,korshunov16_crossdb} and biometric authentication \cite{bengio04_hter}, and
+the loss it exposes is the calibration loss of application-independent evaluation
+\cite{brummer06_calibration,vanleeuwen07_intro}. Speech CMs lack an audit built on that lineage: several models and threshold policies,
+an error decomposition, speaker-aware inference and hypotheses fixed in advance.
+
+We audit five published CMs: four primary models (AASIST and AASIST-L \cite{jung22_aasist}, RawNet2 \cite{tak21_rawnet2}, Res-TSSDNet
+\cite{hua21_res_tssdnet}) and a self-supervised (SSL) reference, XLS-R+AASIST \cite{tak22_xlsr_aasist}. Checkpoints are used as
+released, thresholds are frozen on LA19 development data \cite{wang20_asvspoof2019}, and they are transferred unchanged to the LA19
+evaluation set, In-the-Wild (ITW) \cite{muller22_in_the_wild}, a verified subset of ASVspoof~2021 DF (DF21)
+\cite{liu23_asvspoof2021} and EnCodec-resynthesised speech \cite{defossez23_encodec}. We contribute three things. The first is a protocol card and its measures (Table~\ref{tab:card}): the threshold transfer gap (TTG) as the calibration loss of a development threshold, split from the discrimination loss that no threshold removes, five threshold policies, speaker-level intervals, and the interval of thresholds that tie on development data. The second is a pre-registered audit, whose first confirmatory test (H2) does not survive speaker-level resampling and whose second (H5) does. The third is two tests of practical advice: re-setting a threshold from genuine channel speech alone, and a cost model's break-even condition. The evidence covers LA19-trained checkpoints of 2021--22, and Sec.~\ref{sec:discussion} states what would
+have to hold for it to carry over. Scores are fp32 on a desktop.
+
+% ============================ 2. RELATED WORK ================================
+\section{Related Work}
+\label{sec:related}
+\emph{Evaluation practice.} ASVspoof ranks CMs by EER and minimum t-DCF \cite{wang20_asvspoof2019,liu23_asvspoof2021,kinnunen18_tdcf}.
+ASVspoof~5 also reports actual costs at a fixed threshold, and its strongest systems pair low minimum costs with actual costs near 1
+\cite{wang24_asvspoof5}, a calibration failure that EER cannot show. The gap between actual and minimum cost is the calibration loss of
+speaker recognition \cite{brummer06_calibration,vanleeuwen07_intro}. In PAD, HTER at a development-set threshold is the standard protocol
+for face \cite{chingovska12_lbp} and voice \cite{korshunov16_crossdb}, including across databases, where HTER reaches 50\%
+\cite{korshunov16_crossdb}.
+
+\emph{Generalization and artefacts.} ITW \cite{muller22_in_the_wild} showed that CMs trained on ASVspoof data degrade sharply on
+public figures' speech from online media, and reported target EER. M\"uller et al.\ \cite{muller21_silence} found that leading-silence
+duration separates LA19 bona fide from spoofed speech (silence alone gives 15.1\% EER, and trimming it before training raised EER from 3.6\%
+to 15.5\%). ASVspoof~5 equalises non-speech durations by design \cite{wang25_asvspoof5_db}.
+
+\emph{Threshold transfer.} The closest precedent, Zhou and Wang \cite{zhou26_eer_hides}, freezes one SSL detector, sets its threshold on
+the labelled LA19 evaluation set and transfers it to ITW and a DF21 subset. They show that monotone unlabelled score corrections cannot
+change the EER, and that the one family that moves the operating point is unstable across targets. Our thresholds come from
+development data, so no evaluation label informs them. We add four models, five policies, the full ITW
+corpus, a verified DF21 subset, pre-registered tests with speaker-level inference, and an analysis of how well the threshold itself is
+determined.
+
+\emph{Channels, codecs and other media.} DF21 builds media compression into its evaluation \cite{liu23_asvspoof2021}. Neural codecs are
+also a synthesis route \cite{wu24_codecfake}, so the label of codec-resynthesised bona fide speech is contested: CodecFake labels it
+fake, Xiao et al.\ document the ambiguity \cite{xiao26_resynth}, and ASVspoof~5 applies EnCodec to subsets of both classes as a channel
+\cite{wang25_asvspoof5_db}. Image and video deepfake detection is usually summarised by threshold-free scores such as AUC
+\cite{li20_celebdf}, while the DFDC ranked entries by log loss \cite{dolhansky20_dfdc}. The protocol applies to any scored detector.
+
+% ============================ 3. PROTOCOL =====================================
+\section{Protocol}
+\label{sec:protocol}
+
+\begin{table}[!t]
+\caption{Protocol card for a threshold-transfer audit.}
+\label{tab:card}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}p{0.21\columnwidth}p{0.73\columnwidth}@{}}
+\toprule
+\emph{Inputs} & A CM that outputs a score; labelled source development data; target sets with speaker labels; one or more cost
+models. \\
+\emph{Frozen before any target score} & Threshold policies computed from development scores alone (EER; FRR budgets 1\% and 5\%; FAR
+budgets 1\% and 5\%), the estimator and its tie rule, the hypotheses and the resampling unit (speaker). \\
+\emph{Report at each policy and target} & FRR and FAR at the shipped threshold; HTER split into oracle HTER and TTG, with speaker-level intervals; FRR and FAR at both ends of the interval of thresholds that tie on dev data; cost over a sweep of priors, with its break-even window; the data and policy that set the threshold. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Scores, thresholds and measures}
+% src: results/b_thresholds.txt (B1); DEV-8 B1, C (the estimator; FAR budgets are exploratory and were added after every registered result was seen).
+Each CM maps a clip \(x\) to a score \(s(x)\), higher meaning more bona fide, and declares a spoof if \(s(x)<\tau\). All five models were
+trained on LA19 train, so every threshold is fixed on the LA19 development set (24,844 trials, 2,548 bona fide). \(\tauE\) is the
+crossing of dev FRR and FAR, estimated by linear interpolation between adjacent unique dev scores. \(\tauF{1}\) and \(\tauF{5}\) are the
+strictest thresholds whose dev FRR stays within 1\% and 5\% (dev bona fide quantiles, which are well determined). \(\tauA{1}\) and
+\(\tauA{5}\), the most lenient thresholds whose dev FAR stays within 1\% and 5\%, are exploratory: we added them after seeing every
+registered result. All five are computed from dev scores alone, frozen at reproduction time before we scored any ITW clip, and applied
+unchanged. Dev is nearly separable (Table~\ref{tab:roster}), so \(\tauE\) is pinned by few trials: 13--19 bona fide and 113--161 spoof
+trials lie on its wrong side for the primary models, and 1 and 2 for the reference.
+
+On a target, \(\frr(\tau)\) is the share of bona fide clips declared spoof (\(P^{\mathrm{cm}}_{\mathrm{miss}}\) in ASVspoof terms,
+BPCER in ISO/IEC 30107-3), \(\far(\tau)\) the share of spoofs accepted (\(P^{\mathrm{cm}}_{\mathrm{fa}}\), APCER), and
+\(\hter(\tau)=\tfrac12[\frr(\tau)+\far(\tau)]\) \cite{bengio04_hter}. For a transferred threshold \(\tau^{*}\), the threshold transfer gap
+\begin{equation}
+\ttg(\tau^{*}) \;=\; \hter(\tau^{*}) \;-\; \min_{\tau}\hter(\tau)
+\label{eq:ttg}
+\end{equation}
+is the calibration loss of \(\tau^{*}\) at the equal-cost point: half the actual minus the minimum normalised cost at equal priors and
+costs \cite{brummer06_calibration,vanleeuwen07_intro}. The minimum, the oracle HTER, is the part of the deployed error that no fixed
+threshold removes (discrimination), and TTG is the part that a better threshold would remove (transfer). We report both, the transfer share
+\(\ttg/\hter(\tau^{*})\), and FRR and FAR, because equal gaps can hide opposite failures. Two rank-based quantities are invariant to
+monotone score transforms, so they compare classifiers rather than score parametrisations: the \emph{miss}, the share of target clips
+whose decision differs between \(\tau^{*}\) and the oracle threshold \(\tauor\), and the \emph{band}, the share of clips lying in the
+threshold range where HTER stays within 1\,pp of its minimum.
+
+\emph{Cost model (registered).} With \(p\) the bona fide prior weighted by costs, the normalised cost
+\begin{equation}
+C(p,\tau)=\frac{p\,\frr(\tau)+(1-p)\,\far(\tau)}{\min(p,\,1-p)}
+\label{eq:cost}
+\end{equation}
+is 1 for the better trivial system (accept or reject everything), so \(C>1\) means that the detector costs more than none. The
+registration fixed two points. \emph{Screening}, \(p=0.95\) (prior 0.95, unit costs), gives \(C=19\,\frr+\far\), so the detector wins
+only if \(\frr<(1-\far)/19\). \emph{Forensic}, \(p=1/11\) (prior 0.5, a false acceptance ten times as costly), gives
+\(C=\frr+10\,\far\). We also sweep \(p\) and report the window of priors in which \(C<1\).
+
+\subsection{Models and targets}
+\label{sec:models}
+% src: results/b_thresholds.txt (B1: dev EER, tau, pins); harness reproduction reports (EERs, gates, 3.7e-5), DEV-2 (H5 manifest);
+% results/g_docs.txt (54 labels; 14-3636 clips; exclusions 18.8%/14.6%; manifest: 28-53 spoofs per attack, 67 speakers).
+Table~\ref{tab:roster} lists the roster. We vendor each author's code and keep its score function, class order and input policy. A
+primary model must reproduce its published LA19 evaluation EER within 15\% (relative). The released RawNet2 checkpoint is the ASVspoof~2021 DF baseline,
+trained on LA19 train only and a different run from its published LA19 figure, so it is gated on DF21: on the 305,525 cleanly decodable
+trials its EER equals that of the organisers' released scores on the same trials (15.06\%), and per-trial scores agree to
+\(3.7{\times}10^{-5}\). XLS-R+AASIST is the authors' DF-track checkpoint, trained with RawBoost \cite{tak22_rawboost}. No LA19 figure is
+published for it, so it enters ungated and outside every hypothesis count, as the reference.
+
+\begin{table}[!t]
+\caption{Roster and development thresholds. EER on LA19 eval (\%): ours / published. Dev EER (\%) and \(\tauE\) on LA19 dev. Last column:
+dev bona fide trials below, and dev spoof trials at or above, \(\tauE\).}
+\label{tab:roster}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\input{gen/tab_roster}\\[2pt]
+\parbox{\columnwidth}{\footnotesize\textsuperscript{a}Different training run, gated on DF21 instead.
+\textsuperscript{b}None published, so ungated and outside every hypothesis count.}
+\end{table}
+
+\emph{LA19 eval} (71,237 trials, 7,355 bona fide) shares its corpus with dev and has disjoint speakers. Of its 13 attacks, eleven are
+unseen (A07--A15, A17, A18) and two are known (A16 = A04, A19 = A06). \emph{ITW} \cite{muller22_in_the_wild} has 31,779 clips (19,963
+bona fide) of public figures from online media. Its metadata carry 54 distinct speaker labels (the dataset paper reports 58), with 14 to
+3,636 clips each. \emph{DF21} \cite{liu23_asvspoof2021} applies nine media-compression conditions. Its
+public release carries a decoding hazard: libFLAC~1.4 rejects 43\% of the 533,928 evaluation files, and for 78,420 files the only working
+decode fails the file's own MD5. We exclude those files and score a verified subset of 455,508 trials (12,067 bona fide). The exclusions
+remove 18.8\% of bona fide and 14.6\% of spoof trials, unevenly across sources (supplement), so published DF21 figures are not comparable
+with ours.
+
+\emph{EnCodec stress (H5).} A frozen 1,000-clip manifest (500 bona fide and 500 spoof, a uniform seeded draw within class from LA19 eval that
+covers all 67 speakers and 28--53 spoofs of each attack) is resynthesised by EnCodec at 6\,kbps \cite{defossez23_encodec} and resampled
+to 16\,kHz. A clean copy takes the same path (scores match the reference to \(9.5{\times}10^{-7}\)). We label the resynthesised bona
+fide clips bona fide: a genuine user's speech that passed through a neural codec is still genuine, and ASVspoof~5 applies EnCodec to
+both classes as a channel \cite{wang25_asvspoof5_db}. CodecFake \cite{wu24_codecfake} labels such output fake
+\cite{xiao26_resynth}, and under that convention H5's false rejections would be correct detections. Scores are fp32 with TF32 off, and
+every analysis refuses to run if a recomputed number disagrees with a committed one.
+
+\subsection{Hypotheses, statistics and pre-registration}
+\label{sec:prereg}
+% src: PREREGISTRATION.md; DEVIATIONS.md DEV-2 (H5 source set and test), DEV-3 (H3 counting rule), DEV-8 A1, A2 (cluster versions).
+\emph{H2} (confirmatory): on ITW at \(\tauE\), FRR exceeds FAR for a majority (at least three) of the four primary models. \emph{H5}
+(confirmatory): EnCodec resynthesis raises FRR more than FAR, relative to the clean copy, for a majority. The registered tests are
+one-sided, class-stratified bootstraps \cite{koehn04_bootstrap} (\(B=1000\), seed 0) of \(\frr-\far\) and
+\(\Delta\frr-\Delta\far\), with Holm correction \cite{holm79_holm} at \(\alpha=0.05\) within each family, and the smallest attainable \(p\)
+is \(1/(B+1)\). ITW's clips are nested in 54 speaker labels and the H5 clips in 67 speakers, so we add, as a logged deviation, a
+speaker-cluster bootstrap \cite{field07_boot,bolle04_subsets}: speakers are resampled with replacement together with all their clips of
+both classes (\(B=10{,}000\), seed 0, \(p=(1+k)/(B+1)\)), with the same statistics and rule. For H5 we also test its components,
+\(\Delta\frr>0\) and \(\Delta\far<0\). H1 and H4 (exploratory correlations of source EER and of parameter count with ITW TTG) are in
+the supplement: intervals over twelve points from four models are pseudo-replicated, and with four models an exact one-sided
+permutation test cannot reach \(p<1/24\).
+
+\emph{Pre-registration.} The hypotheses were registered on 19~July 2026, amended in August (after a Res-TSSDNet conversion pilot) and
+September (after the fp32 reproduction runs), and frozen in version control on 28~September 2026. The frozen registration and the deviation log are in the repository.\footnote{\repo} We scored no ITW clip and generated no EnCodec audio before the freeze. Of the DF21 scores, only RawNet2's, computed for its reproduction gate, predate it. The H2 resampling
+unit, which the registration left open, was fixed after we had seen the descriptive ITW rates. Two int8 hypotheses were also registered,
+and neither was supported. H3 failed on coverage (three of four models yielded no usable int8 model, and a counting rule fixed after the
+conversion outcomes made it impossible to support), and H6 could be evaluated for one model only, where it failed on a clause the
+quantizer could never meet. A separate study reports both. The supplement tabulates every deviation with its date and what had been
+seen when it was logged.
+
+% ============================ 4. RESULTS ======================================
+\section{Results}
+\label{sec:results}
+
+\begin{table*}[!t]
+\caption{Operating behaviour at the frozen \(\tauE\) (fp32, \%). HTER = oracle HTER (discrimination) + TTG (transfer, pp), and TTG/HTER is the transfer share (\%). The CI of TTG is a speaker-cluster bootstrap (\(B=1000\)), and clip-level intervals are in the supplement.}
+\label{tab:op}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\input{gen/tab_operating}
+\end{table*}
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{fig_frr_far.pdf}
+\caption{ITW: each curve is a model's FRR--FAR trade-off, markers are the five frozen thresholds, and the thick segment is the
+interval of thresholds that tie with \(\tauE\) on dev (within one bona fide trial). Points above the diagonal put the error on genuine speech, and screening \(C<1\) needs a point below the dashed line.}
+\label{fig:frrfar}
+% src: analysis/figures_rev.py (curves from the committed scores; intervals from results/b_thresholds.json).
+\end{figure}
+
+\subsection{Where the error lands}
+% src: results/b_thresholds.txt (C, D), results/a_cluster.txt (A3, E2); Table III is generated (gen/tab_operating.tex).
+Table~\ref{tab:op} gives FRR, FAR, HTER, the oracle HTER and TTG at \(\tauE\). On LA19 eval the genuine speech comes from the source
+corpus and only the attacks are new, so the error that grows is false acceptance: the primary models accept 6.1--11.5\% of spoofs and
+reject 0.1--0.5\% of genuine clips. Even so, AASIST and AASIST-L lose more than four HTER points to unseen attacks (TTG 4.18 and
+4.64\,pp, speaker-level 95\% CIs [3.74, 4.65] and [3.99, 5.36]), 84\% and 83\% of their deployed HTER. This is the most reliable result here, and the EER hides it (0.83\% against 5.00\%). It also reorders the models: by HTER at the development threshold, Res-TSSDNet
+(3.17\%) overtakes AASIST (5.00\%) and AASIST-L (5.62\%), which beat it by EER.
+
+On ITW and DF21 the genuine speech has shifted. At \(\tauE\), FRR exceeds FAR for four of five models on each target (the exceptions
+are RawNet2 on ITW and AASIST on DF21). For the primary models on ITW, however, the dominant loss is discrimination: their EERs are
+34--49\%, their oracle HTERs 34--46\%, and transfer is only 2--11\% of the deployed HTER. ``The EER hides the failure'' thus holds for
+LA19 eval and for the reference, whose EER (10.5\% on ITW, 2.0\% on DF21) is far below its deployed HTER (25.2\% and 7.4\%), of which
+59\% and 73\% is transfer. The reference nevertheless makes the fewest errors at its transferred threshold on both shifted targets (HTER
+25.2\% against 34.6--51.4\% on ITW, 7.4\% against 14.9--29.0\% on DF21): it has the largest gap from its own optimum, not the largest
+error. Its gap is the largest in every speaker-bootstrap replicate on ITW and in at least 99.5\% on DF21. Speaker-level intervals are
+much wider than clip-level ones (supplement).
+
+\subsection{The policy sets the direction}
+% src: results/b_thresholds.txt (C): FRR at frr1/frr5 and FAR at far1/far5 on ITW and DF21; target-oracle FRR at FAR<=5%.
+The five policies move the error between the two classes (Fig.~\ref{fig:frrfar}). A threshold whose dev FRR is 1\% rejects
+42.8--81.8\% of genuine ITW speech and 18.1--55.0\% on DF21, and at 5\% it rejects 75.5--98.2\% on ITW. The lenient thresholds do the opposite: a dev
+FAR of 1\% becomes 7.0--76.6\% on ITW (FAR above FRR for AASIST, AASIST-L and RawNet2), and a dev FAR of 5\% becomes 14.2--91.9\% (FAR
+above FRR for all five). The dominant error therefore follows the policy, and the registered grid, all on the strict side, tilted the
+registered finding toward false rejection. What does not follow the policy is the discrimination ceiling: at the best ITW threshold that
+keeps FAR within 5\%, the primary models still reject 72--89\% of genuine clips, and the reference 17\%.
+
+\subsection{H2 and H5 under two resampling units}
+% src: results/a_cluster.txt (A1, A2, A4), results/extra_facts.txt (AUC); Table IV is generated (gen/tab_tests.tex).
+\emph{H2.} The registered clip-level test is supported: FRR exceeds FAR for three of the four primary models (Table~\ref{tab:tests}).
+Resampling speakers gives a different answer. Only Res-TSSDNet is rejected (\(+31.3\)\,pp [\(+14.3\), \(+51.8\)]). The intervals of AASIST (\(+1.9\) [\(-9.8\), \(+17.4\)], \(p=.37\)) and AASIST-L (\(+14.1\) [\(-3.7\), \(+32.9\)], \(p=.061\)) contain zero, and deleting
+one speaker moves AASIST's difference between \(-0.5\) and \(+5.4\)\,pp. RawNet2 errs the other way and does not separate ITW (AUC
+0.51). H2 is thus supported at the clip level and not at the speaker level (one of four models, one of the three that discriminate at
+all). We do not claim it, because clips of one speaker share recording conditions and score shifts, and because the registered unit was
+fixed after the descriptive rates were seen. Rejections are spread unevenly: per-speaker FRR at \(\tauE\) runs from near 0 to near 100\%
+(quartiles 11, 38 and 78\% for AASIST) and exceeds 50\% for 18--34 of 54 labels (supplement).
+
+\begin{table}[!t]
+\caption{Confirmatory tests on the four primary models: the registered clip bootstrap (\(B=1000\), every rejection with \(p\le .001\))
+and the speaker-cluster bootstrap (\(B=10{,}000\)). Holm at \(\alpha=.05\) within each family.}
+\label{tab:tests}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\input{gen/tab_tests}
+\end{table}
+
+\emph{H5.} H5 is supported at both levels. EnCodec raises FRR and lowers FAR for every model: \(\Delta\frr\) is \(+6.2\), \(+11.2\),
+\(+1.2\) and \(+68.0\)\,pp and \(\Delta\far\) is \(-6.4\), \(-6.4\), \(-1.6\) and \(-3.6\)\,pp for AASIST, AASIST-L, RawNet2 and
+Res-TSSDNet, and both components are significant at the speaker level under Holm. Resynthesis lowers the scores of genuine and fake
+speech alike, which at a fixed threshold surfaces as rejected genuine speech: Res-TSSDNet rejects 68.4\% of resynthesised bona fide
+clips, while RawNet2's rise is 6 of 500. Rates move in 0.2-pp steps.
+
+\subsection{How well is the threshold determined?}
+% src: results/b_thresholds.txt (B2, B3, B4, D); Zhou and Wang's 78.7% is from their abstract (arXiv 2606.21584).
+On near-separable dev data many thresholds tie. For the reference, every threshold in \([-3.38,+2.14]\) has the same dev HTER within
+one bona fide trial, and its ITW FRR runs from 25.1\% to 73.0\% over that interval (49.9\% at the registered \(\tauE\)), and resampling the dev trials gives a 95\% interval of [49.8, 73.3]\% for that FRR. For the primary models the interval moves ITW FRR by 5 to 12\,pp and
+flips the sign of AASIST's \(\frr-\far\). A threshold set on the LA19
+evaluation scores, the convention of Zhou and Wang, gives the reference 70.2\% FRR on ITW. They report 78.7\% for an SSL-AASIST detector
+whose checkpoint and preprocessing we cannot test, so most of the gap to our 49.9\% comes from where the threshold is set. In rank terms
+the reference's 1-pp band holds 10.0\% of ITW clips against 21--35\% for the other models, and its transferred threshold changes the
+decisions of 26.8\% of clips relative to the oracle threshold (18--42\% for the others).
+
+\subsection{The silence cue}
+% src: results/f_vad_stats_analysis.txt (F1), results/f_vad_scores_analysis.txt (F3); M\"uller et al.'s 15.1% and 3.6 to 15.5% are from their abstract.
+LA19 bona fide clips begin with a median 1.00\,s (dev) and 0.90\,s (eval) of silence (energy VAD), against 0.38 and 0.05\,s for
+spoofs. ITW genuine clips begin with 0.09\,s (half under 0.1\,s) and ITW spoofs with 0.24\,s. Leading
+silence alone separates LA19 eval with 17.5\% EER (M\"uller et al.\ report 15.1\% \cite{muller21_silence}) and ITW with 56.5\%, in the
+wrong direction. Trimming both ends of every clip at test time, with no retraining, raises the LA19 eval EER of all five models from
+0.83, 0.99, 4.60, 1.62 and 0.15\% to 21.3, 20.4, 27.5, 23.5 and 5.1\%, so each relied on the cue. On ITW, genuine FRR at \(\tauE\) falls
+with leading silence for four models (62\% to 25\% for the reference, from clips with none to clips with 0.4\,s or more) and rises for
+Res-TSSDNet. We then re-set every threshold on trimmed dev scores and applied it to trimmed ITW. FRR falls for all five models
+(by 9--38\,pp) but FAR rises (by 3--34\,pp), and ITW EER moves by only \(-4.0\) to \(+3.1\)\,pp, so discrimination does not improve.
+The deployed HTER improves for the reference (25.2 to 13.8\%, TTG 14.96 to 0.67\,pp), improves a little for AASIST-L and Res-TSSDNet (by
+3.2 and 1.9\,pp) and worsens for AASIST and RawNet2. By the reading rule we fixed beforehand, the outcome is mixed. The silence cue
+helps make LA19 development data nearly separable, and so a development threshold strict, but removing it does not make ITW detectable.
+
+\subsection{Two checks for deployers}
+% src: results/a5_cheapcheck.txt (A5), results/e_cost.txt (E1, screening break-even), results/a_cluster.txt (E2).
+\emph{Genuine channel speech.} On ITW we drew 1,000 speaker-disjoint splits (27 calibration and 27 held-out speakers) and \(k=50\), 100
+or 500 genuine calibration clips. The FRR estimated
+from the sample at the shipped threshold is unbiased in the median (error \(+0.1\) to \(+1.1\)\,pp) but spreads by \(\pm18\)--26\,pp
+(5--95\%) across splits and does not shrink from \(k=50\) to 500: only 22--32\% of estimates fall within 5\,pp of the held-out value, so
+the limit is the number of speakers, not clips. Re-setting \(\tau\) at the 1\% quantile of the sample restores the held-out FRR (median
+0.5--1.7\%) but accepts 88--99.9\% of held-out spoofs for the primary models and 55--67\% for the reference. The check repairs what it measures: for a model that does not discriminate on the channel, it trades false rejection for false
+acceptance.
+
+\emph{Cost and break-even.} At \(\tauE\) on ITW, a transferred detector beats the better trivial system only for bona fide priors in a
+window: (0.43, 0.57) for AASIST, (0.43, 0.56) for AASIST-L, (0.28, 0.62) for Res-TSSDNet, (0.01, 0.67) for the reference, and none for
+RawNet2. The registered screening point (\(p=0.95\)) lies outside every window on ITW and DF21, and its condition
+\(\frr<(1-\far)/19\) needs an FRR below 1.6--5.2\% on ITW against the 33.8--50.6\% obtained. The registered finding that every
+transferred detector costs more than none under screening is therefore mostly a property of that cost model and of ITW discrimination:
+even the target-optimal threshold costs 0.99--1.00 for the primary models (0.86 for the reference). The model with the largest gap (HTER,
+screening cost or forensic cost) is the same in at least 81\% of speaker-bootstrap replicates in 17 of 18 target-by-policy-by-measure cells. The exception is ITW at \(\tauE\) under screening (AASIST-L 48\%, Res-TSSDNet 32\%, reference 20\%).
+
+% ============================ 5. DISCUSSION ==================================
+\section{Discussion and Limitations}
+\label{sec:discussion}
+\emph{What to report.} Alongside EER, a CM paper should give the items of Table~\ref{tab:card}. Actual-cost reporting, as in
+ASVspoof~5, covers part of this. The card adds the split into discrimination and transfer, a FAR-budget policy, the interval of
+thresholds that tie on development data, and speaker-level uncertainty, and each changed a conclusion here. For image and video
+forensics the lesson carries over: a threshold-free score on a shifted benchmark says how well a detector ranks, not what a threshold
+fixed elsewhere will do.
+
+\emph{Why FRR budgets fail, and when.} An FRR budget is set in the lower tail of the source genuine scores, so any downward shift of
+genuine target scores moves mass across that tail first. One domain reason for such a shift is that the LA19 bona fide class comes
+from one corpus recorded in a hemi-anechoic chamber \cite{wang20_asvspoof2019}, which a CM can learn as a compact one-class region
+\cite{zhang21_oneclass}. The premise is the empirical question, not a law: RawNet2 on ITW (FAR 69\%) shifts the other way, and a lenient policy reverses the dominant error. Calibrating scores on source data does not escape the problem,
+because a Bayes threshold on calibrated scores \cite{brummer06_calibration} is a monotone map followed by a source-chosen threshold, one
+more point on the same curve.
+
+\emph{Hard decisions, triage and people.} For a hard-decision filter, the quantities above apply directly. For triage, where scores
+prioritise human review, ranking matters and transfer bites through the review budget. If the interval of thresholds that tie on
+development data were the review band of a three-zone policy, it would send 48\% of ITW genuine clips (and 2\% of spoofs) to review for
+the reference and 5--12\% of genuine clips for the primary models. The rejections fall on speakers: ITW's genuine speakers are public
+figures, and a detector that rejects their authentic speech hands anyone who wishes to deny it a tool's verdict as cover (the liar's
+dividend \cite{chesney19_deepfakes}).
+
+\emph{Limitations.} (a) The evidence covers four LA19-trained models of 2021--22 and one reference, three of the five from the AASIST
+lineage. Each checkpoint is one training run, and seed variance of the same CM can be significant \cite{wang21_comparative}, so claims
+concern checkpoints, not architectures. We did not test calibration-oriented detectors \cite{pascu24_calibrated} or models trained on ASVspoof~5 or MLAAD. For them, narrower dev-equivalent intervals and smaller ITW transfer shares would show that the
+pattern does not carry over. (b) ITW has been the community's transfer target since 2022 and is not an
+independent proxy for deployment, and its speaker labels carry no recording identifier, so speaker is the finest cluster we could use.
+(c) H5 covers one neural codec at one bitrate on 1,000 clips, and conventional codecs, neural speech enhancement, noise and attackers who probe a fixed threshold are open conditions. A language shift (e.g.\ MLAAD \cite{mlaad24}) is reported separately, and the findings here are claimed only for the targets tested. (d) Every analysis beyond H2 and H5 is exploratory.
+
+% ============================ 6. CONCLUSION ==================================
+\section{Conclusion}
+\label{sec:conclusion}
+A threshold fixed on source data and deployed elsewhere is a measurable source of error that the EER does not show. For the audited
+LA19-trained checkpoints, a development threshold costs AASIST and AASIST-L more than four HTER points to unseen attacks on LA19 itself.
+On ITW the primary models' error is mostly discrimination, the reference model's transfer loss depends strongly on where among
+equivalent thresholds the threshold falls (FRR 25 to 73\%), and the dominant error follows the policy. The registered claim that false
+rejection dominates on ITW holds for clips but not for speakers, whereas the claim that a neural codec pushes genuine and fake speech
+alike toward ``spoof'' holds under both. These properties belong to the operating point, so they should be measured there: at a declared
+threshold, as FRR and FAR split into discrimination and transfer, with speaker-level uncertainty and a stated cost model. The harness,
+frozen thresholds, score files and analysis scripts are released at \repo.
+
+\bibliographystyle{IEEEtran}
+\bibliography{refs}
+
+\end{document}

@@ -1,0 +1,41 @@
+{
+  "provenance": "Snapshots extracted from local version-control tags on 2026-10-13. Commit times are author-controlled version-control records; this package is not an independent pre-analysis timestamp.",
+  "tags": {
+    "roster-freeze": {
+      "commit": "97e975390f1de332c8c432027da9470c7a8ac4a0",
+      "committer_time": "2026-09-28T16:53:05+07:00",
+      "files": [
+        {
+          "path": "reproducibility/registrations/roster-freeze/PREREGISTRATION.md",
+          "bytes": 10927,
+          "sha256": "8ae91d1f1f33ef251ecbc1a4998ee898d24c5aca23648976024b41af21e57758",
+          "git_blob": "74ff4cbdd8e6ec8d4757c9f46fed009cdb9bb8a1"
+        }
+      ]
+    },
+    "round2-freeze": {
+      "commit": "73f2721ee0b075cae6bb9b2841eb804758fa4e0a",
+      "committer_time": "2026-10-07T09:25:41+07:00",
+      "files": [
+        {
+          "path": "reproducibility/registrations/round2-freeze/PREREGISTRATION.md",
+          "bytes": 10927,
+          "sha256": "8ae91d1f1f33ef251ecbc1a4998ee898d24c5aca23648976024b41af21e57758",
+          "git_blob": "74ff4cbdd8e6ec8d4757c9f46fed009cdb9bb8a1"
+        },
+        {
+          "path": "reproducibility/registrations/round2-freeze/PREREGISTRATION_ROUND2.md",
+          "bytes": 18535,
+          "sha256": "e7d4fb421a0697e41161e0e2d57e6b94466de6f26c4b19b8c92a25f7185e487d",
+          "git_blob": "d770df33063a13ef21f88b0e5f874ef2d4d8b9b3"
+        },
+        {
+          "path": "reproducibility/registrations/round2-freeze/DEVIATIONS.md",
+          "bytes": 32937,
+          "sha256": "f74ff0c701344149c1f2d56174d5eb300ca9eaa9aa8e13888469604120ee434b",
+          "git_blob": "ed5d4e344a0fc257f3a1d2dec931105f6bea0796"
+        }
+      ]
+    }
+  }
+}
