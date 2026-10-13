@@ -20,6 +20,6 @@ gradlew text eol=lf
 *.csv -text
 
 # Bundled provenance inputs carry exact-byte SHA-256 digests and must survive archive/checkout unchanged.
-reproducibility/** -text
+reproducibility/** -text -whitespace
 # Preserve the exact upstream license texts recorded in licenses/SOURCE_MANIFEST.json.
-licenses/** -text
+licenses/** -text -whitespace
