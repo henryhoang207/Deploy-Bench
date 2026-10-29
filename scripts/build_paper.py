@@ -1,4 +1,7 @@
-"""Build the article and supplement with pdflatex/bibtex, without requiring Perl."""
+"""Build the article and supplement with pdflatex/bibtex, without requiring Perl.
+
+The manuscript sources are the authors' copy, kept outside version control; they are not part of this package.
+"""
 from __future__ import annotations
 
 import argparse
@@ -8,20 +11,24 @@ import shutil
 import subprocess
 
 REPO = Path(__file__).resolve().parents[1]
+# The authors' manuscript sources, kept outside version control; not part of this package.
+PAPER = REPO / "paper" / "Thresholded_Once__Deployed_Elsewhere__A_Two_Round_Pre_Registered_Audit_of_Threshold_Transfer_in_Speech_Deepfake_Detection"
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--source-dir", type=Path, default=REPO / "paper" / "speechcomm")
-    parser.add_argument("--output", type=Path, default=REPO / "paper" / "speechcomm" / "output" / "pdf")
+    parser.add_argument("--source-dir", type=Path, default=PAPER)
+    parser.add_argument("--output", type=Path, default=PAPER / "output" / "pdf")
     args = parser.parse_args()
     source, output = args.source_dir.resolve(), args.output.resolve()
     tools = {name: shutil.which(name) for name in ("pdflatex", "bibtex")}
     if not all(tools.values()):
-        parser.error("Install a LaTeX distribution providing pdflatex and bibtex, including elsarticle.")
+        parser.error("Install a LaTeX distribution providing pdflatex and bibtex.")
     output.mkdir(parents=True, exist_ok=True)
     env = os.environ.copy()
     env["BIBINPUTS"] = str(source) + os.pathsep + env.get("BIBINPUTS", "")
+    # bibtex runs in the output folder; the bundled sn-basic.bst stays next to the sources
+    env["BSTINPUTS"] = str(source) + os.pathsep + env.get("BSTINPUTS", "")
     for stem in ("main", "supplement"):
         if not (source / f"{stem}.tex").is_file():
             parser.error(f"Missing source: {source / (stem + '.tex')}")

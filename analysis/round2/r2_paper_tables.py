@@ -1,9 +1,10 @@
-"""Round-2 tables for the Paper 1 manuscript (Speech Communication, D59), generated from the committed analysis
+"""Round-2 tables for the Paper 1 manuscript (D59), generated from the committed analysis
 outputs (never edited by hand):
 
     python analysis/round2/r2_paper_tables.py      # reads results/round2/{gates.json, analysis/r2_registered.json,
-                                                   #   analysis/r2_explore.json}; writes paper/speechcomm/gen/r2_*.tex
-#   ($R2_GEN overrides the output folder)
+                                                   #   analysis/r2_explore.json}; writes gen/r2_*.tex in the manuscript folder
+#   ($R2_GEN overrides the output folder; R2_DIGITS=comma groups thousands with a comma instead of the LaTeX
+#   thin space that Springer Nature tables use)
 r2_gates.tex        the three gates
 r2_operating.tex    round-2 detectors at tau_eer on every target (E1)
 r2_tests.tex        R2-H1 to R2-H4 and the reading rule
@@ -32,7 +33,11 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import r2lib as R  # noqa: E402
 
-GEN = Path(os.environ.get("R2_GEN", R.REPO / "paper" / "speechcomm" / "gen"))
+GEN = Path(os.environ.get("R2_GEN", R.REPO / "paper" / "Thresholded_Once__Deployed_Elsewhere__A_Two_Round_Pre_Registered_Audit_of_Threshold_Transfer_in_Speech_Deepfake_Detection" / "gen"))
+DIGITS = {"comma": ",", "thin": r"\,"}         # thousands separator in table cells; Springer Nature tables use "thin"
+if os.environ.get("R2_DIGITS", "thin") not in DIGITS:
+    raise SystemExit(f"REFUSED: R2_DIGITS must be one of {sorted(DIGITS)}")
+SEP = DIGITS[os.environ.get("R2_DIGITS", "thin")]
 NICE = {"as5_aasist": "AS5 AASIST", "pascu_lr": "Pascu LR", "xlsr_mamba": "XLSR-Mamba",
         "aasist": "AASIST", "aasist_l": "AASIST-L", "rawnet2": "RawNet2", "tssdnet": "Res-TSSDNet",
         "xlsr_aasist": "XLS-R+AASIST"}
@@ -48,6 +53,11 @@ def load(rel):
 
 def pct(x, d=1):
     return "--" if x is None else f"{100 * x:.{d}f}"
+
+
+def grouped(n):
+    """A count with its thousands separated by SEP."""
+    return f"{n:,}".replace(",", SEP)
 
 
 def minus(line):
@@ -74,7 +84,7 @@ def t_gates(g):
     a = g["as5_aasist"]
     L.append(rf"{NICE['as5_aasist']} & AS5 dev EER (\%) & {a['eer_pct']:.2f} & 15.2 & {'yes' if a['passed'] else 'no'} \\")
     x = g["xlsr_mamba"]
-    L.append(rf"XLSR-Mamba & DF21 EER, same {x['n_overlap']:,} trials (\%) & {x['eer_ours_pct']:.2f} & "
+    L.append(rf"XLSR-Mamba & DF21 EER, same {grouped(x['n_overlap'])} trials (\%) & {x['eer_ours_pct']:.2f} & "
              rf"{x['eer_theirs_pct']:.2f} & {'yes' if x['passed'] else 'no'} \\")
     p = g["pascu_lr"]
     L.append(rf"{NICE['pascu_lr']} (train+dev fit) & LA19-eval EER (\%) & {p['eer_pct']:.2f} & 0.6 & {'yes' if p['passed'] else 'no'} \\")
@@ -263,7 +273,7 @@ def t_as5(e6):
     for c, v in e6.items():
         if not c.startswith("C"):
             continue
-        L.append(rf"{c} & {v['n']:,} & {pct(v['eer'])} & {pct(v['frr'])} & {pct(v['far'])} & {pct(v['ttg'], 2)} \\")
+        L.append(rf"{c} & {grouped(v['n'])} & {pct(v['eer'])} & {pct(v['frr'])} & {pct(v['far'])} & {pct(v['ttg'], 2)} \\")
     L += [r"\bottomrule", r"\end{tabular}"]
     write("r2_as5", L)
 
@@ -339,9 +349,9 @@ def t_card(e1, e7, e9, rl, taus, model="xlsr_mamba", surf="itw"):
     L = head("analysis/r2_explore.json (E1_E8_E10, E7, E9), analysis/r2_registered.json (R2-RL), taus/" + model + "__s0.json",
              f"the reporting card filled in for {model} on {surf}; rates in % of the target class, TTG in pp")
     rows = [
-        ("Threshold source and policy", rf"LA19 dev ({t['n_bona']:,} bona fide, {t['n_spoof']:,} spoof; dev EER "
+        ("Threshold source and policy", rf"LA19 dev ({grouped(t['n_bona'])} bona fide, {grouped(t['n_spoof'])} spoof; dev EER "
                                         rf"{100 * t['dev_eer']:.3f}\%), \(\tau^{{*}}_{{\mathrm{{EER}}}}\)"),
-        ("Target", rf"ITW, {c['n']:,} clips, {c['clusters']} speaker labels"),
+        ("Target", rf"ITW, {grouped(c['n'])} clips, {c['clusters']} speaker labels"),
         (r"FRR (BPCER) / FAR at the shipped threshold", rf"{pct(P['eer']['frr'])} / {pct(P['eer']['far'])}"),
         ("HTER = oracle HTER + TTG", rf"{pct(P['eer']['hter'])} = {pct(P['eer']['hter_oracle'])} + {pct(P['eer']['ttg'], 2)} "
                                     rf"[{pct(P['eer']['ttg_ci95'][0], 2)}, {pct(P['eer']['ttg_ci95'][1], 2)}]; share "

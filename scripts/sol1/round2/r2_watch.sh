@@ -2,9 +2,9 @@
 # Laptop side of the round-2 run -> verify -> next loop: poll sol1's r2_events.py every 5 minutes and exit (which wakes
 # the Claude session that launched it in the background) on the first event, after 12 SSH or script errors in a row, or
 # after a heartbeat period with no event (default 6 h; first argument in seconds).
-#     bash scripts/sol1/round2/r2_watch.sh [heartbeat_s]
+#     R2_HOST=user@host bash scripts/sol1/round2/r2_watch.sh [heartbeat_s]
 K="-i $HOME/.ssh/id_ed25519_sol1 -o IdentitiesOnly=yes -o ConnectTimeout=15 -o BatchMode=yes"
-S=henry@sol1.swin.edu.vn
+S=${R2_HOST:?set R2_HOST to the user@host SSH login of the scoring server}
 HEARTBEAT_S=${1:-21600}
 t0=$(date +%s); errs=0; last=""
 while :; do

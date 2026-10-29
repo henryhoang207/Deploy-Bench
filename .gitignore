@@ -36,15 +36,3 @@ android/.idea/
 android/*.iml
 *.apk
 *.aab
-
-# Local manuscript previews and release preparation tools; release assets are uploaded separately.
-/paper/speechcomm/output/
-/paper/speechcomm/tmp/
-/paper/speechcomm/*.aux
-/paper/speechcomm/*.bbl
-/paper/speechcomm/*.blg
-/paper/speechcomm/*.fdb_latexmk
-/paper/speechcomm/*.fls
-/paper/speechcomm/*.log
-/paper/speechcomm/*.out
-/paper/speechcomm/*.synctex.gz

@@ -1,11 +1,13 @@
-"""Regenerate and verify the Speech Communication tables and figures without model execution.
+"""Regenerate and verify the manuscript's tables and figures without model execution.
 
-    python scripts/reproduce_paper.py --verify
+    python scripts/reproduce_paper.py --verify [--out DIR]
     python scripts/reproduce_paper.py --write
 
-Verification writes only to a temporary directory. It recomputes the round-1
-estimator gate from utterance scores, regenerates every table from its numeric
-inputs, compares table text with the manuscript, and renders all seven figures.
+Verification recomputes the round-1 estimator gate from utterance scores,
+regenerates every table from its numeric inputs and renders all six figures, in a
+temporary directory or in --out DIR, which keeps them. The manuscript sources are
+not part of this package: when the authors' copy is present at PAPER, the table
+text is also compared with it, and --write replaces its tables and figures.
 Figure PDFs are checked for successful generation; their bytes vary with PDF
 metadata and plotting-library versions and are not claimed to be identical.
 """
@@ -23,14 +25,16 @@ import tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-PAPER = REPO / "paper" / "speechcomm"
+# The authors' manuscript sources, kept outside version control; not part of this package.
+PAPER = REPO / "paper" / "Thresholded_Once__Deployed_Elsewhere__A_Two_Round_Pre_Registered_Audit_of_Threshold_Transfer_in_Speech_Deepfake_Detection"
 ROUND1 = REPO / "reproducibility" / "round1"
 
-# These are the documented manuscript edits in audit_claims.py. They clarify the
+# Documented edits to generated round-1 table headers. They clarify the
 # analysis status without changing any numeric input or generated result.
 TABLE_EDITS = {"tab_tests.tex": [(b"Clips (registered)", b"Clips (first run)"),
-                                (b"Speakers (this revision)", b"Speakers (exploratory)")]}
-FIGURES = ("fig_frr_far.pdf", "figS_sensitivity.pdf", "figS_h5.pdf", "figS_overview.pdf",
+                                (b"Speakers (this revision)", b"Speakers (exploratory)")],
+               "s_tab_ttg_spk.tex": [(b"clip CI (registered)", b"clip CI (original)")]}
+FIGURES = ("fig_frr_far.pdf", "figS_sensitivity.pdf", "figS_h5.pdf",
            "figS_speakers.pdf", "figS_cost.pdf", "figS_silence.pdf")
 
 
@@ -88,6 +92,7 @@ def regenerate(output):
     os.environ["DFV_GEN"] = str(gen)
     os.environ["DFV_FIGURES"] = str(figures)
     os.environ["R2_GEN"] = str(gen)
+    os.environ["R2_DIGITS"] = "thin"   # the manuscript's round-2 tables group thousands with a thin space
     sys.path.insert(0, str(REPO))
     sys.path.insert(0, str(ROUND1 / "analysis"))
     import revlib as R
@@ -110,9 +115,9 @@ def regenerate(output):
             data = data.replace(old, new)
         path.write_bytes(data)
     sys.path.insert(0, str(REPO / "analysis" / "round2"))
-    module("speechcomm_round2_tables", REPO / "analysis" / "round2" / "r2_paper_tables.py").main()
+    module("round2_paper_tables", REPO / "analysis" / "round2" / "r2_paper_tables.py").main()
     import figures_rev as F
-    for generate in (F.fig_sensitivity, F.fig_frr_far, F.figS_h5, F.figS_overview,
+    for generate in (F.fig_sensitivity, F.fig_frr_far, F.figS_h5,
                      F.figS_speakers, F.figS_cost, F.figS_silence):
         generate()
     for name in FIGURES:
@@ -125,14 +130,24 @@ def regenerate(output):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     action = parser.add_mutually_exclusive_group()
-    action.add_argument("--verify", action="store_true", help="temporary regeneration and verification (default)")
+    action.add_argument("--verify", action="store_true", help="regeneration and verification (default)")
     action.add_argument("--write", action="store_true", help="replace generated manuscript tables and figures")
+    parser.add_argument("--out", type=Path, help="keep the regenerated tables and figures in this folder")
     args = parser.parse_args()
+    if args.write and not PAPER.is_dir():
+        raise SystemExit(f"REFUSED: --write needs the authors' manuscript sources at {PAPER.relative_to(REPO)}")
+    if args.out and any((args.out / name).exists() for name in ("gen", "figures")):
+        raise SystemExit(f"REFUSED: {args.out} already has gen/ or figures/")
     verify_inputs()
     with tempfile.TemporaryDirectory(prefix="deploybench-paper-") as temporary:
-        gen, figures = regenerate(Path(temporary))
-        expected = {p.name for p in (PAPER / "gen").glob("*.tex")}
+        gen, figures = regenerate(args.out.resolve() if args.out else Path(temporary))
         generated = {p.name for p in gen.glob("*.tex")}
+        if not PAPER.is_dir():
+            kept = f" in {args.out}" if args.out else ""
+            print(f"REGENERATED: {len(generated)} tables and {len(FIGURES)} figures{kept}. The manuscript sources are "
+                  "not part of this package, so the tables were not compared with them.")
+            return
+        expected = {p.name for p in (PAPER / "gen").glob("*.tex")}
         if expected != generated:
             raise SystemExit(f"REFUSED: table set differs; missing={sorted(expected-generated)}, extra={sorted(generated-expected)}")
         if args.write:

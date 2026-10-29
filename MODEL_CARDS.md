@@ -3,7 +3,7 @@
 These cards describe the **eight studied detector configurations** and the
 authors' retraining/head artifacts. Intended use is desktop research on
 fixed-threshold speech-deepfake evaluation and reproducibility of the
-[Speech Communication manuscript](paper/speechcomm/main.tex). These are the
+published article. These are the
 tested configurations, not a general certification of each model family.
 Model-card text is CC-BY-4.0; implementation, weight and dataset licenses have
 their own scope in [LICENSING.md](LICENSING.md) and
@@ -67,8 +67,7 @@ heads are released under **CC-BY-4.0**, with upstream/corpus attribution retaine
 
 ## Evidence boundaries and limitations
 
-Use the [manuscript](paper/speechcomm/main.tex),
-[limitations](paper/speechcomm/limitations.tex), released score files and
+Use the article and its limitations section, the released score files and
 registrations for performance evidence; this card adds no new measurements.
 Released AASIST/AASIST-L checkpoints may have been selected using LA19 evaluation
 data. The roster is not a representative sample of detector families; only

@@ -1,15 +1,12 @@
 # DeployBench
 
 Reproducibility package for **Thresholded Once, Deployed Elsewhere: A Two-Round
-Pre-Registered Audit of Threshold Transfer in Speech Deepfake Detection**
-(Speech Communication manuscript).
+Pre-Registered Audit of Threshold Transfer in Speech Deepfake Detection**.
 
-The version associated with the manuscript is
-[speechcomm-v1.0.0](https://github.com/henryhoang207/Deploy-Bench/releases/tag/speechcomm-v1.0.0).
-Download the release archive or clone this repository and check out that tag.
+Use the tagged release that the article cites when reproducing or citing it:
+download that release archive, or clone this repository and check out its tag.
 The package can be downloaded without an account, registration, or approval.
-Use the fixed release when reproducing or citing the article; the main branch
-may subsequently change.
+The main branch may subsequently change.
 
 ## Reproduce the paper without downloading audio or upstream checkpoints
 
@@ -18,41 +15,25 @@ Use Python 3.12 or newer in a fresh virtual environment:
 ```sh
 git clone https://github.com/henryhoang207/Deploy-Bench.git
 cd Deploy-Bench
-git checkout speechcomm-v1.0.0
 python -m pip install -r requirements-reproduce.txt
-python scripts/reproduce_paper.py --verify
-python paper/speechcomm/audit_claims.py
+python scripts/reproduce_paper.py --verify --out reproduced
 python -m pytest tests/ -q
 ```
 
-The reproduction command regenerates the paper's tables and figures into a
-temporary directory and checks the generated tables against the published
-source. The claim audit checks the numerical statements against the included
-results and historical registrations. Neither command needs access to OneDrive,
-the authors' server, source audio, or upstream checkpoints. Remaining author
-information in the manuscript is reported by the claim audit; it is separate
-from the numerical checks.
+The reproduction command checks the bundled inputs and registration snapshots
+against their recorded hashes, recomputes the round-one estimator gate from the
+utterance scores, and regenerates the paper's 40 tables and six figures into
+`reproduced/`, where they can be compared with the published article. It does
+not need access to OneDrive, the authors' server, source audio, or upstream
+checkpoints. The manuscript sources are not part of this package.
 Tests that require optional neural inference runtimes are skipped when those
 runtimes are absent; the score-based reproduction does not require them.
-
-To regenerate the checked-in table and figure files deliberately:
-
-```sh
-python scripts/reproduce_paper.py --write
-```
-
-To build the article and supplement, install a LaTeX distribution with
-`pdflatex`, `bibtex`, and `elsarticle`, then run:
-
-```sh
-python scripts/build_paper.py
-```
 
 ## Contents and provenance
 
 | Location | Contents |
 |---|---|
-| `paper/speechcomm/` | Article, supplement, generated tables, figures, bibliography, and claim audit |
+| `paper/figures/figures_data.json` | Round-one figure data that the round-one operating-point and threshold analyses check their values against |
 | `reproducibility/round1/` | Bundled round-one analysis sources and score-derived results previously held outside the code repository |
 | `reproducibility/metadata/` | Supporting metadata for reproducing the analyses; provenance and original-provider terms accompany the files |
 | `results/phase_1_reproduction/` | Released-detector reproduction scores and frozen development thresholds |

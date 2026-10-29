@@ -8,7 +8,7 @@
 #   results/round2/stress/{manifest.csv,manifest.json,IR_POOL.txt}   (the r2_parity set's provenance)
 set -euo pipefail
 K="-i $HOME/.ssh/id_ed25519_sol1 -o IdentitiesOnly=yes -o ConnectTimeout=15 -o BatchMode=yes"
-S=henry@sol1.swin.edu.vn
+S=${R2_HOST:?set R2_HOST to the user@host SSH login of the scoring server}
 ssh $K -p 8000 $S 'bash -s' <<'REMOTE'
 set -euo pipefail
 H=/mnt/data8tb/henry

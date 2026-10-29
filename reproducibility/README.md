@@ -1,24 +1,23 @@
 # Manuscript reproduction inputs
 
 `python scripts/reproduce_paper.py --verify` recomputes the round-1 estimator
-checks from the released utterance scores, regenerates all manuscript tables,
-compares their text with the committed tables, and renders the seven figures in
-a temporary directory. It requires only the analysis dependencies in
+checks from the released utterance scores, regenerates all manuscript tables and
+renders the six figures, in a temporary directory or in the folder given with
+`--out`. It requires only the analysis dependencies in
 `requirements-reproduce.txt`, without speech audio, pretrained weights, GPU execution,
 the original OneDrive folder, or an external server. PDF bytes are not compared:
 timestamps and plotting-library versions can change their encoding.
 
-`python scripts/reproduce_paper.py --write` replaces the manuscript's generated
-tables and figures explicitly. `python paper/speechcomm/audit_claims.py` checks
-numeric manuscript claims against the same bundled round-1 inputs and the
-committed round-2 outputs. Other author declarations remain outside that check's
-reproduction scope; `--final` also rejects any unfinished author item.
+The manuscript sources are not part of this package. When the authors' copy is
+present, `--verify` also compares the regenerated table text with it, and
+`python scripts/reproduce_paper.py --write` replaces its generated tables and
+figures.
 
 The `round1/` directory contains the author-maintained DEV-8 revision analyses,
 numeric outputs, silence-trimmed scores and silence statistics used by this
 manuscript. `round1/paper/` preserves the earlier text and generated tables used
-as provenance by the claim audit. It is a historical input, not the submission
-manuscript. The source snapshot was copied on 13 October 2026 from the local
+as provenance by the authors' claim audit. It is a historical input, not the
+submission manuscript. The source snapshot was copied on 13 October 2026 from the local
 `DFV_Conference/revision` tree. It does not create an earlier public timestamp.
 
 `source_manifest.json` records each original relative path, original SHA-256 and
@@ -51,6 +50,5 @@ metadata paths can still be selected through `R2_META` or `DATA_ROOT`.
 The registrations and deviation log are in the repository root. Their historical
 version-control states are preserved at `roster-freeze` and `round2-freeze`.
 Exact registration and deviation-log snapshots are also bundled under
-`registrations/`, with the original commit IDs, blob IDs and file hashes. The
-claim audit verifies these bytes in a release ZIP and additionally checks the
-original tag identities when run in a Git clone.
+`registrations/`, with the original commit IDs, blob IDs and file hashes;
+`--verify` checks these bytes in a release archive or a clone.

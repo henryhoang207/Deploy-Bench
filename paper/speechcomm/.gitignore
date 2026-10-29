@@ -1,4 +1,0 @@
-# Keep the derived, audited round-1 figures required for a self-contained build.
-!figures/*.pdf
-*.spl
-preview*.png
