@@ -26,7 +26,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 # The authors' manuscript sources, kept outside version control; not part of this package.
-PAPER = REPO / "paper" / "Thresholded_Once__Deployed_Elsewhere__A_Two_Round_Pre_Registered_Audit_of_Threshold_Transfer_in_Speech_Deepfake_Detection"
+PAPER = REPO / "paper" / "Thresholded_Once__Deployed_Elsewhere"
 ROUND1 = REPO / "reproducibility" / "round1"
 
 # Documented edits to generated round-1 table headers. They clarify the

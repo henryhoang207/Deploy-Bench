@@ -1,0 +1,141 @@
+{
+ "meta": {
+  "script": "analysis/review_r1/run_h2cv_fast.py",
+  "detector": "aasist_l_r2",
+  "target": "la19_eval",
+  "bootstrap": {
+   "B": 10000,
+   "seed": 0,
+   "replicates": "r2lib.cluster_counts (the registered R2-H2 replicates)"
+  },
+  "margin": 0.01,
+  "folds": {
+   "K": 5,
+   "assignments_per_run": 1,
+   "rng": "numpy.random.default_rng(<run seed>)"
+  },
+  "window": "thresholds whose full-sample HTER is within 0.03 of its minimum; refuses on any edge hit",
+  "holm": {
+   "alpha": 0.05,
+   "supported_if_rejections_at_least": 4
+  }
+ },
+ "cells": {
+  "1": {
+   "seed": 1,
+   "fold_seed": 1,
+   "window_cols": 6313,
+   "edge_hits": 0,
+   "ttg_in": 0.011905558964074879,
+   "ci_in": [
+    0.00877267663204077,
+    0.015530434507130538
+   ],
+   "p_in": 0.0978902109789021,
+   "ttg_cv": 0.01064188154864304,
+   "ci_cv": [
+    0.0045435406914719955,
+    0.015273894290881279
+   ],
+   "p_cv": 0.34656534346565343
+  },
+  "2": {
+   "seed": 2,
+   "fold_seed": 2,
+   "window_cols": 5712,
+   "edge_hits": 0,
+   "ttg_in": 0.03488454271281235,
+   "ci_in": [
+    0.02878584732917284,
+    0.04158654086806833
+   ],
+   "p_in": 9.999000099990002e-05,
+   "ttg_cv": 0.034364618475375155,
+   "ci_cv": [
+    0.026268035732058628,
+    0.040758105430363706
+   ],
+   "p_cv": 9.999000099990002e-05
+  },
+  "3": {
+   "seed": 3,
+   "fold_seed": 3,
+   "window_cols": 5536,
+   "edge_hits": 0,
+   "ttg_in": 0.04248557274756091,
+   "ci_in": [
+    0.03566698234597934,
+    0.049287268963755335
+   ],
+   "p_in": 9.999000099990002e-05,
+   "ttg_cv": 0.04223757237144258,
+   "ci_cv": [
+    0.03455578263180606,
+    0.04883358672125097
+   ],
+   "p_cv": 9.999000099990002e-05
+  },
+  "4": {
+   "seed": 4,
+   "fold_seed": 4,
+   "window_cols": 5857,
+   "edge_hits": 0,
+   "ttg_in": 0.028237654397252804,
+   "ci_in": [
+    0.02344804752093323,
+    0.03339680778694634
+   ],
+   "p_in": 9.999000099990002e-05,
+   "ttg_cv": 0.02758624836227723,
+   "ci_cv": [
+    0.02119775508344401,
+    0.03269948649212608
+   ],
+   "p_cv": 9.999000099990002e-05
+  },
+  "5": {
+   "seed": 5,
+   "fold_seed": 5,
+   "window_cols": 5798,
+   "edge_hits": 0,
+   "ttg_in": 0.017133258165000057,
+   "ci_in": [
+    0.013806007703741987,
+    0.02124107678992517
+   ],
+   "p_in": 9.999000099990002e-05,
+   "ttg_cv": 0.015839158410930622,
+   "ci_cv": [
+    0.012228581116062044,
+    0.020465162495788315
+   ],
+   "p_cv": 0.0022997700229977
+  }
+ },
+ "summary": {
+  "holm": {
+   "in_sample": {
+    "rejections": 4,
+    "supported": true,
+    "rejected": {
+     "2": true,
+     "3": true,
+     "4": true,
+     "5": true,
+     "1": false
+    }
+   },
+   "cv": {
+    "rejections": 4,
+    "supported": true,
+    "rejected": {
+     "2": true,
+     "3": true,
+     "4": true,
+     "5": true,
+     "1": false
+    }
+   }
+  }
+ }
+}

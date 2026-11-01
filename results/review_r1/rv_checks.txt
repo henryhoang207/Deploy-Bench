@@ -1,0 +1,382 @@
+Analyses prompted by the round-1 review (DEVIATIONS.md, DEV-10). Exploratory, not registered.
+
+== Check 1. In-sample versus cross-validated oracle (cv.json)
+TTG in pp at the frozen tau_EER. Columns: detector | target | speakers | HTER at tau_EER (%) | TTG in-sample | clip 5-fold mean | leave-one-speaker-out | speaker 5-fold mean [range of 20] | transfer share in-sample / LOSO / speaker 5-fold
+AASIST | LA19 eval | 67 | 5.0 | 4.18 | 4.17 | 4.17 | 4.16 [4.13, 4.17] | 0.84 / 0.84 / 0.83
+AASIST | ITW | 54 | 42.8 | 2.94 | 2.81 | 1.81 | 1.82 [0.17, 2.77] | 0.07 / 0.04 / 0.04
+AASIST | DF21 ver. | 93 | 15.0 | 0.29 | 0.18 | -0.49 | -0.35 [-1.19, 0.39] | 0.02 / -0.03 / -0.02
+AASIST-L | LA19 eval | 67 | 5.6 | 4.64 | 4.61 | 4.56 | 4.60 [4.57, 4.62] | 0.83 / 0.81 / 0.82
+AASIST-L | ITW | 54 | 43.6 | 1.55 | 1.35 | -0.50 | 0.43 [-0.75, 1.57] | 0.04 / -0.01 / 0.01
+AASIST-L | DF21 ver. | 93 | 14.9 | 0.03 | -0.01 | -0.24 | -0.34 [-0.86, 0.05] | 0.00 / -0.02 / -0.02
+RawNet2 | LA19 eval | 67 | 6.0 | 1.74 | 1.69 | 1.62 | 1.60 [1.45, 1.70] | 0.29 / 0.27 / 0.27
+RawNet2 | ITW | 54 | 51.4 | 5.44 | 5.31 | 2.98 | 3.19 [1.23, 5.37] | 0.11 / 0.06 / 0.06
+RawNet2 | DF21 ver. | 93 | 19.6 | 0.58 | 0.53 | 0.37 | 0.17 [-0.56, 0.68] | 0.03 / 0.02 / 0.01
+Res-TSSDNet | LA19 eval | 67 | 3.2 | 1.58 | 1.56 | 1.55 | 1.55 [1.53, 1.57] | 0.50 / 0.49 / 0.49
+Res-TSSDNet | ITW | 54 | 34.6 | 0.73 | 0.55 | -0.45 | -0.34 [-2.09, 0.96] | 0.02 / -0.01 / -0.01
+Res-TSSDNet | DF21 ver. | 93 | 29.0 | 1.82 | 1.75 | 1.43 | 1.36 [0.54, 1.86] | 0.06 / 0.05 / 0.05
+XLS-R ref | LA19 eval | 67 | 0.3 | 0.13 | 0.11 | 0.10 | 0.11 [0.09, 0.12] | 0.46 / 0.39 / 0.40
+XLS-R ref | ITW | 54 | 25.2 | 14.96 | 14.92 | 14.91 | 14.82 [14.49, 14.93] | 0.59 / 0.59 / 0.59
+XLS-R ref | DF21 ver. | 93 | 7.4 | 5.40 | 5.38 | 5.38 | 5.33 [5.17, 5.39] | 0.73 / 0.73 / 0.72
+AS5 AASIST | LA19 eval | 67 | 29.8 | 0.27 | 0.18 | 0.23 | 0.08 [-0.12, 0.19] | 0.01 / 0.01 / 0.00
+AS5 AASIST | ITW | 54 | 40.2 | 13.03 | 12.85 | 12.08 | 11.77 [10.89, 13.05] | 0.32 / 0.30 / 0.29
+AS5 AASIST | DF21 ver. | 93 | 25.7 | 0.08 | -0.03 | -0.43 | -0.19 [-0.57, 0.16] | 0.00 / -0.02 / -0.01
+AS5 AASIST | AS5 eval | 737 | 27.8 | 0.27 | 0.25 | 0.27 | 0.24 [0.21, 0.28] | 0.01 / 0.01 / 0.01
+Pascu LR | LA19 eval | 67 | 1.9 | 1.32 | 1.31 | 1.31 | 1.31 [1.29, 1.32] | 0.69 / 0.69 / 0.69
+Pascu LR | ITW | 54 | 11.2 | 3.59 | 3.49 | 3.45 | 3.32 [2.83, 3.54] | 0.32 / 0.31 / 0.30
+Pascu LR | DF21 ver. | 93 | 5.5 | 2.51 | 2.49 | 2.45 | 2.41 [2.23, 2.47] | 0.46 / 0.44 / 0.44
+XLSR-Mamba | LA19 eval | 67 | 0.7 | 0.51 | 0.50 | 0.49 | 0.50 [0.48, 0.51] | 0.76 / 0.73 / 0.74
+XLSR-Mamba | ITW | 54 | 21.1 | 11.96 | 11.87 | 11.53 | 11.64 [10.96, 11.92] | 0.57 / 0.55 / 0.55
+XLSR-Mamba | DF21 ver. | 93 | 2.7 | 1.17 | 1.14 | 1.06 | 1.03 [0.86, 1.15] | 0.43 / 0.39 / 0.38
+AASIST-L run, seed 1 | LA19 eval | 67 | 2.8 | 1.19 | 1.15 | 1.05 | 1.11 [1.08, 1.15] | 0.43 / 0.38 / 0.40
+AASIST-L run, seed 2 | LA19 eval | 67 | 4.6 | 3.49 | 3.45 | 3.49 | 3.43 [3.38, 3.47] | 0.75 / 0.75 / 0.74
+AASIST-L run, seed 3 | LA19 eval | 67 | 5.3 | 4.25 | 4.23 | 4.24 | 4.24 [4.22, 4.24] | 0.80 / 0.80 / 0.80
+AASIST-L run, seed 4 | LA19 eval | 67 | 4.2 | 2.82 | 2.79 | 2.75 | 2.76 [2.71, 2.79] | 0.68 / 0.66 / 0.66
+AASIST-L run, seed 5 | LA19 eval | 67 | 3.0 | 1.71 | 1.66 | 1.66 | 1.60 [1.54, 1.64] | 0.58 / 0.56 / 0.54
+AASIST-L run, seed 1234 | LA19 eval | 67 | 7.3 | 6.18 | 6.12 | 6.14 | 6.11 [6.09, 6.13] | 0.84 / 0.84 / 0.84
+summary:
+  round-2 detectors and the reference on every target, and every LA19-eval cell (23 cells): largest drop from the in-sample to a cross-validated TTG 1.253 pp (AS5 AASIST, ITW); largest move of the transfer share 0.078 (XLS-R ref, LA19 eval)
+  AASIST-L runs, seeds 2 to 4: largest drop 0.072 pp
+  round-1 primary models on ITW: drop to the leave-one-speaker-out TTG 1.131 to 2.458 pp; negative leave-one-speaker-out TTG: AASIST-L, Res-TSSDNet
+
+== Check 1b. R2-H2 with a cross-validated oracle in every bootstrap replicate (h2cv.json)
+Speaker bootstrap B = 10000, seed 0; margin 1.00 pp. Columns: run | TTG in-sample [95%] | p | TTG 5-fold CV [95%] | p | fold seed | window columns
+seed 1 | 1.19 [0.88, 1.55] | 0.0979 | 1.06 [0.45, 1.53] | 0.3466 | 1 | 6313
+seed 2 | 3.49 [2.88, 4.16] | 0.0001 | 3.44 [2.63, 4.08] | 0.0001 | 2 | 5712
+seed 3 | 4.25 [3.57, 4.93] | 0.0001 | 4.22 [3.46, 4.88] | 0.0001 | 3 | 5536
+seed 4 | 2.82 [2.34, 3.34] | 0.0001 | 2.76 [2.12, 3.27] | 0.0001 | 4 | 5857
+seed 5 | 1.71 [1.38, 2.12] | 0.0001 | 1.58 [1.22, 2.05] | 0.0023 | 5 | 5798
+Holm, in-sample (registered): 4/5 rejections (supported; seeds 2, 3, 4, 5)
+Holm, cross-validated: 4/5 rejections (supported; seeds 2, 3, 4, 5)
+
+== Check 1c. R2-H2 with a cross-validated oracle over 10 fold assignments per run (DEV-10 F1; h2cv_folds.json)
+Speaker bootstrap B = 10000, seed 0; margin 1.00 pp; 5-fold speaker folds, assignment a of run k drawn by default_rng(k + 10 a). Columns: run | assignment | fold seed | TTG 5-fold CV [95%] | p | threshold search
+seed 1 | 0 | 1 | 1.06 [0.45, 1.53] | 0.3466 | window
+seed 1 | 1 | 11 | 1.10 [0.53, 1.52] | 0.2744 | window
+seed 1 | 2 | 21 | 1.12 [0.60, 1.53] | 0.2281 | window
+seed 1 | 3 | 31 | 1.11 [0.52, 1.53] | 0.2895 | window
+seed 1 | 4 | 41 | 1.10 [0.52, 1.52] | 0.2799 | window
+seed 1 | 5 | 51 | 1.10 [0.46, 1.52] | 0.3079 | window
+seed 1 | 6 | 61 | 1.13 [0.56, 1.52] | 0.2802 | window
+seed 1 | 7 | 71 | 1.07 [0.52, 1.52] | 0.3006 | window
+seed 1 | 8 | 81 | 1.14 [0.64, 1.52] | 0.2235 | window
+seed 1 | 9 | 91 | 1.11 [0.53, 1.52] | 0.2618 | window
+seed 2 | 0 | 2 | 3.44 [2.63, 4.08] | 0.0001 | window
+seed 2 | 1 | 12 | 3.43 [2.71, 4.10] | 0.0001 | window
+seed 2 | 2 | 22 | 3.36 [2.69, 4.07] | 0.0001 | window
+seed 2 | 3 | 32 | 3.45 [2.74, 4.11] | 0.0001 | window
+seed 2 | 4 | 42 | 3.47 [2.72, 4.10] | 0.0001 | window
+seed 2 | 5 | 52 | 3.46 [2.73, 4.11] | 0.0001 | window
+seed 2 | 6 | 62 | 3.41 [2.71, 4.08] | 0.0001 | window
+seed 2 | 7 | 72 | 3.39 [2.76, 4.09] | 0.0001 | window
+seed 2 | 8 | 82 | 3.49 [2.75, 4.10] | 0.0001 | window
+seed 2 | 9 | 92 | 3.39 [2.70, 4.09] | 0.0001 | window
+seed 3 | 0 | 3 | 4.22 [3.46, 4.88] | 0.0001 | window
+seed 3 | 1 | 13 | 4.24 [3.42, 4.84] | 0.0001 | window
+seed 3 | 2 | 23 | 4.24 [3.47, 4.89] | 0.0001 | window
+seed 3 | 3 | 33 | 4.24 [3.47, 4.87] | 0.0001 | window
+seed 3 | 4 | 43 | 4.24 [3.47, 4.87] | 0.0001 | window
+seed 3 | 5 | 53 | 4.22 [3.46, 4.87] | 0.0001 | window
+seed 3 | 6 | 63 | 4.24 [3.49, 4.88] | 0.0001 | window
+seed 3 | 7 | 73 | 4.24 [3.45, 4.87] | 0.0001 | window
+seed 3 | 8 | 83 | 4.23 [3.47, 4.89] | 0.0001 | window
+seed 3 | 9 | 93 | 4.24 [3.41, 4.88] | 0.0001 | window
+seed 4 | 0 | 4 | 2.76 [2.12, 3.27] | 0.0001 | window
+seed 4 | 1 | 14 | 2.79 [2.14, 3.28] | 0.0001 | window
+seed 4 | 2 | 24 | 2.78 [2.15, 3.29] | 0.0001 | window
+seed 4 | 3 | 34 | 2.76 [2.10, 3.27] | 0.0001 | window
+seed 4 | 4 | 44 | 2.77 [2.17, 3.27] | 0.0001 | window
+seed 4 | 5 | 54 | 2.72 [2.07, 3.27] | 0.0001 | window
+seed 4 | 6 | 64 | 2.73 [2.13, 3.28] | 0.0001 | window
+seed 4 | 7 | 74 | 2.78 [2.14, 3.28] | 0.0001 | window
+seed 4 | 8 | 84 | 2.78 [2.17, 3.28] | 0.0001 | window
+seed 4 | 9 | 94 | 2.77 [2.17, 3.27] | 0.0001 | window
+seed 5 | 0 | 5 | 1.58 [1.22, 2.05] | 0.0023 | window
+seed 5 | 1 | 15 | 1.62 [1.22, 2.06] | 0.0035 | window
+seed 5 | 2 | 25 | 1.62 [1.20, 2.06] | 0.0034 | window
+seed 5 | 3 | 35 | 1.61 [1.12, 2.07] | 0.0092 | window
+seed 5 | 4 | 45 | 1.61 [1.19, 2.06] | 0.0040 | window
+seed 5 | 5 | 55 | 1.60 [1.23, 2.06] | 0.0021 | window
+seed 5 | 6 | 65 | 1.58 [1.18, 2.04] | 0.0043 | window
+seed 5 | 7 | 75 | 1.57 [1.16, 2.05] | 0.0072 | window
+seed 5 | 8 | 85 | 1.66 [1.25, 2.06] | 0.0026 | window
+seed 5 | 9 | 95 | 1.60 [1.15, 2.06] | 0.0080 | window
+Per run. Columns: run | TTG 5-fold CV over the assignments, min to max | lowest lower interval end | largest p | Holm on the largest p
+seed 1 | 1.06 to 1.14 | 0.45 | 0.3466 | does not reject
+seed 2 | 3.36 to 3.49 | 2.63 | 0.0001 | rejects
+seed 3 | 4.22 to 4.24 | 3.41 | 0.0001 | rejects
+seed 4 | 2.72 to 2.79 | 2.07 | 0.0001 | rejects
+seed 5 | 1.57 to 1.66 | 1.12 | 0.0092 | rejects
+summary:
+  Holm over the five runs on each run's largest p: 4/5 rejections, so the cross-validated support is robust to the fold assignment (reading rule: at least 4)
+  Holm across the five runs, per assignment index 0 to 9: 4 / 4 / 4 / 4 / 4 / 4 / 4 / 4 / 4 / 4 rejections; indices with at least 4: 10 of 10
+  assignments computed on the full grid because the window refused: 0
+  assignment 0 reproduces A2 (h2cv.json) in every run: yes
+
+== Check 2. Dev-threshold estimators (dev.json)
+Trials that pin tau_EER (dev bona fide below / dev spoof at or above), of the dev bona fide trials:
+  AASIST: 13/113 of 2548
+  AASIST-L: 13/113 of 2548
+  RawNet2: 14/122 of 2548
+  Res-TSSDNet: 19/161 of 2548
+  XLS-R ref: 1/2 of 2548
+  AS5 AASIST: 4763/16662 of 31334
+  Pascu LR: 1/8 of 2548
+  XLSR-Mamba: 1/7 of 2548
+  AASIST-L run, seed 1: 17/142 of 2548
+  AASIST-L run, seed 2: 19/166 of 2548
+  AASIST-L run, seed 3: 14/122 of 2548
+  AASIST-L run, seed 4: 16/137 of 2548
+  AASIST-L run, seed 5: 19/164 of 2548
+TTG in pp. Columns: detector | target | at tau_EER | over tied thresholds, min to max | dev bootstrap median [95%] | KDE x0.5 / x1 / x2 | isotonic (PAV) | logistic (E9) | FRR/FAR (%) at tau_EER | FRR/FAR (%) at the best tied threshold   (* = threshold outside the dev-equivalent interval)
+AASIST | LA19 eval | 4.18 | 1.91 to 4.60 | 4.17 [2.96, 6.14] | 4.17 / 4.18 / 4.07 | 2.57 | 3.37 | 0.2/9.8 | 0.2/5.2
+AASIST | ITW | 2.94 | 0.73 to 3.33 | 2.94 [1.89, 4.94] | 2.94 / 2.94 / 2.83 | 1.56 | 2.35 | 43.8/41.9 | 54.3/27.0
+AASIST | DF21 ver. | 0.29 | 0.01 to 0.30 | 0.27 [0.12, 0.39] | 0.29 / 0.29 / 0.26 | 0.07 | 0.21 | 13.8/16.2 | 16.9/12.7
+AASIST-L | LA19 eval | 4.64 | 2.53 to 4.96 | 4.64 [2.96, 6.23] | 4.69 / 4.60 / 4.50 | 2.70 | 3.50 | 0.1/11.1 | 0.2/6.8
+AASIST-L | ITW | 1.55 | 0.29 to 1.63 | 1.54 [0.42, 2.39] | 1.52 / 1.51 / 1.43 | 0.34 | 0.76 | 50.6/36.5 | 59.8/24.8
+AASIST-L | DF21 ver. | 0.03 | 0.01 to 0.60 | 0.08 [0.01, 0.33] | 0.03 / 0.02 / 0.06 | 0.50 | 0.19 | 16.5/13.3 | 16.5/13.2
+RawNet2 | LA19 eval | 1.74 | 1.42 to 1.80 | 1.73 [1.42, 2.17] | 1.75 / 1.74 / 1.74 | 1.66 | 1.39* | 0.5/11.5 | 0.6/10.7
+RawNet2 | ITW | 5.44 | 5.00 to 5.48 | 5.45 [5.01, 5.84] | 5.43 / 5.44 / 5.44 | 5.38 | 4.90* | 33.8/69.1 | 38.4/63.6
+RawNet2 | DF21 ver. | 0.58 | 0.55 to 0.67 | 0.59 [0.55, 0.66] | 0.58 / 0.58 / 0.59 | 0.56 | 0.66* | 33.7/5.6 | 33.8/5.4
+Res-TSSDNet | LA19 eval | 1.58 | 1.03 to 1.73 | 1.58 [1.03, 2.13] | 1.60 / 1.60 / 1.63 | 1.15 | 1.04 | 0.3/6.1 | 0.3/4.9
+Res-TSSDNet | ITW | 0.73 | 0.65 to 0.92 | 0.71 [0.60, 0.90] | 0.72 / 0.72 / 0.68 | 0.88 | 0.90 | 50.3/19.0 | 49.3/19.8
+Res-TSSDNet | DF21 ver. | 1.82 | 1.71 to 2.51 | 1.82 [1.43, 2.49] | 1.79 / 1.79 / 1.79 | 2.29 | 2.49 | 52.8/5.2 | 52.4/5.3
+XLS-R ref | LA19 eval | 0.13 | 0.00 to 1.76 | 0.12 [0.01, 0.13] | 0.13 / 0.13 / 0.13 | 0.15 | 0.09 | 0.1/0.5 | 0.1/0.2
+XLS-R ref | ITW | 14.96 | 3.58 to 26.35 | 15.02 [14.90, 26.53] | 14.87 / 14.84 / 14.78 | 14.24 | 16.15 | 49.9/0.4 | 25.1/2.4
+XLS-R ref | DF21 ver. | 5.40 | 0.48 to 9.85 | 5.43 [5.38, 9.96] | 5.36 / 5.35 / 5.34 | 5.10 | 5.80 | 14.6/0.2 | 4.0/0.9
+AS5 AASIST | LA19 eval | 0.27 | 0.27 to 5.11 | 0.27 [0.24, 0.29] | 0.27* / 0.27 / 0.29 | 2.08 | 1.02 | 6.5/53.1 | 6.2/53.4
+AS5 AASIST | ITW | 13.03 | 2.55 to 13.03 | 13.03 [12.85, 13.16] | 13.03* / 13.00 / 12.90 | 7.45 | 10.35 | 79.9/0.6 | 54.0/5.5
+AS5 AASIST | DF21 ver. | 0.08 | 0.08 to 6.00 | 0.09 [0.08, 0.15] | 0.08* / 0.09 / 0.14 | 2.25 | 0.82 | 15.3/36.1 | 15.3/36.1
+AS5 AASIST | AS5 eval | 0.27 | 0.00 to 3.88 | 0.27 [0.23, 0.33] | 0.27* / 0.27 / 0.23 | 0.66 | 0.03 | 25.6/30.1 | 20.8/34.3
+Pascu LR | LA19 eval | 1.32 | 0.61 to 1.55 | 1.29 [0.44, 1.77] | 1.27 / 1.08 / 0.85 | 0.86 | 1.24 | 0.0/3.8 | 0.0/2.4
+Pascu LR | ITW | 3.59 | 2.65 to 7.29 | 3.68 [2.02, 8.80] | 3.79 / 4.59 / 5.72 | 5.69 | 3.99 | 19.9/2.5 | 17.7/2.8
+Pascu LR | DF21 ver. | 2.51 | 2.04 to 5.22 | 2.56 [1.62, 6.31] | 2.66 / 3.21 / 3.99 | 3.96 | 2.76 | 10.3/0.7 | 9.2/0.9
+XLSR-Mamba | LA19 eval | 0.51 | 0.25 to 2.17 | 0.45 [0.18, 0.54] | 0.55 / 0.54 / 0.54 | 0.65 | 0.44 | 0.0/1.3 | 0.0/0.8
+XLSR-Mamba | ITW | 11.96 | 2.18 to 16.46 | 12.73 [11.57, 18.07] | 11.48 / 11.55 / 11.65 | 10.34 | 12.89 | 41.5/0.8 | 19.4/3.3
+XLSR-Mamba | DF21 ver. | 1.17 | 0.02 to 2.35 | 1.33 [1.08, 2.88] | 1.06 / 1.07 / 1.11 | 0.86 | 1.37 | 4.9/0.5 | 1.3/1.8
+AASIST-L run, seed 1 | LA19 eval | 1.19 | 0.41 to 1.49 | 1.19 [0.85, 1.64] | 1.20 / 1.19 / 1.12 | 0.71 | 1.06 | 0.3/5.2 | 0.5/3.4
+AASIST-L run, seed 1 | ITW | 7.62 | 3.56 to 8.62 | 7.61 [5.98, 9.19] | 7.65 / 7.61 / 7.39 | 5.34 | 7.07 | 24.7/61.5 | 35.0/43.1
+AASIST-L run, seed 2 | LA19 eval | 3.49 | 1.53 to 3.67 | 3.45 [2.42, 4.55] | 3.51 / 3.45 / 3.24 | 2.90 | 2.48 | 0.2/9.1 | 0.4/5.0
+AASIST-L run, seed 2 | ITW | 2.90 | 0.84 to 3.13 | 2.85 [1.66, 3.94] | 2.97 / 2.85 / 2.64 | 2.23 | 1.73 | 41.4/42.9 | 50.9/29.3
+AASIST-L run, seed 3 | LA19 eval | 4.25 | 1.66 to 6.22 | 4.28 [2.80, 5.21] | 4.36 / 4.25 / 3.95 | 3.82 | 3.58 | 0.2/10.4 | 0.3/5.1
+AASIST-L run, seed 3 | ITW | 5.25 | 2.61 to 7.07 | 5.30 [3.80, 6.21] | 5.39 / 5.23 / 4.91 | 4.77 | 4.56 | 43.8/48.6 | 52.3/34.9
+AASIST-L run, seed 4 | LA19 eval | 2.82 | 0.95 to 3.30 | 2.82 [1.60, 4.34] | 2.79 / 2.73 / 2.55 | 1.78 | 1.87 | 0.4/8.0 | 0.5/4.1
+AASIST-L run, seed 4 | ITW | 4.65 | 2.43 to 5.12 | 4.65 [3.22, 5.90] | 4.62 / 4.56 / 4.43 | 3.45 | 3.63 | 29.9/54.3 | 37.3/42.5
+AASIST-L run, seed 5 | LA19 eval | 1.71 | 0.37 to 3.06 | 1.70 [1.17, 2.83] | 1.77 / 1.78 / 1.68 | 0.61 | 0.98 | 0.3/5.6 | 0.5/2.7
+AASIST-L run, seed 5 | ITW | 12.11 | 5.32 to 13.67 | 12.07 [10.73, 13.49] | 12.22 / 12.22 / 12.00 | 7.65 | 9.96 | 35.6/63.5 | 45.4/40.2
+
+== Check 3. Threshold policies after the shift (ladder.json)
+TTG in pp against the in-sample oracle. Columns: detector | target | static | logistic | z-norm | rate-match | EM-quantile | GMM-2 | LOSO
+AASIST | LA19 eval | 4.18 | 3.37 | 0.28 | 0.20 | 1.55 | 8.97 | 0.01
+AASIST | ITW | 2.94 | 2.35 | 2.16 | 3.65 | 1.89 | 3.76 | 1.13
+AASIST | DF21 ver. | 0.29 | 0.21 | 0.02 | 0.09 | 0.08 | 4.94 | 0.78
+AASIST-L | LA19 eval | 4.64 | 3.50 | 0.40 | 0.29 | 1.57 | 1.38 | 0.08
+AASIST-L | ITW | 1.55 | 0.76 | 0.91 | 2.32 | 0.31 | 1.67 | 2.05
+AASIST-L | DF21 ver. | 0.03 | 0.19 | 0.06 | 0.95 | 2.11 | 7.45 | 0.27
+RawNet2 | LA19 eval | 1.74 | 1.39 | 1.09 | 3.17 | 1.08 | 3.87 | 0.13
+RawNet2 | ITW | 5.44 | 4.90 | 0.40 | 0.93 | 5.32 | 0.02 | 2.46
+RawNet2 | DF21 ver. | 0.58 | 0.66 | 0.63 | 0.56 | 0.77 | 0.13 | 0.21
+Res-TSSDNet | LA19 eval | 1.58 | 1.04 | 0.54 | 0.60 | 0.40 | 0.05 | 0.03
+Res-TSSDNet | ITW | 0.73 | 0.90 | 3.01 | 8.99 | 1.23 | 1.10 | 1.18
+Res-TSSDNet | DF21 ver. | 1.82 | 2.49 | 0.12 | 0.22 | 6.21 | 0.16 | 0.38
+XLS-R ref | LA19 eval | 0.13 | 0.09 | 0.11 | 0.39 | 0.06 | 2.39 | 0.02
+XLS-R ref | ITW | 14.96 | 16.15 | 18.64 | 31.69 | 16.68 | 6.24 | 0.05
+XLS-R ref | DF21 ver. | 5.40 | 5.80 | 2.67 | 2.25 | 6.88 | 0.06 | 0.01
+AS5 AASIST | LA19 eval | 0.27 | 1.02 | 4.03 | 7.76 | 3.62 | 0.28 | 0.04
+AS5 AASIST | ITW | 13.03 | 10.35 | 2.21 | 2.65 | 22.79 | 0.15 | 0.94
+AS5 AASIST | DF21 ver. | 0.08 | 0.82 | 0.05 | 0.14 | 0.22 | 6.47 | 0.51
+AS5 AASIST | AS5 eval | 0.27 | 0.03 | 1.43 | 2.03 | 0.95 | 3.41 | 0.00
+Pascu LR | LA19 eval | 1.32 | 1.24 | 0.12 | 1.01 | 0.77 | 14.72 | 0.01
+Pascu LR | ITW | 3.59 | 3.99 | 39.90 | 34.26 | 4.10 | 0.60 | 0.14
+Pascu LR | DF21 ver. | 2.51 | 2.76 | 0.12 | 1.41 | 6.76 | 23.73 | 0.06
+XLSR-Mamba | LA19 eval | 0.51 | 0.44 | 0.43 | 0.37 | 0.24 | 7.19 | 0.02
+XLSR-Mamba | ITW | 11.96 | 12.89 | 21.47 | 32.77 | 14.34 | 0.12 | 0.43
+XLSR-Mamba | DF21 ver. | 1.17 | 1.37 | 0.08 | 2.45 | 3.66 | 3.50 | 0.11
+FRR/FAR (%) per policy, and the oracle HTER (%):
+AASIST | LA19 eval | static 0.2/9.8 | logistic 0.2/8.2 | z-norm 0.6/1.6 | rate-match 1.5/0.5 | EM-quantile 0.3/4.5 | GMM-2 0.1/19.5 | LOSO 0.9/0.8 | oracle HTER 0.8
+AASIST | ITW | static 43.8/41.9 | logistic 46.8/37.7 | z-norm 79.5/4.6 | rate-match 84.5/2.5 | EM-quantile 48.5/35.1 | GMM-2 41.0/46.3 | LOSO 63.9/18.2 | oracle HTER 39.9
+AASIST | DF21 ver. | static 13.8/16.2 | logistic 15.0/15.0 | z-norm 17.7/11.9 | rate-match 20.9/8.8 | EM-quantile 19.5/10.1 | GMM-2 4.2/35.2 | LOSO 19.6/11.5 | oracle HTER 14.8
+AASIST-L | LA19 eval | static 0.1/11.1 | logistic 0.1/8.8 | z-norm 0.5/2.2 | rate-match 1.9/0.6 | EM-quantile 0.2/4.8 | GMM-2 4.5/0.2 | LOSO 1.1/1.0 | oracle HTER 1.0
+AASIST-L | ITW | static 50.6/36.5 | logistic 55.2/30.4 | z-norm 77.6/8.4 | rate-match 85.1/3.6 | EM-quantile 59.9/24.8 | GMM-2 48.9/38.5 | LOSO 68.0/20.2 | oracle HTER 42.0
+AASIST-L | DF21 ver. | static 16.5/13.3 | logistic 18.6/11.5 | z-norm 16.8/13.1 | rate-match 22.8/8.8 | EM-quantile 28.0/6.0 | GMM-2 4.3/40.3 | LOSO 16.4/13.9 | oracle HTER 14.8
+RawNet2 | LA19 eval | static 0.5/11.5 | logistic 0.6/10.7 | z-norm 0.7/9.9 | rate-match 12.9/1.9 | EM-quantile 0.7/9.9 | GMM-2 0.3/15.9 | LOSO 2.6/6.1 | oracle HTER 4.2
+RawNet2 | ITW | static 33.8/69.1 | logistic 39.0/62.8 | z-norm 66.2/26.6 | rate-match 87.0/6.8 | EM-quantile 35.9/66.7 | GMM-2 72.2/19.8 | LOSO 76.8/20.0 | oracle HTER 46.0
+RawNet2 | DF21 ver. | static 33.7/5.6 | logistic 34.7/4.8 | z-norm 32.4/6.9 | rate-match 30.2/9.1 | EM-quantile 36.1/3.5 | GMM-2 23.5/14.9 | LOSO 25.1/13.5 | oracle HTER 19.1
+Res-TSSDNet | LA19 eval | static 0.3/6.1 | logistic 0.3/4.9 | z-norm 0.6/3.7 | rate-match 3.4/1.0 | EM-quantile 0.7/3.3 | GMM-2 1.2/2.0 | LOSO 1.5/1.7 | oracle HTER 1.6
+Res-TSSDNet | ITW | static 50.3/19.0 | logistic 54.1/15.5 | z-norm 66.5/7.3 | rate-match 83.9/1.9 | EM-quantile 56.9/13.4 | GMM-2 55.7/14.3 | LOSO 33.7/36.4 | oracle HTER 33.9
+Res-TSSDNet | DF21 ver. | static 52.8/5.2 | logistic 54.9/4.5 | z-norm 40.9/13.7 | rate-match 45.2/9.6 | EM-quantile 64.7/2.1 | GMM-2 37.6/17.0 | LOSO 42.2/13.0 | oracle HTER 27.2
+XLS-R ref | LA19 eval | static 0.1/0.5 | logistic 0.1/0.4 | z-norm 0.1/0.5 | rate-match 1.0/0.0 | EM-quantile 0.1/0.4 | GMM-2 0.0/5.1 | LOSO 0.1/0.2 | oracle HTER 0.1
+XLS-R ref | ITW | static 49.9/0.4 | logistic 52.4/0.4 | z-norm 57.4/0.3 | rate-match 83.7/0.1 | EM-quantile 53.4/0.3 | GMM-2 31.3/1.6 | LOSO 12.0/8.5 | oracle HTER 10.2
+XLS-R ref | DF21 ver. | static 14.6/0.2 | logistic 15.4/0.1 | z-norm 8.9/0.3 | rate-match 0.6/7.8 | EM-quantile 17.6/0.1 | GMM-2 1.8/2.2 | LOSO 2.1/1.8 | oracle HTER 2.0
+AS5 AASIST | LA19 eval | static 6.5/53.1 | logistic 4.4/56.8 | z-norm 31.5/35.7 | rate-match 46.5/28.0 | EM-quantile 1.6/64.7 | GMM-2 6.1/53.6 | LOSO 9.8/49.4 | oracle HTER 29.5
+AS5 AASIST | ITW | static 79.9/0.6 | logistic 74.1/1.0 | z-norm 52.4/6.5 | rate-match 54.3/5.4 | EM-quantile 100.0/0.0 | GMM-2 30.7/24.0 | LOSO 36.3/20.0 | oracle HTER 27.2
+AS5 AASIST | DF21 ver. | static 15.3/36.1 | logistic 10.7/42.1 | z-norm 19.5/31.8 | rate-match 22.1/29.4 | EM-quantile 22.9/28.7 | GMM-2 2.9/61.3 | LOSO 19.3/33.0 | oracle HTER 25.6
+AS5 AASIST | AS5 eval | static 25.6/30.1 | logistic 18.6/36.6 | z-norm 33.7/24.3 | rate-match 36.8/22.4 | EM-quantile 30.8/26.2 | GMM-2 6.0/55.9 | LOSO 20.8/34.3 | oracle HTER 27.6
+Pascu LR | LA19 eval | static 0.0/3.8 | logistic 0.0/3.6 | z-norm 0.8/0.6 | rate-match 2.9/0.3 | EM-quantile 0.0/2.7 | GMM-2 0.0/30.6 | LOSO 0.4/0.8 | oracle HTER 0.6
+Pascu LR | ITW | static 19.9/2.5 | logistic 20.9/2.3 | z-norm 95.0/0.0 | rate-match 83.7/0.1 | EM-quantile 21.1/2.3 | GMM-2 11.7/4.7 | LOSO 8.8/6.7 | oracle HTER 7.6
+Pascu LR | DF21 ver. | static 10.3/0.7 | logistic 10.9/0.7 | z-norm 2.3/4.0 | rate-match 1.0/7.9 | EM-quantile 19.3/0.3 | GMM-2 0.0/53.5 | LOSO 3.0/3.1 | oracle HTER 3.0
+XLSR-Mamba | LA19 eval | static 0.0/1.3 | logistic 0.0/1.2 | z-norm 0.0/1.2 | rate-match 1.0/0.1 | EM-quantile 0.0/0.8 | GMM-2 0.0/14.7 | LOSO 0.2/0.2 | oracle HTER 0.2
+XLSR-Mamba | ITW | static 41.5/0.8 | logistic 43.4/0.8 | z-norm 61.0/0.3 | rate-match 83.7/0.2 | EM-quantile 46.4/0.7 | GMM-2 8.2/10.4 | LOSO 9.7/9.5 | oracle HTER 9.2
+XLSR-Mamba | DF21 ver. | static 4.9/0.5 | logistic 5.4/0.5 | z-norm 1.6/1.6 | rate-match 0.1/7.8 | EM-quantile 10.2/0.2 | GMM-2 0.1/10.0 | LOSO 1.3/2.0 | oracle HTER 1.5
+Bona fide share: true | EM | BBSE | GMM-2 weight of the upper component; total error rate (%) at the true class mix: static | equal-prior Bayes | EM Bayes | BBSE Bayes | true-prior Bayes | TER-optimal
+AASIST | LA19 eval | 0.103 | 0.143 | 0.188 | 0.247 || static 8.8 | equal-prior Bayes 7.4 | EM Bayes 2.6 | BBSE Bayes 3.2 | true-prior Bayes 2.1 | TER-optimal 0.5
+AASIST | ITW | 0.628 | 0.454 | 0.509 | 0.548 || static 43.1 | equal-prior Bayes 43.4 | EM Bayes 43.5 | BBSE Bayes 43.4 | true-prior Bayes 43.0 | TER-optimal 37.2
+AASIST | DF21 ver. | 0.026 | 0.120 | 0.178 | 0.350 || static 16.2 | equal-prior Bayes 15.0 | EM Bayes 9.8 | BBSE Bayes 10.8 | true-prior Bayes 6.7 | TER-optimal 1.5
+AASIST-L | LA19 eval | 0.103 | 0.146 | 0.200 | 0.095 || static 10.0 | equal-prior Bayes 7.9 | EM Bayes 2.9 | BBSE Bayes 3.6 | true-prior Bayes 2.3 | TER-optimal 0.6
+AASIST-L | ITW | 0.628 | 0.345 | 0.445 | 0.456 || static 45.4 | equal-prior Bayes 46.0 | EM Bayes 47.1 | BBSE Bayes 46.3 | true-prior Bayes 45.3 | TER-optimal 37.2
+AASIST-L | DF21 ver. | 0.026 | 0.077 | 0.148 | 0.448 || static 13.4 | equal-prior Bayes 11.7 | EM Bayes 5.8 | BBSE Bayes 7.1 | true-prior Bayes 4.2 | TER-optimal 1.6
+RawNet2 | LA19 eval | 0.103 | 0.191 | 0.202 | 0.240 || static 10.3 | equal-prior Bayes 9.6 | EM Bayes 8.9 | BBSE Bayes 8.9 | true-prior Bayes 8.6 | TER-optimal 3.0
+RawNet2 | ITW | 0.628 | 0.650 | 0.675 | 0.244 || static 46.9 | equal-prior Bayes 47.8 | EM Bayes 47.4 | BBSE Bayes 47.3 | true-prior Bayes 47.5 | TER-optimal 37.2
+RawNet2 | DF21 ver. | 0.026 | 0.051 | 0.067 | 0.150 || static 6.3 | equal-prior Bayes 5.6 | EM Bayes 4.4 | BBSE Bayes 4.5 | true-prior Bayes 4.2 | TER-optimal 1.8
+Res-TSSDNet | LA19 eval | 0.103 | 0.132 | 0.153 | 0.115 || static 5.5 | equal-prior Bayes 4.4 | EM Bayes 2.4 | BBSE Bayes 2.6 | true-prior Bayes 2.2 | TER-optimal 1.2
+Res-TSSDNet | ITW | 0.628 | 0.321 | 0.381 | 0.311 || static 38.6 | equal-prior Bayes 39.8 | EM Bayes 41.5 | BBSE Bayes 40.9 | true-prior Bayes 38.6 | TER-optimal 30.7
+Res-TSSDNet | DF21 ver. | 0.026 | 0.030 | 0.056 | 0.161 || static 6.4 | equal-prior Bayes 5.8 | EM Bayes 3.6 | BBSE Bayes 3.9 | true-prior Bayes 3.6 | TER-optimal 2.5
+XLS-R ref | LA19 eval | 0.103 | 0.106 | 0.108 | 0.144 || static 0.4 | equal-prior Bayes 0.4 | EM Bayes 0.3 | BBSE Bayes 0.3 | true-prior Bayes 0.3 | TER-optimal 0.1
+XLS-R ref | ITW | 0.628 | 0.294 | 0.316 | 0.442 || static 31.5 | equal-prior Bayes 33.0 | EM Bayes 33.9 | BBSE Bayes 33.8 | true-prior Bayes 32.4 | TER-optimal 10.3
+XLS-R ref | DF21 ver. | 0.026 | 0.023 | 0.024 | 0.041 || static 0.5 | equal-prior Bayes 0.5 | EM Bayes 0.6 | BBSE Bayes 0.6 | true-prior Bayes 0.6 | TER-optimal 0.5
+AS5 AASIST | LA19 eval | 0.103 | 0.682 | 0.604 | 0.577 || static 48.3 | equal-prior Bayes 51.3 | EM Bayes 64.4 | BBSE Bayes 58.4 | true-prior Bayes 16.1 | TER-optimal 10.3
+AS5 AASIST | ITW | 0.628 | 0.000 | 0.000 | 0.524 || static 50.4 | equal-prior Bayes 46.9 | EM Bayes 62.8 | BBSE Bayes 62.8 | true-prior Bayes 37.0 | TER-optimal 27.3
+AS5 AASIST | DF21 ver. | 0.026 | 0.300 | 0.318 | 0.628 || static 35.5 | equal-prior Bayes 41.3 | EM Bayes 19.3 | BBSE Bayes 21.0 | true-prior Bayes 2.7 | TER-optimal 2.6
+AS5 AASIST | AS5 eval | 0.204 | 0.349 | 0.344 | 0.611 || static 29.2 | equal-prior Bayes 32.9 | EM Bayes 23.5 | BBSE Bayes 23.3 | true-prior Bayes 20.2 | TER-optimal 20.1
+Pascu LR | LA19 eval | 0.103 | 0.127 | 0.137 | 0.340 || static 3.4 | equal-prior Bayes 3.3 | EM Bayes 2.3 | BBSE Bayes 2.4 | true-prior Bayes 2.2 | TER-optimal 0.5
+Pascu LR | ITW | 0.628 | 0.504 | 0.512 | 0.569 || static 13.4 | equal-prior Bayes 14.0 | EM Bayes 13.9 | BBSE Bayes 13.9 | true-prior Bayes 13.1 | TER-optimal 7.4
+Pascu LR | DF21 ver. | 0.026 | 0.024 | 0.030 | 0.559 || static 1.0 | equal-prior Bayes 0.9 | EM Bayes 0.8 | BBSE Bayes 0.8 | true-prior Bayes 0.8 | TER-optimal 0.8
+XLSR-Mamba | LA19 eval | 0.103 | 0.110 | 0.115 | 0.230 || static 1.2 | equal-prior Bayes 1.1 | EM Bayes 0.6 | BBSE Bayes 0.6 | true-prior Bayes 0.6 | TER-optimal 0.1
+XLSR-Mamba | ITW | 0.628 | 0.339 | 0.371 | 0.632 || static 26.4 | equal-prior Bayes 27.5 | EM Bayes 29.3 | BBSE Bayes 29.0 | true-prior Bayes 26.2 | TER-optimal 8.6
+XLSR-Mamba | DF21 ver. | 0.026 | 0.025 | 0.030 | 0.115 || static 0.6 | equal-prior Bayes 0.6 | EM Bayes 0.4 | BBSE Bayes 0.4 | true-prior Bayes 0.4 | TER-optimal 0.4
+Share of clips rejected at tau_EER (%) = bona fide share x FRR + spoof share x (1 - FAR); clip counts:
+AASIST | LA19 eval | 80.9 = 0.103 x 0.2 + 0.897 x 90.2 | 7355 bona fide of 71237 clips
+AASIST | ITW | 49.1 = 0.628 x 43.8 + 0.372 x 58.1 | 19963 bona fide of 31779 clips
+AASIST | DF21 ver. | 81.9 = 0.026 x 13.8 + 0.974 x 83.8 | 12067 bona fide of 455508 clips
+AASIST-L | LA19 eval | 79.7 = 0.103 x 0.1 + 0.897 x 88.9 | 7355 bona fide of 71237 clips
+AASIST-L | ITW | 55.4 = 0.628 x 50.6 + 0.372 x 63.5 | 19963 bona fide of 31779 clips
+AASIST-L | DF21 ver. | 84.8 = 0.026 x 16.5 + 0.974 x 86.7 | 12067 bona fide of 455508 clips
+RawNet2 | LA19 eval | 79.4 = 0.103 x 0.5 + 0.897 x 88.5 | 7355 bona fide of 71237 clips
+RawNet2 | ITW | 32.7 = 0.628 x 33.8 + 0.372 x 30.9 | 19963 bona fide of 31779 clips
+RawNet2 | DF21 ver. | 92.8 = 0.026 x 33.7 + 0.974 x 94.4 | 12067 bona fide of 455508 clips
+Res-TSSDNet | LA19 eval | 84.2 = 0.103 x 0.3 + 0.897 x 93.9 | 7355 bona fide of 71237 clips
+Res-TSSDNet | ITW | 61.7 = 0.628 x 50.3 + 0.372 x 81.0 | 19963 bona fide of 31779 clips
+Res-TSSDNet | DF21 ver. | 93.7 = 0.026 x 52.8 + 0.974 x 94.8 | 12067 bona fide of 455508 clips
+XLS-R ref | LA19 eval | 89.2 = 0.103 x 0.1 + 0.897 x 99.5 | 7355 bona fide of 71237 clips
+XLS-R ref | ITW | 68.4 = 0.628 x 49.9 + 0.372 x 99.6 | 19963 bona fide of 31779 clips
+XLS-R ref | DF21 ver. | 97.6 = 0.026 x 14.6 + 0.974 x 99.8 | 12067 bona fide of 455508 clips
+AS5 AASIST | LA19 eval | 42.8 = 0.103 x 6.5 + 0.897 x 46.9 | 7355 bona fide of 71237 clips
+AS5 AASIST | ITW | 87.1 = 0.628 x 79.9 + 0.372 x 99.4 | 19963 bona fide of 31779 clips
+AS5 AASIST | DF21 ver. | 62.7 = 0.026 x 15.3 + 0.974 x 63.9 | 12067 bona fide of 455508 clips
+AS5 AASIST | AS5 eval | 60.9 = 0.204 x 25.6 + 0.796 x 69.9 | 138688 bona fide of 680774 clips
+Pascu LR | LA19 eval | 86.3 = 0.103 x 0.0 + 0.897 x 96.2 | 7355 bona fide of 71237 clips
+Pascu LR | ITW | 48.8 = 0.628 x 19.9 + 0.372 x 97.5 | 19963 bona fide of 31779 clips
+Pascu LR | DF21 ver. | 96.9 = 0.026 x 10.3 + 0.974 x 99.3 | 12067 bona fide of 455508 clips
+XLSR-Mamba | LA19 eval | 88.5 = 0.103 x 0.0 + 0.897 x 98.7 | 7355 bona fide of 71237 clips
+XLSR-Mamba | ITW | 62.9 = 0.628 x 41.5 + 0.372 x 99.2 | 19963 bona fide of 31779 clips
+XLSR-Mamba | DF21 ver. | 97.0 = 0.026 x 4.9 + 0.974 x 99.5 | 12067 bona fide of 455508 clips
+
+== Small labelled audit (smalllabel.json)
+Held-out TTG in pp, median [5th, 95th percentile] over 200 speaker halvings. Columns: detector | target | static | k = 50 | k = 200 | k = 1000
+AASIST | ITW | 3.04 [0.59, 7.39] | 1.39 [0.13, 12.16] | 0.97 [0.08, 8.02] | 0.96 [0.09, 7.70]
+AASIST | LA19 eval | 4.18 [3.81, 4.63] | 0.56 [0.02, 2.86] | 0.15 [0.01, 0.88] | 0.05 [0.00, 0.37]
+AASIST-L | ITW | 1.84 [0.29, 5.53] | 2.40 [0.15, 9.54] | 1.38 [0.09, 8.60] | 1.29 [0.15, 8.61]
+AASIST-L | LA19 eval | 4.69 [4.13, 5.31] | 0.48 [0.03, 2.76] | 0.12 [0.01, 1.06] | 0.06 [0.01, 0.25]
+RawNet2 | ITW | 5.85 [3.40, 9.60] | 1.61 [0.12, 8.04] | 1.24 [0.09, 6.75] | 0.92 [0.07, 5.39]
+RawNet2 | LA19 eval | 1.76 [1.44, 2.11] | 0.44 [0.04, 3.45] | 0.27 [0.03, 1.21] | 0.19 [0.02, 0.90]
+Res-TSSDNet | ITW | 1.04 [0.12, 5.00] | 1.64 [0.18, 8.97] | 1.81 [0.19, 7.22] | 1.99 [0.24, 6.63]
+Res-TSSDNet | LA19 eval | 1.60 [1.32, 1.85] | 0.65 [0.03, 2.84] | 0.17 [0.02, 0.87] | 0.08 [0.01, 0.36]
+XLS-R ref | ITW | 15.21 [12.03, 19.25] | 0.84 [0.07, 4.86] | 0.54 [0.05, 2.65] | 0.43 [0.03, 2.57]
+XLS-R ref | LA19 eval | 0.13 [0.09, 0.17] | 0.57 [0.04, 3.00] | 0.14 [0.01, 0.93] | 0.03 [0.01, 0.25]
+AS5 AASIST | ITW | 13.50 [9.23, 18.24] | 1.07 [0.12, 7.30] | 1.05 [0.09, 5.19] | 1.02 [0.13, 4.79]
+AS5 AASIST | LA19 eval | 0.34 [0.09, 0.85] | 0.57 [0.07, 3.24] | 0.32 [0.05, 1.98] | 0.22 [0.05, 1.09]
+Pascu LR | ITW | 3.66 [1.81, 7.81] | 0.80 [0.06, 4.42] | 0.45 [0.04, 3.52] | 0.40 [0.05, 2.47]
+Pascu LR | LA19 eval | 1.32 [1.10, 1.52] | 0.34 [0.04, 3.03] | 0.13 [0.01, 1.10] | 0.06 [0.00, 0.36]
+XLSR-Mamba | ITW | 12.54 [9.85, 15.64] | 0.77 [0.08, 5.85] | 0.55 [0.06, 3.27] | 0.65 [0.04, 3.10]
+XLSR-Mamba | LA19 eval | 0.53 [0.43, 0.63] | 0.55 [0.02, 3.52] | 0.15 [0.01, 0.80] | 0.04 [0.01, 0.20]
+
+== Check 4. Interval methods near the zero boundary (intervals.json)
+TTG in pp. Columns: detector | target | speakers | TTG | percentile (registered) | BCa | z0 | a | m-out-of-n | m
+AASIST | LA19 eval | 67 | 4.18 | [3.74, 4.65] | [3.71, 4.63] | -0.04 | -0.008 | [3.67, 4.64] | 16
+AASIST | ITW | 54 | 2.94 | [0.16, 7.25] | [0.11, 6.50] | -0.09 | -0.029 | [0.00, 4.35] | 14
+AASIST | DF21 ver. | 93 | 0.29 | [0.08, 1.92] | [0.04, 0.86] | -0.66 | -0.039 | [0.00, 0.36] | 21
+AASIST-L | LA19 eval | 67 | 4.64 | [3.99, 5.36] | [3.98, 5.35] | -0.03 | -0.008 | [3.91, 5.26] | 16
+AASIST-L | ITW | 54 | 1.55 | [0.19, 5.39] | [0.18, 5.22] | -0.05 | +0.002 | [0.00, 2.21] | 14
+AASIST-L | DF21 ver. | 93 | 0.03 | [0.02, 0.91] | [0.01, 0.06] | -1.22 | -0.004 | [0.00, 0.03] | 21
+RawNet2 | LA19 eval | 67 | 1.74 | [1.40, 2.24] | [1.31, 2.14] | -0.10 | -0.040 | [1.22, 2.04] | 16
+RawNet2 | ITW | 54 | 5.44 | [2.56, 9.11] | [1.55, 8.05] | -0.25 | -0.053 | [0.79, 7.59] | 14
+RawNet2 | DF21 ver. | 93 | 0.58 | [0.04, 2.53] | [0.04, 2.51] | -0.06 | +0.031 | [0.00, 0.81] | 21
+Res-TSSDNet | LA19 eval | 67 | 1.58 | [1.30, 1.89] | [1.30, 1.89] | -0.07 | +0.013 | [1.25, 1.83] | 16
+Res-TSSDNet | ITW | 54 | 0.73 | [0.07, 5.17] | [0.03, 3.93] | -0.22 | -0.047 | [0.00, 1.04] | 14
+Res-TSSDNet | DF21 ver. | 93 | 1.82 | [0.94, 3.61] | [0.75, 3.11] | -0.16 | -0.032 | [0.00, 2.56] | 21
+XLS-R ref | LA19 eval | 67 | 0.13 | [0.08, 0.18] | [0.08, 0.17] | -0.20 | +0.009 | [0.06, 0.16] | 16
+XLS-R ref | ITW | 54 | 14.96 | [11.42, 19.66] | [11.21, 19.09] | -0.07 | -0.016 | [10.24, 18.11] | 14
+XLS-R ref | DF21 ver. | 93 | 5.40 | [3.23, 7.77] | [3.41, 8.20] | +0.04 | +0.033 | [2.99, 7.49] | 21
+AS5 AASIST | LA19 eval | 67 | 0.27 | [0.06, 0.81] | [0.04, 0.70] | -0.18 | -0.047 | [0.00, 0.37] | 16
+AS5 AASIST | ITW | 54 | 13.03 | [8.10, 18.62] | [7.39, 17.83] | -0.10 | -0.057 | [7.54, 17.04] | 14
+AS5 AASIST | DF21 ver. | 93 | 0.08 | [0.01, 0.61] | [0.01, 0.45] | -0.25 | -0.033 | [0.00, 0.12] | 21
+AS5 AASIST | AS5 eval | 737 | 0.27 | [0.18, 0.43] | [0.16, 0.41] | -0.15 | +0.002 | [0.09, 0.35] | 82
+Pascu LR | LA19 eval | 67 | 1.32 | [1.08, 1.56] | [1.06, 1.54] | -0.02 | -0.027 | [1.04, 1.53] | 16
+Pascu LR | ITW | 54 | 3.59 | [1.64, 7.60] | [1.42, 7.07] | -0.07 | -0.040 | [0.00, 5.12] | 14
+Pascu LR | DF21 ver. | 93 | 2.51 | [1.03, 4.33] | [1.21, 4.69] | +0.06 | +0.042 | [0.42, 3.64] | 21
+XLSR-Mamba | LA19 eval | 67 | 0.51 | [0.40, 0.65] | [0.39, 0.63] | -0.15 | +0.003 | [0.37, 0.62] | 16
+XLSR-Mamba | ITW | 54 | 11.96 | [9.04, 16.79] | [8.01, 15.06] | -0.15 | -0.073 | [7.79, 14.89] | 14
+XLSR-Mamba | DF21 ver. | 93 | 1.17 | [0.35, 2.37] | [0.41, 2.63] | +0.08 | +0.059 | [0.00, 1.71] | 21
+
+== Check 4b. Sensitivity of the m-out-of-n interval to m (DEV-10 F2; mofn.json)
+B = 2000, default_rng(1) restarted for every cell and every m; rescaled basic interval, truncated at 0. TTG in pp. Columns: detector | target | speakers | TTG | m = round(G^(1/2)): m [95%] | m = round(G^(2/3)): m [95%] | m = round(G/2): m [95%] | over m: lower end min to max; upper end min to max
+AASIST | LA19 eval | 67 | 4.18 | 8 [3.69, 4.61] | 16 [3.67, 4.64] | 34 [3.68, 4.63] | 3.67 to 3.69; 4.61 to 4.64
+AASIST | ITW | 54 | 2.94 | 7 [0.00, 3.93] | 14 [0.00, 4.35] | 27 [0.00, 4.94] | 0.00 to 0.00; 3.93 to 4.94
+AASIST | DF21 ver. | 93 | 0.29 | 10 [0.00, 0.33] | 21 [0.00, 0.36] | 46 [0.00, 0.43] | 0.00 to 0.00; 0.33 to 0.43
+AASIST-L | LA19 eval | 67 | 4.64 | 8 [3.93, 5.25] | 16 [3.91, 5.26] | 34 [3.93, 5.24] | 3.91 to 3.93; 5.24 to 5.26
+AASIST-L | ITW | 54 | 1.55 | 7 [0.00, 2.00] | 14 [0.00, 2.21] | 27 [0.00, 2.48] | 0.00 to 0.00; 2.00 to 2.48
+AASIST-L | DF21 ver. | 93 | 0.03 | 10 [0.00, 0.02] | 21 [0.00, 0.03] | 46 [0.00, 0.04] | 0.00 to 0.00; 0.02 to 0.04
+RawNet2 | LA19 eval | 67 | 1.74 | 8 [1.23, 2.01] | 16 [1.22, 2.04] | 34 [1.26, 2.06] | 1.22 to 1.26; 2.01 to 2.06
+RawNet2 | ITW | 54 | 5.44 | 7 [1.00, 7.08] | 14 [0.79, 7.59] | 27 [1.10, 8.08] | 0.79 to 1.10; 7.08 to 8.08
+RawNet2 | DF21 ver. | 93 | 0.58 | 10 [0.00, 0.73] | 21 [0.00, 0.81] | 46 [0.00, 0.95] | 0.00 to 0.00; 0.73 to 0.95
+Res-TSSDNet | LA19 eval | 67 | 1.58 | 8 [1.21, 1.81] | 16 [1.25, 1.83] | 34 [1.26, 1.83] | 1.21 to 1.26; 1.81 to 1.83
+Res-TSSDNet | ITW | 54 | 0.73 | 7 [0.00, 0.93] | 14 [0.00, 1.04] | 27 [0.00, 1.19] | 0.00 to 0.00; 0.93 to 1.19
+Res-TSSDNet | DF21 ver. | 93 | 1.82 | 10 [0.00, 2.37] | 21 [0.00, 2.56] | 46 [0.00, 2.67] | 0.00 to 0.00; 2.37 to 2.67
+XLS-R ref | LA19 eval | 67 | 0.13 | 8 [0.06, 0.15] | 16 [0.06, 0.16] | 34 [0.06, 0.16] | 0.06 to 0.06; 0.15 to 0.16
+XLS-R ref | ITW | 54 | 14.96 | 7 [10.17, 17.96] | 14 [10.24, 18.11] | 27 [10.32, 17.94] | 10.17 to 10.32; 17.94 to 18.11
+XLS-R ref | DF21 ver. | 93 | 5.40 | 10 [3.08, 7.15] | 21 [2.99, 7.49] | 46 [3.07, 7.59] | 2.99 to 3.08; 7.15 to 7.59
+AS5 AASIST | LA19 eval | 67 | 0.27 | 8 [0.00, 0.34] | 16 [0.00, 0.37] | 34 [0.00, 0.43] | 0.00 to 0.00; 0.34 to 0.43
+AS5 AASIST | ITW | 54 | 13.03 | 7 [7.87, 16.77] | 14 [7.54, 17.04] | 27 [7.16, 17.63] | 7.16 to 7.87; 16.77 to 17.63
+AS5 AASIST | DF21 ver. | 93 | 0.08 | 10 [0.00, 0.10] | 21 [0.00, 0.12] | 46 [0.00, 0.14] | 0.00 to 0.00; 0.10 to 0.14
+AS5 AASIST | AS5 eval | 737 | 0.27 | 27 [0.07, 0.32] | 82 [0.09, 0.35] | 368 [0.12, 0.37] | 0.07 to 0.12; 0.32 to 0.37
+Pascu LR | LA19 eval | 67 | 1.32 | 8 [1.01, 1.51] | 16 [1.04, 1.53] | 34 [1.05, 1.56] | 1.01 to 1.05; 1.51 to 1.56
+Pascu LR | ITW | 54 | 3.59 | 7 [0.00, 4.80] | 14 [0.00, 5.12] | 27 [0.00, 5.29] | 0.00 to 0.00; 4.80 to 5.29
+Pascu LR | DF21 ver. | 93 | 2.51 | 10 [0.42, 3.32] | 21 [0.42, 3.64] | 46 [0.51, 3.92] | 0.42 to 0.51; 3.32 to 3.92
+XLSR-Mamba | LA19 eval | 67 | 0.51 | 8 [0.38, 0.61] | 16 [0.37, 0.62] | 34 [0.38, 0.63] | 0.37 to 0.38; 0.61 to 0.63
+XLSR-Mamba | ITW | 54 | 11.96 | 7 [6.75, 14.66] | 14 [7.79, 14.89] | 27 [7.86, 14.81] | 6.75 to 7.86; 14.66 to 14.89
+XLSR-Mamba | DF21 ver. | 93 | 1.17 | 10 [0.00, 1.55] | 21 [0.00, 1.71] | 46 [0.00, 1.91] | 0.00 to 0.00; 1.55 to 1.91
+summary:
+  m = round(G^(2/3)) reproduces E (intervals.json) in every cell: yes
+  cells whose lower end is above 0 for some m and at 0 for another: none
+  replicates with both classes present, where fewer than B: none
+
+== Check 5. Label-free accuracy estimation by ATC (DEV-10 F3; atc.json)
+Confidence = |s - tau_EER|; ATC threshold t = the (1 - dev accuracy) quantile of the dev margins, in score units; success: |predicted - true| at most 5 pp. Accuracy in %, error in pp. Columns: detector | target | dev accuracy | t | predicted | true | error | criterion
+AASIST | LA19 eval | 99.5 | 0.5064 | 92.9 | 91.2 | 1.7 | meets
+AASIST | ITW | 99.5 | 0.5064 | 82.9 | 56.9 | 25.9 | fails
+AASIST | DF21 ver. | 99.5 | 0.5064 | 93.6 | 83.8 | 9.7 | fails
+AASIST-L | LA19 eval | 99.5 | 0.5101 | 92.9 | 90.0 | 2.9 | meets
+AASIST-L | ITW | 99.5 | 0.5101 | 83.2 | 54.6 | 28.6 | fails
+AASIST-L | DF21 ver. | 99.5 | 0.5101 | 93.7 | 86.6 | 7.1 | fails
+RawNet2 | LA19 eval | 99.5 | 1.1098 | 98.0 | 89.7 | 8.3 | fails
+RawNet2 | ITW | 99.5 | 1.1098 | 88.0 | 53.1 | 34.9 | fails
+RawNet2 | DF21 ver. | 99.5 | 1.1098 | 97.8 | 93.7 | 4.2 | meets
+Res-TSSDNet | LA19 eval | 99.3 | 1.5685 | 96.2 | 94.5 | 1.7 | meets
+Res-TSSDNet | ITW | 99.3 | 1.5685 | 88.4 | 61.4 | 27.0 | fails
+Res-TSSDNet | DF21 ver. | 99.3 | 1.5685 | 97.6 | 93.6 | 4.0 | meets
+XLS-R ref | LA19 eval | 100.0 | 0.6754 | 99.7 | 99.6 | 0.1 | meets
+XLS-R ref | ITW | 100.0 | 0.6754 | 93.6 | 68.5 | 25.1 | fails
+XLS-R ref | DF21 ver. | 100.0 | 0.6754 | 99.8 | 99.5 | 0.3 | meets
+AS5 AASIST | LA19 eval | 84.8 | 1.4151 | 78.1 | 51.7 | 26.4 | fails
+AS5 AASIST | ITW | 84.8 | 1.4151 | 79.5 | 49.6 | 29.9 | fails
+AS5 AASIST | DF21 ver. | 84.8 | 1.4151 | 66.6 | 64.5 | 2.1 | meets
+AS5 AASIST | AS5 eval | 84.8 | 1.4151 | 62.8 | 70.8 | -8.0 | fails
+Pascu LR | LA19 eval | 100.0 | 1.0414 | 99.4 | 96.6 | 2.9 | meets
+Pascu LR | ITW | 100.0 | 1.0414 | 98.0 | 86.6 | 11.4 | fails
+Pascu LR | DF21 ver. | 100.0 | 1.0414 | 99.8 | 99.0 | 0.7 | meets
+XLSR-Mamba | LA19 eval | 100.0 | 0.8624 | 98.8 | 98.8 | -0.0 | meets
+XLSR-Mamba | ITW | 100.0 | 0.8624 | 88.7 | 73.6 | 15.1 | fails
+XLSR-Mamba | DF21 ver. | 100.0 | 0.8624 | 99.4 | 99.4 | -0.0 | meets
+summary:
+  cells meeting the criterion: 12/25; on ITW 0/8
+  error on ITW, min to max: 11.4 to 34.9 pp; the four strong detectors on ITW: XLS-R ref 25.1, XLSR-Mamba 15.1, AS5 AASIST 29.9, Pascu LR 11.4
+  usable as a label-free monitor of this shift (every strong detector meets it on ITW): no

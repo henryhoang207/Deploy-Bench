@@ -33,7 +33,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import r2lib as R  # noqa: E402
 
-GEN = Path(os.environ.get("R2_GEN", R.REPO / "paper" / "Thresholded_Once__Deployed_Elsewhere__A_Two_Round_Pre_Registered_Audit_of_Threshold_Transfer_in_Speech_Deepfake_Detection" / "gen"))
+GEN = Path(os.environ.get("R2_GEN", R.REPO / "paper" / "Thresholded_Once__Deployed_Elsewhere" / "gen"))
 DIGITS = {"comma": ",", "thin": r"\,"}         # thousands separator in table cells; Springer Nature tables use "thin"
 if os.environ.get("R2_DIGITS", "thin") not in DIGITS:
     raise SystemExit(f"REFUSED: R2_DIGITS must be one of {sorted(DIGITS)}")

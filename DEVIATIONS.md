@@ -498,3 +498,91 @@ amendment 4. If it fails again, Pascu's MLAAD-5 is reported missing (E5 only).
 **Seen when written:** the failure log and the lengths of the shortest MLAAD-5 clips; no score.
 
 *Correction (2026-10-11, after the rerun):* the two clips are 186 samples after resampling to 16 kHz (`resample_poly` gives ceil(256 x 16000 / 22050) = 186), not 185, and the amendment-4 rerun stopped at the first of them, protocol position 142,798 of 494,853, not "about 145,000". The amendment-5 rerun (2026-10-10 19:51 to 2026-10-11 09:20) logged exactly these two clips ("a clip of 186 samples is repeated to 400") and wrote all 494,853 scores.
+
+## DEV-10 (2026-11-01): analyses prompted by the journal review; A-E were run before this entry, F is specified before it runs
+
+**Status:** post-hoc, **exploratory**. Unlike every earlier deviation, parts A-E **were run before they were logged**,
+on 2026-10-31 and 2026-11-01. Part F is specified here before any of it runs. Nothing here changes a registered test,
+threshold, support rule or reading rule; every result is reported beside the registered ones and never instead of them.
+
+**What happened.** A journal reviewer's report on the manuscript (received 2026-10-31; rejection with potential for
+resubmission) questioned (i) the in-sample oracle behind TTG, (ii) whether the dev-threshold estimator inflates TTG when
+the dev set is nearly separable, (iii) percentile intervals near TTG's zero boundary, and (iv) whether a deployer who
+reacts to the shift would recover the gap. The authors checked these points on the committed scores on 2026-10-31 and
+2026-11-01, with scripts kept outside the repository, before writing this entry. The scripts are now committed as
+`analysis/review_r1/`, with outputs in `results/review_r1/` (each JSON records its resampling sizes and seeds under
+`meta`; `rv_checks.txt` prints the numbers in the form the paper quotes). The committed rerun,
+`python analysis/review_r1/run_all.py`, reproduces the first run exactly, value for value.
+
+**What had been seen:** every registered result (round 1, DEV-8, round 2), the reviewer's report, and the first run of
+A-E. For part F: the results of A-E, including A2's single fold assignment per run and E's m = round(G^(2/3))
+intervals; and the inputs of F3 (the dev and target score distributions and the error rates at tau_EER, through C).
+No F3 quantity had been computed. Because those inputs are known, F3's outcome can be anticipated for the detectors
+whose dev sets are nearly separable; it is specified in advance, not blind.
+
+**Inputs.** The committed score files and frozen thresholds, read through `analysis/round2/r2lib.py`; no new score,
+model or threshold. Label 1 = bona fide; spoof if score < tau.
+
+**A. Oracle bias (reviewer question 2).**
+- **A1** (`run_cv.py`). For every detector and target, and the AASIST-L runs on LA19 eval: TTG at tau_EER against a
+  leave-one-speaker-out oracle (each speaker decided by the threshold that minimises HTER on all other speakers), a
+  speaker-disjoint 5-fold oracle (20 random fold assignments, `default_rng(0)` per cell) and a clip-level,
+  class-stratified 5-fold oracle (20 repeats, `default_rng(1000 + r)`), beside the registered in-sample TTG.
+- **A2** (`run_h2cv_fast.py`). R2-H2 with a cross-validated oracle: the registered replicates (speaker bootstrap,
+  B = 10,000, seed 0), the one-sided p against the 1-pp margin and the Holm rule, with a speaker-disjoint 5-fold oracle
+  (one fold assignment per run, `default_rng(<run seed>)`) in every replicate. The threshold search is restricted to
+  thresholds whose full-sample HTER is within 3 pp of its minimum; the script refuses if a minimiser lands on the
+  window's edge.
+
+**B. Dev-threshold estimation (question 3; `run_dev.py`).** Per detector and target, and the five AASIST-L runs on
+LA19 eval and ITW: TTG over the dev-equivalent
+interval (DEV-8 B3), minimum and maximum; TTG at tau_EER re-estimated on 1,000 class-stratified dev resamples
+(`default_rng(0)`); and TTG at smoothed dev-only thresholds: the FRR = FAR crossing of per-class Gaussian KDEs
+(Silverman bandwidth x 0.5, 1 and 2), the isotonic (PAV) equal-prior Bayes threshold, and E9's logistic equal-prior Bayes
+threshold.
+
+**C. Threshold policies after the shift (question 4; `run_ladder.py`).** Per detector and target, HTER and TTG of: the
+static tau_EER; E9's logistic threshold; z-norm (target scores standardised onto dev's pooled mean and SD); rate
+matching (reject dev's share of traffic); EM-quantile (the Saerens et al. 2002 prior estimate, then reject that share);
+a two-component Gaussian mixture on the unlabelled target scores (threshold where the densities cross;
+`random_state=0`, three initialisations); and the LOSO oracle of A1. EM and BBSE prior estimates are scored by the total
+error rate at the target's true class mix, because HTER's Bayes threshold does not depend on the prior.
+
+**D. A small labelled audit (`run_smalllabel.py`).** ITW and LA19 eval, every detector: over 200 random halvings of the
+speakers (`default_rng(0)`), k = 50, 200 or 1,000 labelled clips per class from one half set the HTER-minimising
+threshold, which is scored on the other half against that half's own oracle, beside the static tau_EER on the same half.
+
+**E. Interval methods near zero (`run_intervals.py`).** For the 25 detector-target cells: the registered percentile
+interval (B = 1,000, seed 0), BCa from the same replicates (acceleration from a leave-one-speaker-out jackknife), and an
+m-out-of-n speaker bootstrap (m = round(G^(2/3)), B = 2,000, `default_rng(1)`, rescaled basic interval truncated at 0).
+
+**F. Specified here before any of it runs.**
+- **F1 R2-H2 over fold assignments.** A2 repeated with 10 fold assignments per run: assignment a = 0, ..., 9 of run k
+  uses `default_rng(k + 10a)`, so a = 0 is A2's assignment. Same replicates, margin, window and refusal; if the window
+  refuses, that assignment is computed on the full grid (`cvlib.Surface.cv_oracle`). Reported per run: the
+  cross-validated TTG, 95% interval and p of every assignment, and the largest p. **Reading rule, fixed now:** R2-H2's
+  cross-validated support is robust to the fold assignment if Holm over the five runs, applied to each run's largest p,
+  rejects for at least 4 of 5. Also reported: for how many of the 10 assignment indices Holm across the five runs
+  rejects for at least 4.
+- **F2 Sensitivity to m.** E's m-out-of-n interval for m = round(G^(1/2)), round(G^(2/3)) and round(G/2), on all 25
+  cells, B = 2,000, `default_rng(1)` restarted for every cell and every m (so m = round(G^(2/3)) reproduces E).
+  Reported: all three intervals per cell. The text quotes m = round(G^(2/3)) and the range over m.
+- **F3 Label-free accuracy estimation (ATC; Garg et al. 2022).** For the 25 detector-target cells of C. The confidence
+  of a decision at tau_EER is the clip's margin |s - tau_EER|. On the detector's source dev set, acc_dev is the share
+  of dev clips decided correctly at tau_EER, and the ATC threshold t is the (1 - acc_dev) quantile of the dev margins
+  (`numpy.quantile`, linear interpolation). The predicted target accuracy is the share of target clips whose margin
+  exceeds t; the true target accuracy is the share decided correctly at tau_EER (one minus the total error rate at the
+  target's class mix). **Success criterion, fixed now:** an absolute error |predicted - true| of at most 5 pp in a
+  cell. Reported: predicted and true accuracy and the error in every cell, and the number of cells that meet the
+  criterion, overall and on ITW. **Reading rule:** ATC counts as a usable label-free monitor of this shift only if it
+  meets the criterion on ITW for all four strong detectors (the XLS-R reference, XLSR-Mamba, AS5 AASIST, Pascu LR).
+- **Deposit.** Part F, with the SHA-256 of the scripts that will run it (written before the deposit, run only after
+  it), was deposited on OSF on 2026-11-01 at 11:21 UTC
+  (https://osf.io/9kw2z/overview?view_only=c1a9018f8cc04840bf817a4e161d775f), before any of it ran.
+
+**Not done, by decision.** A review band re-centred on the mixture threshold (considered; C already reports re-centred
+thresholds, including the mixture rule's failure on LA19 eval and DF21).
+
+**Reporting rules, fixed now.** The registered outcomes stand as reported, R2-H2 included. Every quantity in A-F is
+labelled exploratory and post-review, with effect sizes and intervals, and is reported beside the registered result it
+concerns. Where A2 or F1 and the registered R2-H2 differ, the text says so; the registered outcome is not re-adjudicated.

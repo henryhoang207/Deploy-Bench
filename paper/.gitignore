@@ -9,5 +9,6 @@
 *.fdb_latexmk
 *.fls
 # The authors keep the manuscript sources and their claim audit here, outside version control; they are not part of
-# the reproducibility package.
+# the reproducibility package. The first folder is the current copy, the second the copy it replaced on 2026-11-01.
+/Thresholded_Once__Deployed_Elsewhere/
 /Thresholded_Once__Deployed_Elsewhere__A_Two_Round_Pre_Registered_Audit_of_Threshold_Transfer_in_Speech_Deepfake_Detection/

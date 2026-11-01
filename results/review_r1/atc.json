@@ -1,0 +1,274 @@
+{
+ "meta": {
+  "script": "analysis/review_r1/run_atc.py",
+  "method": "ATC (Garg et al. 2022) with the margin |s - tau_EER| as confidence",
+  "threshold": "(1 - acc_dev) quantile of the source-dev margins, numpy.quantile (linear)",
+  "criterion": "|predicted - true| <= 0.05",
+  "strong_detectors": [
+   "xlsr_aasist",
+   "xlsr_mamba",
+   "as5_aasist",
+   "pascu_lr"
+  ],
+  "reading": "usable only if every strong detector meets the criterion on ITW"
+ },
+ "cells": {
+  "aasist|la19_eval": {
+   "model": "aasist",
+   "target": "la19_eval",
+   "acc_dev": 0.9949283529222347,
+   "t": 0.5064282711243968,
+   "predicted": 0.9289835338377529,
+   "true": 0.9117031879500821,
+   "error": 0.0172803458876708,
+   "meets": true
+  },
+  "aasist|itw": {
+   "model": "aasist",
+   "target": "itw",
+   "acc_dev": 0.9949283529222347,
+   "t": 0.5064282711243968,
+   "predicted": 0.8286919034582586,
+   "true": 0.5692438402718777,
+   "error": 0.2594480631863809,
+   "meets": false
+  },
+  "aasist|df21_verified": {
+   "model": "aasist",
+   "target": "df21_verified",
+   "acc_dev": 0.9949283529222347,
+   "t": 0.5064282711243968,
+   "predicted": 0.9355422956347639,
+   "true": 0.8382114035318808,
+   "error": 0.09733089210288304,
+   "meets": false
+  },
+  "aasist_l|la19_eval": {
+   "model": "aasist_l",
+   "target": "la19_eval",
+   "acc_dev": 0.9949283529222347,
+   "t": 0.5101156740347378,
+   "predicted": 0.9291379479764729,
+   "true": 0.9000238640032567,
+   "error": 0.02911408397321613,
+   "meets": true
+  },
+  "aasist_l|itw": {
+   "model": "aasist_l",
+   "target": "itw",
+   "acc_dev": 0.9949283529222347,
+   "t": 0.5101156740347378,
+   "predicted": 0.8315239623650839,
+   "true": 0.5459894899147235,
+   "error": 0.28553447245036034,
+   "meets": false
+  },
+  "aasist_l|df21_verified": {
+   "model": "aasist_l",
+   "target": "df21_verified",
+   "acc_dev": 0.9949283529222347,
+   "t": 0.5101156740347378,
+   "predicted": 0.936787059722332,
+   "true": 0.8661472465906197,
+   "error": 0.0706398131317123,
+   "meets": false
+  },
+  "rawnet2|la19_eval": {
+   "model": "rawnet2",
+   "target": "la19_eval",
+   "acc_dev": 0.9945258412493962,
+   "t": 1.1098106073080065,
+   "predicted": 0.9800244255092158,
+   "true": 0.8965706023555174,
+   "error": 0.08345382315369831,
+   "meets": false
+  },
+  "rawnet2|itw": {
+   "model": "rawnet2",
+   "target": "itw",
+   "acc_dev": 0.9945258412493962,
+   "t": 1.1098106073080065,
+   "predicted": 0.8797948330658611,
+   "true": 0.5311683816356714,
+   "error": 0.3486264514301898,
+   "meets": false
+  },
+  "rawnet2|df21_verified": {
+   "model": "rawnet2",
+   "target": "df21_verified",
+   "acc_dev": 0.9945258412493962,
+   "t": 1.1098106073080065,
+   "predicted": 0.9783231029970934,
+   "true": 0.936547766449766,
+   "error": 0.041775336547327346,
+   "meets": true
+  },
+  "tssdnet|la19_eval": {
+   "model": "tssdnet",
+   "target": "la19_eval",
+   "acc_dev": 0.9927547898889068,
+   "t": 1.5684546668055452,
+   "predicted": 0.9617193312464029,
+   "true": 0.9452110560523324,
+   "error": 0.0165082751940705,
+   "meets": true
+  },
+  "tssdnet|itw": {
+   "model": "tssdnet",
+   "target": "itw",
+   "acc_dev": 0.9927547898889068,
+   "t": 1.5684546668055452,
+   "predicted": 0.8836653135718556,
+   "true": 0.6136127631454734,
+   "error": 0.2700525504263822,
+   "meets": false
+  },
+  "tssdnet|df21_verified": {
+   "model": "tssdnet",
+   "target": "df21_verified",
+   "acc_dev": 0.9927547898889068,
+   "t": 1.5684546668055452,
+   "predicted": 0.9761628774906258,
+   "true": 0.935687188808978,
+   "error": 0.04047568868164775,
+   "meets": true
+  },
+  "xlsr_aasist|la19_eval": {
+   "model": "xlsr_aasist",
+   "target": "la19_eval",
+   "acc_dev": 0.9998792464981484,
+   "t": 0.6753957103411004,
+   "predicted": 0.9965748136502098,
+   "true": 0.9955921782219914,
+   "error": 0.0009826354282184147,
+   "meets": true
+  },
+  "xlsr_aasist|itw": {
+   "model": "xlsr_aasist",
+   "target": "itw",
+   "acc_dev": 0.9998792464981484,
+   "t": 0.6753957103411004,
+   "predicted": 0.9355863935303188,
+   "true": 0.6849177129550962,
+   "error": 0.2506686805752226,
+   "meets": false
+  },
+  "xlsr_aasist|df21_verified": {
+   "model": "xlsr_aasist",
+   "target": "df21_verified",
+   "acc_dev": 0.9998792464981484,
+   "t": 0.6753957103411004,
+   "predicted": 0.9979319792407597,
+   "true": 0.9945972408827067,
+   "error": 0.00333473835805298,
+   "meets": true
+  },
+  "as5_aasist|la19_eval": {
+   "model": "as5_aasist",
+   "target": "la19_eval",
+   "acc_dev": 0.8479957431713373,
+   "t": 1.4150873259825483,
+   "predicted": 0.780858261858304,
+   "true": 0.5172452517652344,
+   "error": 0.2636130100930696,
+   "meets": false
+  },
+  "as5_aasist|itw": {
+   "model": "as5_aasist",
+   "target": "itw",
+   "acc_dev": 0.8479957431713373,
+   "t": 1.4150873259825483,
+   "predicted": 0.7953050756789074,
+   "true": 0.49601938386985117,
+   "error": 0.29928569180905623,
+   "meets": false
+  },
+  "as5_aasist|df21_verified": {
+   "model": "as5_aasist",
+   "target": "df21_verified",
+   "acc_dev": 0.8479957431713373,
+   "t": 1.4150873259825483,
+   "predicted": 0.6659356147422218,
+   "true": 0.6448931742142838,
+   "error": 0.021042440527938022,
+   "meets": true
+  },
+  "as5_aasist|as5_eval": {
+   "model": "as5_aasist",
+   "target": "as5_eval",
+   "acc_dev": 0.8479957431713373,
+   "t": 1.4150873259825483,
+   "predicted": 0.6280307414795512,
+   "true": 0.70832758007797,
+   "error": -0.08029683859841885,
+   "meets": false
+  },
+  "pascu_lr|la19_eval": {
+   "model": "pascu_lr",
+   "target": "la19_eval",
+   "acc_dev": 0.9996377394944453,
+   "t": 1.0413741368184108,
+   "predicted": 0.9943989780591547,
+   "true": 0.9658464000449205,
+   "error": 0.028552578014234165,
+   "meets": true
+  },
+  "pascu_lr|itw": {
+   "model": "pascu_lr",
+   "target": "itw",
+   "acc_dev": 0.9996377394944453,
+   "t": 1.0413741368184108,
+   "predicted": 0.9798294471191668,
+   "true": 0.8656345385317348,
+   "error": 0.11419490858743198,
+   "meets": false
+  },
+  "pascu_lr|df21_verified": {
+   "model": "pascu_lr",
+   "target": "df21_verified",
+   "acc_dev": 0.9996377394944453,
+   "t": 1.0413741368184108,
+   "predicted": 0.9977717186086743,
+   "true": 0.9902767898697717,
+   "error": 0.007494928738902562,
+   "meets": true
+  },
+  "xlsr_mamba|la19_eval": {
+   "model": "xlsr_mamba",
+   "target": "la19_eval",
+   "acc_dev": 0.9996779906617292,
+   "t": 0.8623584912632448,
+   "predicted": 0.9875626430085489,
+   "true": 0.9878995465839381,
+   "error": -0.00033690357538918025,
+   "meets": true
+  },
+  "xlsr_mamba|itw": {
+   "model": "xlsr_mamba",
+   "target": "itw",
+   "acc_dev": 0.9996779906617292,
+   "t": 0.8623584912632448,
+   "predicted": 0.8873155228295415,
+   "true": 0.7364297177381289,
+   "error": 0.15088580509141258,
+   "meets": false
+  },
+  "xlsr_mamba|df21_verified": {
+   "model": "xlsr_mamba",
+   "target": "df21_verified",
+   "acc_dev": 0.9996779906617292,
+   "t": 0.8623584912632448,
+   "predicted": 0.9936532398991895,
+   "true": 0.9936642166548117,
+   "error": -1.097675562222733e-05,
+   "meets": true
+  }
+ },
+ "summary": {
+  "cells": 25,
+  "meeting": 12,
+  "itw_cells": 8,
+  "itw_meeting": 0,
+  "usable": false
+ }
+}
