@@ -1,7 +1,7 @@
 """Tables for the analyses prompted by the round-1 review (DEVIATIONS.md, DEV-10, parts A-F: exploratory and post-review),
 generated from the committed outputs in results/review_r1/ (never edited by hand).
 
-    python analysis/review_r1/rv_paper_tables.py   # reads results/review_r1/{cv,dev,ladder,smalllabel,intervals,mofn}.json;
+    python analysis/review_r1/rv_paper_tables.py   # reads results/review_r1/{cv,dev,ladder,smalllabel,intervals,mofn,atc}.json;
                                                    # writes gen/rv_*.tex and gen/rvs_*.tex in the manuscript folder
 
 $RV_GEN overrides the output folder; R2_DIGITS=comma groups thousands with a comma instead of the LaTeX thin space that
@@ -17,6 +17,7 @@ rvs_mofn.tex        every cell: the m-out-of-n interval for m = round(G^(1/2)), 
 rvs_ladder.tex      every cell: FRR, FAR, threshold and TTG per policy, in two panels of four policies (P6.2)
 rvs_labelshift.tex  every cell: prior estimates against the true share, total error under five priors (P6.2)
 rvs_smalllabel.tex  every cell on ITW and LA19 eval: held-out TTG from k labelled clips per class (P6.2)
+rvs_atc.tex         every cell: accuracy at tau_eer predicted without target labels by ATC, against the true accuracy (P7.3; F3)
 Each file is a tabular body; captions and notes stay in the manuscript. A missing input stops the run (rvlib.read).
 """
 from __future__ import annotations
@@ -434,9 +435,33 @@ def t_smalllabel(sl):
     write("rvs_smalllabel", L)
 
 
+def t_atc(at):
+    """P7.3 (DEV-10 F3): every cell of atc.json. Accuracy is the share of target clips decided correctly at tau_eer."""
+    if at["meta"]["criterion"] != "|predicted - true| <= 0.05":
+        V.R.die("atc.json: the success criterion differs from the 5 pp the table states")
+    L = head("atc.json", "accuracy at tau_eer in %: on the source dev set, predicted on the target without its labels by ATC "
+             "(Garg et al. 2022; confidence = the margin |s - tau_eer|, threshold t in score units such that the share of dev "
+             "margins above t equals the dev accuracy) and true on the target; error = predicted - true in pp; the "
+             "pre-specified success criterion is an absolute error of at most 5 pp")
+    L += [r"\begin{tabular}{@{}ll" + "r" * 5 + r"l@{}}", r"\toprule"]
+    L += groups_head(2, [(None, 2), ("Target accuracy (\\%)", 2), (None, 2)])
+    L += [" & ".join(["Detector", "Target", two("Dev", "accuracy (\\%)"), r"\(t\)", "Predicted", "True", two("Error", "(pp)"),
+                      two("Within", "5 pp")]) + r" \\", r"\midrule"]
+    prev = None
+    for key, c in ordered(at["cells"]):
+        m, s, t = parse(key)
+        if prev is not None and m != prev:
+            L.append(r"\addlinespace")
+        prev = m
+        L.append(" & ".join([label(m, s), SURF[t], pct(c["acc_dev"]), dec(c["t"], 2), pct(c["predicted"]), pct(c["true"]),
+                             pct(c["error"]), "yes" if c["meets"] else "no"]) + r" \\")
+    L += [r"\bottomrule", r"\end{tabular}"]
+    write("rvs_atc", L)
+
+
 def main():
     cv, dev, lad = V.read("cv")["cells"], V.read("dev")["cells"], V.read("ladder")["cells"]
-    sl, it, mo = V.read("smalllabel"), V.read("intervals")["cells"], V.read("mofn")
+    sl, it, mo, at = V.read("smalllabel"), V.read("intervals")["cells"], V.read("mofn"), V.read("atc")
     for k, c in lad.items():                          # the files must describe the same TTG at the same threshold
         m, t = k.split("|")
         agree(f"static TTG of {k} in ladder.json and cv.json", c["policies"]["static"]["ttg"], cv[f"{m}|s0|{t}"]["ttg_in"])
@@ -449,6 +474,7 @@ def main():
     t_s_ladder(lad)
     t_labelshift(lad)
     t_smalllabel(sl)
+    t_atc(at)
 
 
 if __name__ == "__main__":
