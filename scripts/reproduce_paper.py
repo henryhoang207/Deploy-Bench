@@ -33,7 +33,9 @@ ROUND1 = REPO / "reproducibility" / "round1"
 # analysis status without changing any numeric input or generated result.
 TABLE_EDITS = {"tab_tests.tex": [(b"Clips (registered)", b"Clips (first run)"),
                                 (b"Speakers (this revision)", b"Speakers (exploratory)")],
-               "s_tab_ttg_spk.tex": [(b"clip CI (registered)", b"clip CI (original)")]}
+               "s_tab_ttg_spk.tex": [(b"clip CI (registered)", b"clip CI (original)")],
+               # the middle threshold columns name the primary threshold, which the analysis plan froze
+               "s_tab_interval.tex": [(b"registered", b"frozen")]}
 FIGURES = ("fig_frr_far.pdf", "figS_sensitivity.pdf", "figS_h5.pdf",
            "figS_speakers.pdf", "figS_cost.pdf", "figS_silence.pdf")
 
@@ -93,6 +95,7 @@ def regenerate(output):
     os.environ["DFV_FIGURES"] = str(figures)
     os.environ["R2_GEN"] = str(gen)
     os.environ["R2_DIGITS"] = "thin"   # the manuscript's round-2 tables group thousands with a thin space
+    os.environ["RV_GEN"] = str(gen)    # the tables of the analyses prompted by the journal review (DEV-10)
     sys.path.insert(0, str(REPO))
     sys.path.insert(0, str(ROUND1 / "analysis"))
     import revlib as R
@@ -116,6 +119,7 @@ def regenerate(output):
         path.write_bytes(data)
     sys.path.insert(0, str(REPO / "analysis" / "round2"))
     module("round2_paper_tables", REPO / "analysis" / "round2" / "r2_paper_tables.py").main()
+    module("review_paper_tables", REPO / "analysis" / "review_r1" / "rv_paper_tables.py").main()
     import figures_rev as F
     for generate in (F.fig_sensitivity, F.fig_frr_far, F.figS_h5,
                      F.figS_speakers, F.figS_cost, F.figS_silence):
