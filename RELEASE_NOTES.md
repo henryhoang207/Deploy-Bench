@@ -1,11 +1,11 @@
 # Reproducibility release
 
 This release provides the versioned reproducibility package for the manuscript
-"Thresholded Once, Deployed Elsewhere: A Two-Round Pre-Registered Audit of
+"Thresholded Once, Deployed Elsewhere: A Two-Round Audit of
 Threshold Transfer in Speech Deepfake Detection."
 
 It includes the utterance-level score files, frozen thresholds, evaluation
-manifests, historical registration snapshots, deviation log, analysis and
+manifests, frozen analysis-plan snapshots, deviation log, analysis and
 table/figure generation code, supporting metadata, and author-trained round-two
 checkpoints. The round-one supporting analysis files are bundled so the paper
 can be reproduced from a fresh checkout without the authors' OneDrive tree.

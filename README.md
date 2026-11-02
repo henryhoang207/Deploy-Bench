@@ -1,7 +1,7 @@
 # DeployBench
 
 Reproducibility package for **Thresholded Once, Deployed Elsewhere: A Two-Round
-Pre-Registered Audit of Threshold Transfer in Speech Deepfake Detection**.
+Audit of Threshold Transfer in Speech Deepfake Detection**.
 
 Use the tagged release that the article cites when reproducing or citing it:
 download that release archive, or clone this repository and check out its tag.
@@ -20,9 +20,9 @@ python scripts/reproduce_paper.py --verify --out reproduced
 python -m pytest tests/ -q
 ```
 
-The reproduction command checks the bundled inputs and registration snapshots
+The reproduction command checks the bundled inputs and analysis-plan snapshots
 against their recorded hashes, recomputes the round-one estimator gate from the
-utterance scores, and regenerates the paper's 40 tables and six figures into
+utterance scores, and regenerates the paper's 50 tables and six figures into
 `reproduced/`, where they can be compared with the published article. It does
 not need access to OneDrive, the authors' server, source audio, or upstream
 checkpoints. The manuscript sources are not part of this package.
@@ -39,16 +39,16 @@ runtimes are absent; the score-based reproduction does not require them.
 | `results/phase_1_reproduction/` | Released-detector reproduction scores and frozen development thresholds |
 | `results/phase_2_conversion_app/` | Round-one target scores and related artifacts; conversion results also support a separate deployment study |
 | `results/phase_3_stress/` | Round-one channel results and manifests |
-| `results/round2/` | Round-two scores, frozen thresholds, registered and exploratory results, logs, and author-trained checkpoints |
-| `PREREGISTRATION.md`, `PREREGISTRATION_ROUND2.md`, `DEVIATIONS.md` | Registration documents and the subsequent deviation record |
+| `results/round2/` | Round-two scores, frozen thresholds, pre-specified and exploratory results, logs, and author-trained checkpoints |
+| `PREREGISTRATION.md`, `PREREGISTRATION_ROUND2.md`, `DEVIATIONS.md` | The two analysis plans and the deviation record |
 | `analysis/`, `scripts/`, `deploybench/`, `models/`, `train/` | Analysis, reproduction, scoring, model adapters, and training code |
 | `configs/`, `tests/` | Experiment configurations, protocols, and verification tests |
 | `convert/`, `android/` | Conversion tooling and Android harness for the separate deployment study |
 
-The historical registrations remain at **roster-freeze** (`97e9753`) and
+The two analysis plans remain frozen at **roster-freeze** (`97e9753`) and
 **round2-freeze** (`73f2721`). Their original Git history is preserved. Publishing
 this package does not supply an independent pre-experiment timestamp for those
-author-held registrations.
+author-held plans.
 
 The article reports desktop score analyses. The repository also contains
 deployment tooling and conversion artifacts for a separate study; these are not
@@ -82,7 +82,7 @@ input policies are guarded by the wrapper contract tests.
 
 The round-one roster is AASIST, AASIST-L, RawNet2, Res-TSSDNet, and XLS-R+AASIST
 (the unranked server reference). Round two adds ASVspoof 5 AASIST, Pascu LR,
-XLSR-Mamba, and the registered AASIST-L retraining runs. Additional model adapters
+XLSR-Mamba, and the pre-specified AASIST-L retraining runs. Additional model adapters
 are retained for the harness but are not part of the article's studied roster.
 
 [MODEL_CARDS.md](MODEL_CARDS.md) records the exact input and score policies,
