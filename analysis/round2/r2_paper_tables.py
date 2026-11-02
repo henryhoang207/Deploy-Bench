@@ -416,7 +416,7 @@ def t_s_last(e23):
             ("itw|eer", "far", 1), ("itw|eer", "ttg", 2))
     L += [r"\begin{tabular}{@{}llrrrrrrr@{}}", r"\toprule",
           r"Weights & Seed & Dev EER & LA19 EER & LA19 TTG & ITW EER & ITW FRR & ITW FAR & ITW TTG \\", r"\midrule"]
-    groups = (("aasist_l_r2", "Untrimmed, SWA (registered)"), ("aasist_l_r2_last", "Untrimmed, last epoch (E3)"),
+    groups = (("aasist_l_r2", "Untrimmed, SWA (pre-specified)"), ("aasist_l_r2_last", "Untrimmed, last epoch (E3)"),
               ("aasist_l_trim", "Trimmed, last epoch"))
     for gi, (arm, name) in enumerate(groups):
         if gi:
