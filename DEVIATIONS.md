@@ -586,3 +586,60 @@ thresholds, including the mixture rule's failure on LA19 eval and DF21).
 **Reporting rules, fixed now.** The registered outcomes stand as reported, R2-H2 included. Every quantity in A-F is
 labelled exploratory and post-review, with effect sizes and intervals, and is reported beside the registered result it
 concerns. Where A2 or F1 and the registered R2-H2 differ, the text says so; the registered outcome is not re-adjudicated.
+
+## DEV-11 (2026-11-08): checks prompted by a verification report on the manuscript; A was computed before this entry, B and C are specified before they run
+
+**Status:** post-hoc, **exploratory**. Part A **was computed before it was logged**, on 2026-11-08, when the report's
+figure was checked. Parts B and C are specified here before any of them runs. Nothing here changes a registered test,
+threshold, support rule or reading rule; every result is reported beside the registered ones and never instead of them.
+
+**What happened.** An internal verification report on the manuscript (received 2026-11-08) asked for (i) an exact
+permutation test of the last-epoch contrast in E3, (ii) the labelled audit of DEV-10 D on verified DF21, and (iii) two
+details of the resampling and of the three-zone rule.
+
+**What had been seen:** every registered result (round 1, DEV-8, round 2), every result of DEV-10, and the report. For
+part A: its result, stated below. For part B: the DF21 cells of DEV-10 C, including the static TTG, the oracle and the
+leave-one-speaker-out threshold, so B's outcome can be anticipated for the detectors that have a gap on DF21; and the
+class and speaker counts of the DF21 halves (12,067 bona fide and 443,441 spoof clips; 93 speakers, 62 of them with
+spoof clips; every halving leaves at least 5,078 bona fide and 97,957 spoof clips in the labelled half). No quantity of
+the DF21 audit has been computed.
+
+**Inputs.** The committed score files, frozen thresholds and result files, read through `analysis/round2/r2lib.py`; no
+new score, model or threshold. Label 1 = bona fide; spoof if score < tau.
+
+**A. Last-epoch contrast (`analysis/review_r1/run_lastepoch.py`; computed before this entry).** The exact one-sided
+permutation test of R2-H3 (252 splits of ten runs, the function and direction of `r2_registered.py`), applied to the
+last-epoch weights of seeds 1-5 in each arm (`E2_E3` in `results/round2/analysis/r2_explore.json`,
+`aasist_l_trim_last` against `aasist_l_r2_last`). Tests: lower ITW FRR at tau_EER and lower ITW EER in the trimmed arm,
+with Holm over the two, as in R2-H3's family. Result, already seen: ITW FRR -6.63 pp, p = 12/252 = 0.048; ITW EER
++3.13 pp, p = 0.98. The smaller p is above Holm's first step (0.025), so neither test rejects after correction.
+**Reporting rule, fixed now:** the text gives both exact p values and says that the FRR difference does not survive the
+correction that the pre-specified contrast used.
+
+**B. The labelled audit on verified DF21 (`run_smalllabel.py`).** DEV-10 D unchanged, on one more surface: every
+detector, 200 random halvings of the speakers, k = 50, 200 or 1,000 labelled clips per class from one half, the
+HTER-minimising threshold scored on the other half against that half's own oracle, beside the static tau_EER on the same
+half; `default_rng(0)`, restarted for every detector and target. The 16 committed ITW and LA19-eval cells must be
+unchanged, or the run is discarded. **Reading rule, fixed now:** for each of the four strong detectors of the paper's
+table (the XLS-R reference, XLSR-Mamba, AS5 AASIST, Pascu LR), a cell whose median static held-out TTG is below 1 pp has
+no gap to recover and is reported as such. In any other cell, the audit recovers most of the gap if its median held-out
+TTG at k = 50 is at most half the median static held-out TTG. The article's sentences on the labelled audit name DF21
+only for the detectors that meet this rule, and otherwise are limited to ITW and LA19 eval.
+
+**C. Two descriptive details (printed in `results/review_r1/rv_checks.txt`).**
+- The expected share of distinct speakers in a cluster-bootstrap replicate, 1 - (1 - 1/G)^G, for LA19 eval (G = 67).
+- For every detector, whether either edge of the three-zone band was clamped to [0, 1]: q - 0.05 < 0 or q + 0.05 > 1,
+  where q is the share of pooled dev scores below tau_EER.
+
+**Not done, by decision.**
+- The model-by-preprocessing rescoring of the two trimming arms, which needs new GPU scoring. The article states this
+  as a limitation.
+- Budgets placed around the ASVspoof 5 baseline's 15.2% development EER.
+- EnCodec scoring of the XLS-R reference.
+
+**Not new analyses.** FAR at the ends of the dev-equivalent interval is already committed (`E1_E8_E10`, `tie`, in
+`r2_explore.json`), as are the rows and components added to the article's tables from `dev.json`, `cv.json` and
+round 1's H5 results.
+
+**Reporting rules, fixed now.** The registered outcomes stand as reported. Every quantity in A-C is labelled exploratory
+and post-review.
