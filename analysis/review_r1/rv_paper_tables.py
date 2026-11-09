@@ -16,7 +16,7 @@ rvs_intervals.tex   every cell: percentile, BCa and m-out-of-n intervals (P5.2)
 rvs_mofn.tex        every cell: the m-out-of-n interval for m = round(G^(1/2)), round(G^(2/3)) and round(G/2) (P5.3; F2)
 rvs_ladder.tex      every cell: FRR, FAR, threshold and TTG per policy, in two panels of four policies (P6.2)
 rvs_labelshift.tex  every cell: prior estimates against the true share, total error under five priors (P6.2)
-rvs_smalllabel.tex  every cell on ITW and LA19 eval: held-out TTG from k labelled clips per class (P6.2)
+rvs_smalllabel.tex  every cell: held-out TTG from k labelled clips per class (P6.2); ITW and LA19 eval from DEV-10 D, DF21 ver. added by DEV-11 B
 rvs_atc.tex         every cell: accuracy at tau_eer predicted without target labels by ATC, against the true accuracy (P7.3; F3)
 Each file is a tabular body; captions and notes stay in the manuscript. A missing input stops the run (rvlib.read).
 """
@@ -73,8 +73,8 @@ def span(lo, hi, d=2):
 
 
 def grouped(n):
-    """A count with its thousands separated by SEP."""
-    return f"{n:,}".replace(",", SEP)
+    """A count with its thousands separated by SEP from five digits up; a four-digit count has no separator (decision 10)."""
+    return f"{n:,}".replace(",", SEP) if n >= 10000 else str(n)
 
 
 def minus(line):
@@ -149,7 +149,8 @@ TAU_E = r"\(\tauE\)"                            # the manuscript's macro (main.t
 # --------------------------------------------------------------------------------------------------- main text
 ROBUST = (("itw", (("xlsr_aasist", 0), ("xlsr_mamba", 0), ("as5_aasist", 0), ("pascu_lr", 0))),
           ("df21_verified", (("xlsr_aasist", 0),)),
-          ("la19_eval", (("aasist", 0), ("aasist_l", 0), ("aasist_l_r2", 1), ("aasist_l_r2", 5))))
+          ("la19_eval", (("aasist", 0), ("aasist_l", 0), ("aasist_l_r2", 1), ("aasist_l_r2", 2), ("aasist_l_r2", 3),
+                         ("aasist_l_r2", 4), ("aasist_l_r2", 5))))
 
 
 def t_robust(cv, dev):
@@ -158,8 +159,8 @@ def t_robust(cv, dev):
              "TTG in pp; Oracle: TTG at the frozen tau_eer against three oracles, in-sample (as the paper's TTG), leave-one-speaker-out "
              "(LOSO) and the mean [range] of 20 speaker 5-fold assignments (cv.json); other dev-only thresholds, always against "
              "the in-sample oracle (dev.json): min--max over the thresholds tied with tau_eer on dev, 95% interval over 1000 "
-             "class-stratified dev resamples, KDE at Silverman bandwidth x1, isotonic (PAV), logistic (E9); * = estimate outside "
-             "the dev-equivalent interval; rows grouped by target; the AASIST-L runs are the round-2 seeds of R2-H2")
+             "class-stratified dev resamples, KDE at Silverman bandwidth x1, isotonic (PAV), logistic (E9); rows grouped by "
+             "target; the AASIST-L runs are the round-2 seeds of R2-H2")
     L += [r"\begin{tabular}{@{}lrrrrrrrr@{}}", r"\toprule"]
     L += groups_head(1, [("Oracle", 3), ("Other dev-only thresholds", 5)])
     L += [" & ".join(["Detector", "In-sample", "LOSO", two("Speaker 5-fold", "mean [range]"), two("Tied", "min--max"),
@@ -176,7 +177,10 @@ def t_robust(cv, dev):
             sm, q = d["smooth"], d["devboot_ttg_q"]
 
             def est(e):
-                return pct(e["ttg"], 2) + ("" if e["in_tie"] else STAR)
+                if not e["in_tie"]:        # the note of Table 8 does not define the star; t_estimators still does
+                    V.R.die(f"{k}: a dev-only estimate lies outside the dev-equivalent interval, so rv_robust would need "
+                            "its star and the note's definition of it back")
+                return pct(e["ttg"], 2)
             L.append(" & ".join([label(m, s), pct(c["ttg_in"], 2), pct(c["ttg_loso"], 2),
                                  f"{pct(c['ttg_spk5_mean'], 2)} {iv(*c['ttg_spk5_range'])}",
                                  span(d["ttg_tie_min"], d["ttg_tie_max"]), iv(q[0], q[2]),
@@ -200,8 +204,8 @@ def t_ladder(lad, sl):
              "threshold of the dev-calibrated scores (E9); z-norm, rate-match, EM-quantile and GMM-2 use the unlabelled target "
              "scores; LOSO = threshold from the labelled other speakers; Static (held-out), k = 50 and k = 200 = median over 200 "
              "speaker halvings of the TTG on the held-out half, with k labelled clips per class from the other half, against "
-             "that half's own oracle (smalllabel.json covers ITW and LA19 eval only, so -- marks the DF21 cells); Oracle = HTER "
-             "of the in-sample oracle in %, its TTG being 0 by definition")
+             "that half's own oracle (smalllabel.json: ITW and LA19 eval from DEV-10 D, DF21 ver. added by DEV-11 B; -- marks "
+             "a cell it lacks); Oracle = HTER of the in-sample oracle in %, its TTG being 0 by definition")
     if [int(k) for k in sl["meta"]["k_per_class"][:2]] != [int(k) for k in LADDER_K] or sl["meta"]["quantiles"] != [5, 50, 95]:
         V.R.die("smalllabel.json: k_per_class or quantiles differ from what the ladder table reads")
     L += [r"\begin{tabular}{@{}l" + "r" * (len(LADDER) + len(LADDER_K) + 2) + r"@{}}", r"\toprule"]
@@ -216,7 +220,7 @@ def t_ladder(lad, sl):
         for m in STRONG:
             c = lad[f"{m}|{t}"]
             p = c["policies"]
-            s = sl["cells"].get(f"{m}|{t}")        # None for DF21 ver.
+            s = sl["cells"].get(f"{m}|{t}")        # None only for a cell smalllabel.json lacks (DF21 ver. before DEV-11 B)
             cells = [pct(p[k]["ttg"], 2) for k, _ in LADDER]
             cells += ["--"] * (1 + len(LADDER_K)) if s is None else [pct(s["static"][1], 2)] + [pct(s[k][1], 2) for k in LADDER_K]
             L.append(" & ".join([label(m)] + cells + [pct(c["oracle_hter"])]) + r" \\")

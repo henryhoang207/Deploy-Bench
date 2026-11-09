@@ -1,20 +1,32 @@
-"""Print every number of the review analyses (DEV-10) in the form the paper quotes, for the claim audit:
+"""Print every number of the review analyses (DEV-10 and DEV-11) in the form the paper quotes, for the claim audit:
 
     python analysis/review_r1/rv_checks.py   # results/review_r1/*.json -> results/review_r1/rv_checks.txt
 
 TTG and its intervals in percentage points with two decimals; HTER, FRR, FAR, total error rates and accuracies in percent
-with one decimal; class shares with three decimals; p values with four. Reads only the JSON files that the run_*.py
-scripts write.
+with one decimal; class shares with three decimals; p values with four (Check 6: the exact p as count/splits = value, with
+three decimals). Checks 1-5 and the small-label audit read only the JSON files that the run_*.py scripts write. DEV-11
+adds two parts: Check 6 (A, the last-epoch contrast; lastepoch.json) and Check 7 (C, two descriptive details), which also
+reads the committed round-2 result file r2_explore.json (E7, to confirm the three-zone edges) and the source-development
+scores of every detector, through the round-2 library; it refuses if a recomputed edge differs from the committed one.
 """
 from __future__ import annotations
 
-from rvlib import NAMES, OUT, R, read
+import json
+
+import numpy as np
+
+from rvlib import NAMES, OUT, R, read, source_dev
+from r2_explore import three_zone_edges      # noqa: E402  (the function E7 uses; imported, not re-implemented)
 
 SURF = {"la19_eval": "LA19 eval", "itw": "ITW", "df21_verified": "DF21 ver.", "mlaad5": "MLAAD-5", "as5_eval": "AS5 eval"}
+DEV_SURF = {"la19_dev": "LA19 dev", "as5_dev": "AS5 dev"}
 POLICIES = (("static", "static"), ("logistic", "logistic"), ("znorm", "z-norm"), ("ratematch", "rate-match"),
             ("emquant", "EM-quantile"), ("gmm2", "GMM-2"), ("loso", "LOSO"))
 TER = (("static", "static"), ("bayes_pi0.5", "equal-prior Bayes"), ("bayes_em", "EM Bayes"),
        ("bayes_bbse", "BBSE Bayes"), ("bayes_trueprior", "true-prior Bayes"), ("oracle", "TER-optimal"))
+EXPLORE = R.R2 / "analysis" / "r2_explore.json"      # E7 lives here (Check 7)
+BAND = 0.10                                          # E7's primary review band: 10% of the pooled dev scores
+EDGE_TOL = 1e-9
 LINES = []
 
 
@@ -261,10 +273,108 @@ def check5():
     say()
 
 
-def main():
-    say("Analyses prompted by the round-1 review (DEVIATIONS.md, DEV-10). Exploratory, not registered.")
+def check6():
+    """DEV-11 A: the last-epoch contrast of R2-H3 (lastepoch.json, written by run_lastepoch.py)."""
+    le = read("lastepoch")
+    meta, cells = le["meta"], le["cells"]
+    arms = meta["arms"]
+    tests, n_splits = cells["tests"], {t["n_splits"] for t in cells["tests"].values()}
+    say("== Check 6. Last-epoch contrast of R2-H3 (DEV-11 A; exploratory; lastepoch.json)")
+    say(f"Exact one-sided permutation test ({', '.join(str(n) for n in sorted(n_splits))} splits of ten runs) on the "
+        f"last-epoch weights of seeds {meta['seeds'][0]} to {meta['seeds'][-1]} in each arm (the pipeline-check run, seed "
+        f"{meta['excluded_runs']['aasist_l_r2_last'][0]}, is excluded); Holm at {meta['holm_alpha']} over the two tests. ITW "
+        "FRR at tau_EER and ITW EER in percent with two decimals; differences are trimmed minus untrimmed, in pp. "
+        "Columns: arm | run | ITW FRR | ITW EER")
+    for role in ("trimmed", "untrimmed"):
+        model = arms[role]
+        for k, q in cells["runs"][model].items():
+            say(f"{model} ({role}) | seed {k} | {pp(q['itw_frr'])} | {pp(q['itw_eer'])}")
+        mean = cells["means"][model]
+        say(f"{model} ({role}) | mean | {pp(mean['itw_frr'])} | {pp(mean['itw_eer'])}")
+    say("Tests. Columns: hypothesis | trimmed minus untrimmed | one-sided p (count over the splits) | Holm")
+    for name, t in tests.items():
+        say(f"{t['hypothesis']} | {t['diff_pp_trimmed_minus_untrimmed']:+.2f} pp | "
+            f"p = {t['count']}/{t['n_splits']} = {t['p']:.3f} | {'rejects' if t['holm_reject'] else 'does not reject'}")
+    rejected = [t["hypothesis"] for t in tests.values() if t["holm_reject"]]
+    smallest = min(tests.values(), key=lambda t: t["p"])
+    sc, cc = meta["self_check"], meta["cross_check"]
+    say("summary:")
+    say(f"  Holm at {meta['holm_alpha']} over the two tests: {len(rejected)}/{len(tests)} rejections"
+        + (f" ({', '.join(rejected)})" if rejected else " (neither test rejects)")
+        + f"; the smaller p, {smallest['count']}/{smallest['n_splits']} = {smallest['p']:.3f}, against the first step "
+        f"{meta['holm_alpha'] / len(tests):.3f}")
+    say(f"  self-check, the pre-specified weights ({sc['arms']['trimmed']} against {sc['arms']['untrimmed']}) through "
+        f"the same code reproduce R2-H3 of r2_registered.json (differences within {sc['tolerance']:.0e}; p, splits and "
+        f"Holm decisions equal): {'passed' if sc['passed'] else 'FAILED'}")
+    say(f"  cross-check, every last-epoch run's ITW FRR and EER equals E2_E3 of r2_explore.json within "
+        f"{cc['tolerance']:.0e} ({cc['values_checked']} values): {'passed' if cc['passed'] else 'FAILED'}")
     say()
-    for part in (check1, check1b, check1c, check2, check3, smalllabel, check4, check4b, check5):
+
+
+def distinct_share(G):
+    """Expected share of distinct clusters in a cluster-bootstrap replicate that draws G clusters with replacement from
+    G: 1 - (1 - 1/G)^G (not the limit 1 - 1/e)."""
+    return 1.0 - (1.0 - 1.0 / G) ** G
+
+
+def zone_clamp(pooled_scores, tau, budget=BAND):
+    """E7's three-zone band at `budget`: q = the share of the pooled scores below tau (as three_zone_edges computes it),
+    the two quantile levels q -/+ budget / 2, and whether either lies outside [0, 1], where three_zone_edges clamps it.
+    Also the edges, from three_zone_edges itself."""
+    s = np.asarray(pooled_scores, float)
+    q = float(np.mean(s < tau))
+    lo_q, hi_q = q - budget / 2, q + budget / 2
+    return {"q": q, "lo_q": lo_q, "hi_q": hi_q, "clamped_low": bool(lo_q < 0), "clamped_high": bool(hi_q > 1),
+            "edges": three_zone_edges(s, tau, budget)}
+
+
+def check7():
+    """DEV-11 C: the share of distinct speakers in a cluster-bootstrap replicate of LA19 eval, and whether any detector's
+    three-zone band was clamped at its source-development scores."""
+    cv = read("cv")["cells"]
+    G_all = sorted({c["G"] for c in cv.values() if c["target"] == "la19_eval"})
+    if len(G_all) != 1:
+        R.die(f"cv.json: the la19_eval cells do not share one speaker count: {G_all}")
+    G = G_all[0]
+    share = distinct_share(G)
+    say("== Check 7. Two descriptive details of the resampling and the three-zone rule (DEV-11 C; exploratory)")
+    say(f"Speaker-cluster bootstrap of LA19 eval: G = {G} speakers (cv.json, every la19_eval cell). A replicate draws G "
+        f"speakers with replacement, so the expected share of distinct speakers is 1 - (1 - 1/G)^G = {share:.4f} "
+        f"({100 * share:.2f}%), and the expected number of distinct speakers is {G * share:.1f} of {G} ({G * share:.2f}).")
+    if not EXPLORE.is_file():
+        R.die(f"{EXPLORE} is missing")
+    e7 = json.loads(EXPLORE.read_text(encoding="utf-8"))["E7"]
+    say(f"Three-zone band (E7, budget {BAND:.2f}): the edges are the quantiles q - {BAND / 2:.2f} and q + {BAND / 2:.2f} of "
+        "the pooled source-development scores, where q is the share of those scores below tau_EER, clamped to [0, 1]. "
+        "Columns: detector | source dev | q | q - 0.05 | q + 0.05 | edge clamped | edges equal E7 (r2_explore.json, "
+        "<detector>|itw, 0.1, edges_dev)")
+    clamped = []
+    for m in list(R.DETECTORS_R2) + list(R.ROUND1):
+        dev = source_dev(m)
+        _, _, sd = R.load(m, dev)
+        tau = R.taus(m)["eer"]
+        z = zone_clamp(sd, tau)
+        key = f"{m}|itw"
+        if key not in e7 or "0.1" not in e7[key] or len(e7[key]["0.1"]["edges_dev"]) != 2:
+            R.die(f"r2_explore.json has no E7 / {key} / 0.1 / edges_dev")
+        edges = e7[key]["0.1"]["edges_dev"]
+        if not all(abs(a - b) <= EDGE_TOL for a, b in zip(z["edges"], edges)):
+            R.die(f"E7 edges of {m} in r2_explore.json ({edges!r}) differ from three_zone_edges on its {dev} scores "
+                  f"({list(z['edges'])!r})")
+        which = [w for w, hit in (("q - 0.05 < 0", z["clamped_low"]), ("q + 0.05 > 1", z["clamped_high"])) if hit]
+        if which:
+            clamped.append(f"{NAMES[m]} ({' and '.join(which)})")
+        say(f"{NAMES[m]} | {DEV_SURF[dev]} | {z['q']:.3f} | {z['lo_q']:.3f} | {z['hi_q']:.3f} | "
+            f"{' and '.join(which) if which else 'no'} | yes")
+    say("summary:")
+    say(f"  detectors with a clamped edge (q - 0.05 < 0 or q + 0.05 > 1): {', '.join(clamped) or 'none'}")
+    say()
+
+
+def main():
+    say("Analyses prompted by the round-1 review (DEVIATIONS.md, DEV-10 and DEV-11). Exploratory, not registered.")
+    say()
+    for part in (check1, check1b, check1c, check2, check3, smalllabel, check4, check4b, check5, check6, check7):
         part()
     (OUT / "rv_checks.txt").write_text("\n".join(LINES), encoding="utf-8")
     print(f"wrote {(OUT / 'rv_checks.txt').relative_to(R.REPO)} ({len(LINES)} lines)")
