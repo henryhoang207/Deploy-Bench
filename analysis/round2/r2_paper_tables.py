@@ -2,14 +2,17 @@
 outputs (never edited by hand):
 
     python analysis/round2/r2_paper_tables.py      # reads results/round2/{gates.json, analysis/r2_registered.json,
-                                                   #   analysis/r2_explore.json}; writes gen/r2_*.tex in the manuscript folder
+                                                   #   analysis/r2_explore.json}, results/analysis/h5_test.json (the round-1 EnCodec cells of r2_channels) and
+#   reproducibility/round1/results/b_thresholds.json (the round-1 rows of r2s_tie); writes gen/r2_*.tex in the
+#   manuscript folder
 #   ($R2_GEN overrides the output folder; R2_DIGITS=comma groups thousands with a comma instead of the LaTeX
 #   thin space that Springer Nature tables use)
 r2_gates.tex        the three gates
 r2_operating.tex    round-2 detectors at tau_eer on every target (E1)
 r2_tests.tex        R2-H1 to R2-H4 and the reading rule
 r2_seeds.tex        the eleven AASIST-L runs and the released checkpoint (E2, E3)
-r2_channels.tex     channel effects at tau_eer, dFRR/dFAR in pp (E4; round-1 rows are R2-H4's point estimates)
+r2_channels.tex     channel effects at tau_eer, dFRR/dFAR in pp (E4; round-1 rows are R2-H4's point estimates, their EnCodec
+                    cells H5's, from results/analysis/h5_test.json)
 r2_mlaad.tex        MLAAD-5 by language at tau_eer (E5)
 r2_as5.tex          ASVspoof 5 eval by codec condition (E6)
 r2_threezone.tex    three-zone review on ITW at the 10% dev budget (E7); r2s_threezone.tex: every target
@@ -20,6 +23,8 @@ r2s_last.tex        untrimmed SWA vs last-epoch weights vs the trimmed arm, per 
 r2s_channels.tex    channel effects for every training run (E4)
 r2s_budgets.tex     three-zone review on ITW at the 5/10/20% budgets: dev-designed, target oracle, label-free (E7)
 r2s_calibration.tex actual / minimum normalised cost at logit priors -2, 0, +2 (E9)
+r2s_tie.tex         FRR and FAR at both ends of the dev-equivalent interval: round-2 detectors on every target (E1_E8_E10, tie),
+                    round-1 models on ITW and DF21 (b_thresholds.json, the values of Additional file 1, Table S4)
 A table whose input is missing is not written (the manuscript then shows a red placeholder).
 """
 from __future__ import annotations
@@ -56,8 +61,8 @@ def pct(x, d=1):
 
 
 def grouped(n):
-    """A count with its thousands separated by SEP."""
-    return f"{n:,}".replace(",", SEP)
+    """A count with its thousands separated by SEP from five digits up; a four-digit count has no separator (decision 10)."""
+    return f"{n:,}".replace(",", SEP) if n >= 10000 else str(n)
 
 
 def minus(line):
@@ -117,7 +122,9 @@ def t_operating(e1):
 def t_tests(r):
     L = head("analysis/r2_registered.json", "R2-H1: FRR-FAR at tau_frr1 / FAR-FRR at tau_far5 on ITW (pp); R2-H2: LA19-eval "
              "TTG at tau_eer per seed (pp); R2-H3: trimmed minus untrimmed run means (pp), exact permutation p over 252 "
-             "splits; R2-H4: models rejecting per condition; * = Holm rejection (B = 10000 speaker-cluster bootstrap)")
+             "splits; R2-H4: models rejecting per condition; R2-RL: category, and for a transfer-limited detector whose "
+             "transfer share is below 0.5 the ITW FRR span over the dev-equivalent interval; * = Holm rejection (B = 10000 "
+             "speaker-cluster bootstrap)")
     L += [r"\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.17\textwidth}>{\raggedright\arraybackslash}p{0.60\textwidth}"
           r">{\raggedright\arraybackslash}p{0.17\textwidth}@{}}", r"\toprule",
           r"Hypothesis & Per unit & Outcome \\", r"\midrule"]
@@ -149,7 +156,16 @@ def t_tests(r):
     per = ", ".join(f"{COND[c]} {v['n_rejected']}/4" for c, v in h4["conditions"].items())
     L.append(rf"R2-H4 channels & {per} & {h4['n_conditions_supported']}/8 conditions \\")
     rl = r["R2-RL"]
-    per = "; ".join(f"{NICE[m]}: {v['category']}" for m, v in rl.items())
+
+    def rl_cell(m, v):                         # a detector classed transfer-limited by the span alone says so
+        if v["category"] == "transfer-limited" and v["transfer_share"] < 0.5:
+            span = v["tie_itw_frr_span_pp"]
+            if span < 10:
+                raise SystemExit(f"REFUSED: R2-RL classes {m} transfer-limited with share {v['transfer_share']:.2f} and "
+                                 f"span {span:.1f} pp, which the rule does not allow")
+            return rf"{NICE[m]}: transfer-limited (span only, {span:.1f}\,pp)"
+        return f"{NICE[m]}: {v['category']}"
+    per = "; ".join(rl_cell(m, v) for m, v in rl.items())
     L.append(rf"R2-RL reading rule & {per} & -- \\")
     L += [r"\bottomrule", r"\end{tabular}"]
     write("r2_tests", L)
@@ -207,9 +223,26 @@ def t_seeds(e23, gates):
     write("r2_seeds", L)
 
 
-def t_channels(e4):
-    L = head("analysis/r2_explore.json (E4)", "dFRR/dFAR in pp at tau_eer against the clean copy of the 1,000-clip set; "
-             "arm rows: mean over seeds 1-5; round-1 rows equal R2-H4's point estimates; -- = not scored")
+H5_JSON = R.REPO / "results" / "analysis" / "h5_test.json"
+H5_MODELS = ("aasist", "aasist_l", "rawnet2", "tssdnet")     # the four primary round-1 models; XLS-R+AASIST has no EnCodec scores
+
+
+def load_h5():
+    """dFRR and dFAR (fractions) of the round-1 H5 condition, EnCodec 6 kbps, for the four primary round-1 models."""
+    if not H5_JSON.is_file():
+        raise SystemExit(f"REFUSED: {H5_JSON} is missing")
+    per = json.loads(H5_JSON.read_text(encoding="utf-8")).get("per_model", {})
+    miss = [m for m in H5_MODELS if m not in per or "dfrr" not in per[m] or "dfar" not in per[m]]
+    if miss:
+        raise SystemExit(f"REFUSED: {H5_JSON.name} has no dfrr and dfar for {miss}")
+    return {m: {"dfrr": per[m]["dfrr"], "dfar": per[m]["dfar"]} for m in H5_MODELS}
+
+
+def t_channels(e4, h5):
+    L = head("analysis/r2_explore.json (E4) and results/analysis/h5_test.json (per_model dfrr, dfar)",
+             "dFRR/dFAR in pp at tau_eer against the clean copy of the 1,000-clip set; arm rows: mean over seeds 1-5; "
+             "round-1 rows equal R2-H4's point estimates, and their EnCodec 6k cells are H5's (AASIST, AASIST-L, RawNet2 "
+             "and Res-TSSDNet); -- = not scored (XLS-R+AASIST on EnCodec 6k)")
     L += [r"\begin{tabular}{@{}l" + "r" * len(CONDS9) + r"@{}}", r"\toprule",
           "Model & " + " & ".join(COND[c] for c in CONDS9) + r" \\", r"\midrule"]
 
@@ -222,6 +255,11 @@ def t_channels(e4):
     for m in MODELS8:
         r = e4.get(f"{m}|s0")
         if r:
+            r = dict(r)
+            if m in h5:
+                if "encodec6k" in r:
+                    raise SystemExit(f"REFUSED: E4 holds an EnCodec cell for {m}; decide which source the table reads")
+                r["encodec6k"] = h5[m]
             L.append(NICE[m] + " & " + " & ".join(cell(r.get(c)) for c in CONDS9) + r" \\")
         if m == "xlsr_mamba":
             L.append(r"\addlinespace")
@@ -346,6 +384,9 @@ def t_card(e1, e7, e9, rl, taus, model="xlsr_mamba", surf="itw"):
     z = e7[f"{model}|{surf}"]["0.1"]
     cal = [r for r in e9[f"{model}|{surf}"]["rows"] if r[0] == 0.0][0]
     w = P["eer"]["window"]
+    tie = c["tie"]
+    if not (tie["tau"][0] < tie["tau"][1] and tie["frr"][0] <= tie["frr"][1] and tie["far"][0] >= tie["far"][1]):
+        raise SystemExit(f"REFUSED: {model}|{surf}: tie is not ordered lo to hi (FRR rising, FAR falling with the threshold)")
     L = head("analysis/r2_explore.json (E1_E8_E10, E7, E9), analysis/r2_registered.json (R2-RL), taus/" + model + "__s0.json",
              f"the reporting card filled in for {model} on {surf}; rates in % of the target class, TTG in pp")
     rows = [
@@ -356,8 +397,9 @@ def t_card(e1, e7, e9, rl, taus, model="xlsr_mamba", surf="itw"):
         ("HTER = oracle HTER + TTG", rf"{pct(P['eer']['hter'])} = {pct(P['eer']['hter_oracle'])} + {pct(P['eer']['ttg'], 2)} "
                                     rf"[{pct(P['eer']['ttg_ci95'][0], 2)}, {pct(P['eer']['ttg_ci95'][1], 2)}]; share "
                                     rf"{100 * P['eer']['transfer_share']:.0f}\%"),
-        ("FRR at the ends of the dev-equivalent interval", rf"{pct(min(c['tie']['frr']))}--{pct(max(c['tie']['frr']))} "
-                                                          rf"(span {rl['tie_itw_frr_span_pp']:.1f}\,pp)"),
+        ("FRR and FAR at the ends of the dev-equivalent interval",
+         rf"FRR {pct(min(tie['frr']))}--{pct(max(tie['frr']))} (span {rl['tie_itw_frr_span_pp']:.1f}\,pp); "
+         rf"FAR {pct(tie['far'][0])}--{pct(tie['far'][1])}"),
         (r"FRR / FAR at the budget policies", ", ".join(
             rf"{lab} {pct(P[k]['frr'])}/{pct(P[k]['far'])}" for k, lab in
             (("frr1", r"\(\tau^{*}_{\mathrm{FRR}1}\)"), ("frr5", r"\(\tau^{*}_{\mathrm{FRR}5}\)"),
@@ -378,6 +420,50 @@ def t_card(e1, e7, e9, rl, taus, model="xlsr_mamba", surf="itw"):
     L += [rf"{a} & {b} \\" for a, b in rows]
     L += [r"\bottomrule", r"\end{tabular}"]
     write("r2_card", L)
+
+
+B1_JSON = R.REPO / "reproducibility" / "round1" / "results" / "b_thresholds.json"      # the file Table S4 is generated from
+ROUND1_MODELS = ("aasist", "aasist_l", "rawnet2", "tssdnet", "xlsr_aasist")
+ROUND1_TARGETS = ("itw", "df21_verified")
+
+
+def t_s_tie(e1):
+    """FRR and FAR (%) at the two ends of the dev-equivalent interval of tau_eer, lower (lo) and upper (hi) threshold end.
+    Round 2: E1_E8_E10 / tie (fractions). Round 1: b_thresholds.json (percent), as printed in Table S4 at one decimal."""
+    if not B1_JSON.is_file():
+        raise SystemExit(f"REFUSED: {B1_JSON} is missing")
+    det = json.loads(B1_JSON.read_text(encoding="utf-8"))["deterministic"]
+    L = head("analysis/r2_explore.json (E1_E8_E10, tie) and reproducibility/round1/results/b_thresholds.json",
+             "FRR/FAR in % on each target at the lower (lo) and upper (hi) end of the interval of dev thresholds that tie with "
+             "tau_eer; thresholds in score units; the round-1 rows are the values of Table S4 (b_thresholds.json), round 2 "
+             "reads E1_E8_E10 / tie")
+    L += [r"\begin{tabular}{@{}llrrrr@{}}", r"\toprule",
+          r" & & \multicolumn{2}{c}{Threshold} & \multicolumn{2}{c}{FRR/FAR (\%)} \\",
+          r"\cmidrule(lr){3-4}\cmidrule(lr){5-6}", r"Model & Target & lo & hi & lo & hi \\", r"\midrule",
+          r"\multicolumn{6}{@{}l}{\emph{Round-2 detectors}} \\"]
+    for i, m in enumerate(R.DETECTORS_R2):
+        if i:
+            L.append(r"\addlinespace")
+        for s in SURF:
+            c = e1.get(f"{m}|{s}")
+            if not c:
+                continue
+            t = c["tie"]
+            if not (t["tau"][0] < t["tau"][1] and t["frr"][0] <= t["frr"][1] and t["far"][0] >= t["far"][1]):
+                raise SystemExit(f"REFUSED: {m}|{s}: tie is not ordered lo to hi (FRR rising, FAR falling with the threshold)")
+            L.append(rf"{NICE[m]} & {SURF[s]} & {t['tau'][0]:.2f} & {t['tau'][1]:.2f} & "
+                     rf"{pct(t['frr'][0])}/{pct(t['far'][0])} & {pct(t['frr'][1])}/{pct(t['far'][1])} \\")
+    L += [r"\addlinespace", r"\multicolumn{6}{@{}l}{\emph{Round-1 models}} \\"]
+    for i, m in enumerate(ROUND1_MODELS):
+        if i:
+            L.append(r"\addlinespace")
+        iv = det[m]["eer_equivalent_interval"]
+        for s in ROUND1_TARGETS:
+            lo, hi = det[m]["targets"][s]["tau_lo"], det[m]["targets"][s]["tau_hi"]       # percent already
+            L.append(rf"{NICE[m]} & {SURF[s]} & {iv['tau_lo']:.2f} & {iv['tau_hi']:.2f} & "
+                     rf"{lo['frr_pct']:.1f}/{lo['far_pct']:.1f} & {hi['frr_pct']:.1f}/{hi['far_pct']:.1f} \\")
+    L += [r"\bottomrule", r"\end{tabular}"]
+    write("r2s_tie", L)
 
 
 POL5 = (("eer", r"\(\tau^{*}_{\mathrm{EER}}\)"), ("frr1", r"\(\tau^{*}_{\mathrm{FRR}1}\)"), ("frr5", r"\(\tau^{*}_{\mathrm{FRR}5}\)"),
@@ -515,6 +601,7 @@ def main():
     if ex and "E1_E8_E10" in ex:
         t_operating(ex["E1_E8_E10"])
         t_s_policies(ex["E1_E8_E10"])
+        t_s_tie(ex["E1_E8_E10"])
     rg = load("analysis/r2_registered.json")
     if rg:
         t_tests(rg)
@@ -527,7 +614,7 @@ def main():
             t_seeds(ex["E2_E3"], g)
             t_s_last(ex["E2_E3"])
         if "E4" in ex:
-            t_channels(ex["E4"])
+            t_channels(ex["E4"], load_h5())
             t_s_channels(ex["E4"])
         if "E5" in ex:
             t_mlaad(ex["E5"])

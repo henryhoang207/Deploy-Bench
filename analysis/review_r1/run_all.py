@@ -1,10 +1,12 @@
-"""Run the analyses prompted by the round-1 review (DEVIATIONS.md, DEV-10) in order, then print their numbers:
+"""Run the analyses prompted by the round-1 review (DEVIATIONS.md, DEV-10 and DEV-11) in order, then print their numbers:
 
-    python analysis/review_r1/run_all.py     # -> results/review_r1/*.json and rv_checks.txt (about 50 min)
+    python analysis/review_r1/run_all.py     # -> results/review_r1/*.json and rv_checks.txt (about 50 min, plus DEV-11 B)
 
 Exploratory: none of them is a registered analysis. They read only committed score files and frozen thresholds. Each
 JSON output records its resampling sizes and RNG seeds under "meta". Part F (F1-F3) was specified in DEV-10 and
-deposited on OSF before it first ran.
+deposited on OSF before it first ran. DEV-11: part A (run_lastepoch.py) had been computed before DEV-11 was logged; part
+B (the labelled audit on verified DF21, in run_smalllabel.py) and part C (printed by rv_checks.py) were specified before
+they ran.
 """
 from __future__ import annotations
 
@@ -23,6 +25,7 @@ STEPS = ("run_cv.py",           # cv.json: in-sample vs cross-validated oracles
          "run_h2cv_folds.py",   # h2cv_folds.json: F1, the same over 10 fold assignments per run
          "run_mofn.py",         # mofn.json: F2, the m-out-of-n interval for three rules for m
          "run_atc.py",          # atc.json: F3, label-free accuracy estimation (reads ladder.json)
+         "run_lastepoch.py",    # lastepoch.json: DEV-11 A, exact permutation test of the last-epoch contrast of R2-H3
          "rv_checks.py")        # rv_checks.txt: every number in the form the paper quotes
 
 

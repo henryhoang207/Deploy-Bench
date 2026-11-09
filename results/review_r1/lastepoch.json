@@ -1,0 +1,140 @@
+{
+ "meta": {
+  "script": "analysis/review_r1/run_lastepoch.py",
+  "deviation": "DEV-11 A",
+  "status": "exploratory and post-hoc; the result had been computed before DEV-11 was logged",
+  "arms": {
+   "trimmed": "aasist_l_trim_last",
+   "untrimmed": "aasist_l_r2_last"
+  },
+  "seeds": [
+   1,
+   2,
+   3,
+   4,
+   5
+  ],
+  "excluded_runs": {
+   "aasist_l_r2_last": [
+    1234
+   ]
+  },
+  "excluded_reason": "the pipeline-check run (seed 1234) enters no test or mean",
+  "quantities": "r2_registered._run_quantities: ITW FRR at the run's frozen tau_EER, and ITW EER",
+  "family": [
+   "b_itw_frr_lower_when_trimmed",
+   "c_itw_eer_lower_when_trimmed"
+  ],
+  "holm_alpha": 0.05,
+  "test": "r2_registered.perm_greater(untrimmed, trimmed): exact one-sided permutation test of the difference in run means over all 252 splits of ten runs; p counts the observed split; no RNG",
+  "sign": "diff_pp_trimmed_minus_untrimmed = 100 x (mean trimmed - mean untrimmed); the diff_pp of r2_registered.json is untrimmed minus trimmed",
+  "self_check": {
+   "source": "results/round2/analysis/r2_registered.json",
+   "key": "R2-H3 / tests",
+   "arms": {
+    "trimmed": "aasist_l_trim",
+    "untrimmed": "aasist_l_r2"
+   },
+   "tolerance": 1e-09,
+   "tests": {
+    "b_itw_frr_lower_when_trimmed": {
+     "abs_diff_pp": 0.0,
+     "p_equal": true,
+     "n_splits_equal": true,
+     "holm_equal": true
+    },
+    "c_itw_eer_lower_when_trimmed": {
+     "abs_diff_pp": 0.0,
+     "p_equal": true,
+     "n_splits_equal": true,
+     "holm_equal": true
+    }
+   },
+   "passed": true
+  },
+  "cross_check": {
+   "source": "results/round2/analysis/r2_explore.json",
+   "key": "E2_E3 / <model> / <seed> / itw|eer / frr, eer",
+   "values_checked": 20,
+   "tolerance": 1e-09,
+   "max_abs_diff": 0.0,
+   "passed": true
+  }
+ },
+ "cells": {
+  "runs": {
+   "aasist_l_trim_last": {
+    "1": {
+     "itw_frr": 0.19866753493963832,
+     "itw_eer": 0.4414166207483845
+    },
+    "2": {
+     "itw_frr": 0.11040424785853829,
+     "itw_eer": 0.44532384912087364
+    },
+    "3": {
+     "itw_frr": 0.18674547913640235,
+     "itw_eer": 0.41359174001354093
+    },
+    "4": {
+     "itw_frr": 0.1364023443370235,
+     "itw_eer": 0.4292441015879377
+    },
+    "5": {
+     "itw_frr": 0.2057806942844262,
+     "itw_eer": 0.46098510494245093
+    }
+   },
+   "aasist_l_r2_last": {
+    "1": {
+     "itw_frr": 0.22115914441717177,
+     "itw_eer": 0.37736966824644547
+    },
+    "2": {
+     "itw_frr": 0.21630015528728147,
+     "itw_eer": 0.43009567700245455
+    },
+    "3": {
+     "itw_frr": 0.25432049291188696,
+     "itw_eer": 0.4262385413014076
+    },
+    "4": {
+     "itw_frr": 0.14847467815458598,
+     "itw_eer": 0.3913740419776587
+    },
+    "5": {
+     "itw_frr": 0.3293092220608125,
+     "itw_eer": 0.40890647698241755
+    }
+   }
+  },
+  "means": {
+   "aasist_l_trim_last": {
+    "itw_frr": 0.1676000601112057,
+    "itw_eer": 0.4381122832826376
+   },
+   "aasist_l_r2_last": {
+    "itw_frr": 0.23391273856634776,
+    "itw_eer": 0.40679688110207674
+   }
+  },
+  "tests": {
+   "b_itw_frr_lower_when_trimmed": {
+    "hypothesis": "ITW FRR at tau_EER lower when trimmed",
+    "diff_pp_trimmed_minus_untrimmed": -6.631267845514205,
+    "p": 0.047619047619047616,
+    "count": 12,
+    "n_splits": 252,
+    "holm_reject": false
+   },
+   "c_itw_eer_lower_when_trimmed": {
+    "hypothesis": "ITW EER lower when trimmed",
+    "diff_pp_trimmed_minus_untrimmed": 3.131540218056089,
+    "p": 0.9801587301587301,
+    "count": 247,
+    "n_splits": 252,
+    "holm_reject": false
+   }
+  }
+ }
+}

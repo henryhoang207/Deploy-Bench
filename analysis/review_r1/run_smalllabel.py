@@ -5,6 +5,10 @@
 For each of 200 random splits of the target's speakers into halves, draw k labelled clips per class from one half, set
 the threshold that minimises HTER on them, and score it on the other half against that half's own in-sample oracle; the
 static tau_EER is scored on the same held-out half for comparison.
+
+DEV-11 B runs the same audit on one more surface, verified DF21 (df21_verified), appended last in the surface loop so that
+ITW and LA19 eval keep their order; the RNG restarts for every detector and target, so the 16 committed ITW and LA19-eval
+cells must come out unchanged.
 """
 import time
 
@@ -19,7 +23,7 @@ META = {"script": "analysis/review_r1/run_smalllabel.py", "splits": SPLITS, "k_p
 t0 = time.time()
 CELLS = {}
 for m in ROUND1 + DETECTORS_R2:
-    for surf in ("itw", "la19_eval"):
+    for surf in ("itw", "la19_eval", "df21_verified"):
         ids, y, s = R.load(m, surf)
         tau_e = R.taus(m)["eer"]
         g, names = R.clusters(surf, ids)
