@@ -587,6 +587,12 @@ thresholds, including the mixture rule's failure on LA19 eval and DF21).
 labelled exploratory and post-review, with effect sizes and intervals, and is reported beside the registered result it
 concerns. Where A2 or F1 and the registered R2-H2 differ, the text says so; the registered outcome is not re-adjudicated.
 
+*Correction (2026-11-10):* the report described above as "a journal reviewer's report on the manuscript (received
+2026-10-31; rejection with potential for resubmission)" was an internal review of the manuscript before submission,
+written in the form of a journal review. The manuscript had not been submitted to any journal; the heading's "journal
+review" and "the reviewer's report" refer to that internal review. The OSF deposit of part F (registered 2026-11-01)
+repeats the original wording, and its files cannot be changed. Nothing else in this entry changes.
+
 ## DEV-11 (2026-11-08): checks prompted by a verification report on the manuscript; A was computed before this entry, B and C are specified before they run
 
 **Status:** post-hoc, **exploratory**. Part A **was computed before it was logged**, on 2026-11-08, when the report's
